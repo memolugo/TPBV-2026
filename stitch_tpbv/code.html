@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard de TPBV - Análisis Sociodemográfico</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Leaflet CSS for Map -->
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#e7e8e9",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191c1d",
+                        "tertiary-container": "#48534a",
+                        "on-secondary-container": "#5b646b",
+                        "secondary-fixed": "#dbe4ed",
+                        "tertiary-fixed": "#dae6da",
+                        "on-tertiary-container": "#bac6bb",
+                        "primary": "#154212",
+                        "secondary": "#575f67",
+                        "on-secondary-fixed": "#141d23",
+                        "on-primary-fixed-variant": "#23501e",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-tertiary-fixed-variant": "#3e4941",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "surface-variant": "#e1e3e4",
+                        "surface-container-low": "#f3f4f5",
+                        "primary-fixed-dim": "#a1d494",
+                        "on-primary-fixed": "#002201",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#bfc8d0",
+                        "on-secondary-fixed-variant": "#3f484f",
+                        "surface": "#f8f9fa",
+                        "primary-fixed": "#bcf0ae",
+                        "background": "#f8f9fa",
+                        "tertiary-fixed-dim": "#becabe",
+                        "surface-tint": "#3b6934",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#313c34",
+                        "outline-variant": "#c2c9bb",
+                        "on-surface-variant": "#42493e",
+                        "secondary-container": "#d8e1ea",
+                        "on-tertiary-fixed": "#141e17",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#9dd090",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#a1d494",
+                        "on-surface": "#191c1d",
+                        "outline": "#72796e",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dadb",
+                        "on-error": "#ffffff",
+                        "primary-container": "#2d5a27",
+                        "surface-bright": "#f8f9fa"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter-grid": "1.5rem",
+                        "margin-page": "2rem",
+                        "stack-sm": "0.5rem",
+                        "card-padding": "1.25rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "label-bold": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "data-display": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-xl": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "data-display": ["20px", { "lineHeight": "24px", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #E9ECEF; }
+        .data-row:last-child { border-bottom: none; }
+        .progress-bar-bg { background-color: #f3f4f5; height: 4px; border-radius: 9999px; width: 100%; margin-top: 4px; overflow: hidden; }
+        .progress-bar-fill { background-color: #154212; height: 100%; border-radius: 9999px; }
+        .card-shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex">
+<!-- Side Navigation (Web) -->
+<nav class="h-screen w-64 fixed left-0 top-0 hidden lg:flex flex-col border-r border-outline-variant bg-surface-container-low shadow-sm p-stack-md justify-between z-20">
+<div>
+<div class="mb-8">
+<h1 class="font-headline-md text-headline-md text-primary font-black">Morelos Digital</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Territorios de Paz</p>
+</div>
+<ul class="space-y-2">
+<li><a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined">dashboard</span>Inicio</a></li>
+<li><a class="flex items-center gap-3 p-3 bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>Análisis Demográfico</a></li>
+<li><a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined">map</span>Mapas Territoriales</a></li>
+<li><a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined">description</span>Reportes Institucionales</a></li>
+</ul>
+</div>
+<div>
+<ul class="space-y-2 mb-4">
+<li><a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined">settings</span>Configuración</a></li>
+<li><a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 focus:ring-2 focus:ring-primary font-body-md text-body-md" href="#"><span class="material-symbols-outlined">help</span>Ayuda</a></li>
+</ul>
+<button class="w-full py-2 px-4 border border-outline text-primary rounded-lg font-body-md text-body-md hover:bg-surface-container-high transition-colors focus:ring-2 focus:ring-primary flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">logout</span> Cerrar Sesión
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 flex flex-col min-h-screen max-w-[1440px] mx-auto w-full">
+<!-- Top App Bar (Mobile & Contextual Desktop) -->
+<header class="bg-surface docked full-width top-0 border-b border-outline-variant flat no shadows flex flex-col items-center w-full px-margin-page py-stack-md gap-stack-md max-w-full z-10 sticky">
+<div class="flex justify-between items-center w-full">
+<div class="flex items-center gap-4">
+<img class="h-12 w-auto object-contain" data-alt="Logotipo institucional del Gobierno del Estado de Morelos, diseño sobrio y moderno en tonos neutros." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVtnGXPTiCfFAuvayNq80G_6X3wGBInDOvLVCYJ6pVusRJFEjh65lm2FgFKPqJ1TeHXmeqJf_x2Y7eN1oTX0qIkwSjA6QJVk8GtUeJ5Rito04yXBVj1cZjl8INj8qdYDTU026wliC-6PjpCmlghmJrZunorKt5WtH-Q_svsakfyaw708aZ33cud6wNg38Fax2zALHolkB5ZRrrUoOeGi-sZcsMOIxKee6U4uTtaxkVU5ARHMZLORan"/>
+<img class="h-12 w-auto object-contain" data-alt="Logotipo de la Agencia de Transformación Digital, diseño geométrico contemporáneo en colores institucionales." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJTXPkD_AdkYs7c3FoQLo6iCaWZWV9ORHXhsZabCplTNEADE1lZi9sCUOAIGDRZ3xSo-nDpr_e_5WISlTMU0Znm0R0U62AAOtHnWhLtL3rLgmS8MPLRr_Hoa7bkhH1u_9un6XRY2WUFamIVIo8PW6YxIJ0M2j4JE0mHxKqS_WZZ6q-a4a2oJvmI-yNBEHtVoUy_X0dWRARI1wO9BQHR3OLiXRizyHX8PsB25vg2sP4ABKqUMUaX2jK"/>
+</div>
+<div class="hidden md:flex gap-4">
+<button class="p-2 text-secondary hover:bg-surface-container-high transition-colors duration-200 rounded-full scale-95 active:opacity-80 transition-transform"><span class="material-symbols-outlined">filter_alt</span></button>
+<button class="p-2 text-secondary hover:bg-surface-container-high transition-colors duration-200 rounded-full scale-95 active:opacity-80 transition-transform"><span class="material-symbols-outlined">location_on</span></button>
+</div>
+</div>
+<div class="text-center w-full py-4">
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold">Dashboard de TPBV</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Análisis Sociodemográfico Interactivo</p>
+</div>
+<!-- Global Filters -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-4 card-shadow flex flex-col md:flex-row gap-4 items-end">
+<div class="flex-1 w-full">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Filtrar por Polígono</label>
+<select class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface">
+<option>Todos los Polígonos</option>
+</select>
+</div>
+<div class="flex-1 w-full">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Seleccionar Localidad</label>
+<select class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface">
+<option>Tlaltetelco (San Miguel Tlaltetelco)</option>
+</select>
+</div>
+<button class="w-full md:w-auto bg-primary-container text-on-primary-container px-6 py-2 rounded-lg font-headline-md text-headline-md hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">print</span> Imprimir Reporte
+                </button>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-margin-page grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-gutter-grid flex-1">
+<!-- Context Row -->
+<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid">
+<!-- Información General -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-primary">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-primary-container">
+<span class="material-symbols-outlined text-secondary">info</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Información General</h2>
+</div>
+<div class="space-y-4">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Municipio</span>
+<span class="font-data-display text-data-display text-on-surface">Atlatlahucan</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Grado de Marginación</span>
+<span class="font-data-display text-data-display text-on-surface">Bajo</span>
+</div>
+<div class="mt-4">
+<h3 class="font-label-bold text-label-bold text-on-surface-variant mb-2 uppercase tracking-wider">Localidades en este Municipio:</h3>
+<ul class="space-y-1">
+<li class="bg-primary-container text-on-primary-container px-3 py-2 rounded font-body-md text-body-md font-semibold">Tlaltetelco (San Miguel Tlaltetelco)</li>
+<li class="px-3 py-2 text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-low rounded cursor-pointer transition-colors">Rancho Teoxtoc</li>
+<li class="px-3 py-2 text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-low rounded cursor-pointer transition-colors">Colonia Alta Vista</li>
+<li class="px-3 py-2 text-on-surface-variant font-body-md text-body-md hover:bg-surface-container-low rounded cursor-pointer transition-colors">Linda Vista</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Ubicación Geográfica (Map) -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col h-full min-h-[400px]">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-secondary-container">
+<span class="material-symbols-outlined text-secondary">map</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Ubicación Geográfica</h2>
+</div>
+<div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="map-container">
+<!-- Placeholder for Map -->
+<div class="absolute inset-0 flex items-center justify-center text-on-surface-variant flex-col gap-2">
+<span class="material-symbols-outlined text-4xl opacity-50">location_on</span>
+<span class="font-body-md">Mapa de Tlaltetelco (Cargando...)</span>
+</div>
+<img class="w-full h-full object-cover opacity-80" data-alt="Vista de mapa callejero de la localidad de Tlaltetelco en Atlatlahucan, mostrando vialidades principales con un marcador azul en el centro. Estilo cartográfico claro y legible." data-location="Tlaltetelco, Morelos" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcCEsXkJEazDsO1J75szEnpCfxaB5MIj2L7Cs-VQNP3U8mBlqFnBfC9xdFxQ2fu7FN2wv3_Ypr7Q--qRiMNowRmo1L6wqtRIjo1MDQXOcpZSTkzvqFHwvjujSRGriqFgykOo5sNpwWHpaGNMlV94YBgrjmBR3hWkisyasqhFimRTucOZ8Hc2GYrJOxEY-OPlDOMw3lGTyJR1bTu_b0DPx6YLaL74fpQmhg1WvFldQKQLP2yGT0Gqj-"/>
+</div>
+</div>
+</div>
+<!-- Data Grid -->
+<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-gutter-grid">
+<!-- Población -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">group</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Población</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Población Total</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(100.0%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">2098</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Mujeres</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(52.9%)</span>
+<span class="font-data-display text-data-display text-primary w-16 text-right">1110</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Hombres</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(47.1%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">988</span>
+</div>
+</div>
+<div class="pt-2">
+<div class="flex h-4 rounded-full overflow-hidden w-full bg-surface-container-high">
+<div class="bg-primary" style="width: 52.9%;" title="Mujeres 52.9%"></div>
+<div class="bg-tertiary-container" style="width: 47.1%;" title="Hombres 47.1%"></div>
+</div>
+<div class="flex justify-between mt-1 px-1">
+<span class="font-label-bold text-label-bold text-primary">Mujeres</span>
+<span class="font-label-bold text-label-bold text-tertiary-container">Hombres</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Vivienda -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">home</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Vivienda</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Total Viviendas</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(100.0%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">806</span>
+</div>
+</div>
+<div class="data-row">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface-variant">Piso de Tierra</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(4.2%)</span>
+<span class="font-data-display text-data-display text-error w-16 text-right">34</span>
+</div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill bg-error" style="width: 4.2%;"></div></div>
+</div>
+</div>
+<div class="data-row">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface-variant">Con Hacinamiento</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(22.0%)</span>
+<span class="font-data-display text-data-display text-error w-16 text-right">177</span>
+</div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill bg-error" style="width: 22.0%;"></div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Otros Datos Demográficos -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">diversity_3</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Otros Datos Demográficos</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Pob. Afromexicana</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">7</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Total con Discapacidad</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">122</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-primary-container">Discapacidad (0-14 años)</span>
+<span class="font-data-display text-data-display text-on-secondary-variant w-16 text-right">19</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-primary-container">Discapacidad (15-59 años)</span>
+<span class="font-data-display text-data-display text-on-secondary-variant w-16 text-right">35</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-primary-container">Discapacidad (60+ años)</span>
+<span class="font-data-display text-data-display text-on-secondary-variant w-16 text-right">68</span>
+</div>
+</div>
+</div>
+<!-- Servicios de Salud -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">local_hospital</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Servicios de Salud</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Total Afiliados</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(60.0%)</span>
+<span class="font-data-display text-data-display text-primary w-16 text-right">1258</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Sin Afiliación</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(40.0%)</span>
+<span class="font-data-display text-data-display text-error w-16 text-right">840</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-secondary-container">Afiliados al IMSS</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(12.2%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">255</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-secondary-container">Afiliados al ISSSTE</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(3.3%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">70</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant pl-4 border-l-2 border-secondary-container">Afiliados a PEMEX/Marina</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(0.1%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">2</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Educación -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">school</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Educación (15 años y más)</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Analfabetas (15+)</span>
+<span class="font-data-display text-data-display text-error w-16 text-right">75</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Básica Incompleta (15+)</span>
+<span class="font-data-display text-data-display text-error w-16 text-right">466</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Ocupados sin Escolaridad</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">39</span>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Ocupados Sec. Incompleta</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">27</span>
+</div>
+</div>
+</div>
+<!-- TIC -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">devices</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Tecnologías de Información (TIC)</h2>
+</div>
+<div class="space-y-1">
+<div class="data-row">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface-variant">Con Celular</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(61.0%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">492</span>
+</div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill bg-primary-fixed-dim" style="width: 61.0%;"></div></div>
+</div>
+</div>
+<div class="data-row">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface-variant">Con Computadora</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(13.4%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">108</span>
+</div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill bg-primary-fixed-dim" style="width: 13.4%;"></div></div>
+</div>
+</div>
+<div class="data-row">
+<div class="flex flex-col w-full">
+<div class="flex justify-between items-center w-full">
+<span class="font-body-md text-body-md text-on-surface-variant">Con Tel. Fijo</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(17.5%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">141</span>
+</div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill bg-primary-fixed-dim" style="width: 17.5%;"></div></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bienes y Servicios en la Vivienda -->
+<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow md:col-span-2">
+<div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-outline-variant">
+<span class="material-symbols-outlined text-secondary">kitchen</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Bienes y Servicios en la Vivienda</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-gutter-grid gap-y-1">
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Refrigerador</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(55.7%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">449</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Lavadora</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(37.3%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">301</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Automóvil</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(22.6%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">182</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Bicicleta</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(3.7%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">30</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Agua Entubada</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(52.6%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">424</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Serv. Sanitario</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(65.9%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">531</span>
+</div>
+</div>
+<div class="data-row">
+<span class="font-body-md text-body-md text-on-surface-variant">Energía Eléctrica</span>
+<div class="flex items-center gap-4">
+<span class="font-body-md text-body-md text-secondary">(68.6%)</span>
+<span class="font-data-display text-data-display text-on-surface w-16 text-right">553</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-highest w-full py-6 mt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center px-margin-page">
+<p class="font-label-bold text-label-bold text-on-surface-variant mb-4 md:mb-0">© 2024 Agencia de Transformación Digital - Gobierno del Estado de Morelos</p>
+<div class="flex gap-6">
+<a class="font-label-bold text-label-bold text-secondary hover:text-primary transition-colors opacity-90 hover:opacity-100" href="#">Transparencia</a>
+<a class="font-label-bold text-label-bold text-secondary hover:text-primary transition-colors opacity-90 hover:opacity-100" href="#">Aviso de Privacidad</a>
+<a class="font-label-bold text-label-bold text-secondary hover:text-primary transition-colors opacity-90 hover:opacity-100" href="#">Contacto</a>
+</div>
+</footer>
+</main>
+</body></html>

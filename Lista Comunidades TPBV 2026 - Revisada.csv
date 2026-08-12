@@ -1,0 +1,134 @@
+﻿Región,Nombre_Poligono,#Polígono,Municipio,IM_2020,GM_2020,IMN_2020,POB_TOT
+Altos,Atlatlahucan,1,Linda Vista,17.25,Alto,0.66,20
+Altos,Atlatlahucan,1,Rancho Teoxtoc,17.41,Alto,0.66,23
+Altos,Atlatlahucan,1,Tlaltetelco (San Miguel Tlaltetelco),22.51,Bajo,0.86,2098
+Altos,Atlatlahucan,1,Colonia Alta Vista,20.23,Medio,0.77,47
+Oriente,Axochiapan,2,Telixtac,46223,Medio,0.79,5534
+Oriente,Axochiapan,2,Campo Jicamal,21.62,Bajo,0.83,183
+Oriente,Axochiapan,2,La Nopalera,18.48,Alto,0.71,412
+Oriente,Axochiapan,2,Cayehuacán,22.01,Bajo,0.84,283
+Oriente,Ayala,3,Ampliación la Cucaracha,17.38,Alto,0.66,40
+Oriente,Ayala,3,El Crucero de Chinameca,23.77,Muy bajo,0.91,61
+Oriente,Ayala,3,Campo el Brasil,24.45,Muy bajo,0.93,19
+Oriente,Ayala,3,Chinameca,46349,Muy bajo,0.88,3149
+Oriente,Ayala,3,Colonia Pablo Torres Burgos,22.54,Bajo,0.86,15
+Oriente,Ayala,3,Ampliación Chinameca,15.85,Alto,0.61,17
+Oriente,Ayala,3,El Vergel,22.57,Bajo,0.86,987
+Oriente,Cuautla,4,Nicolas Tapia (Las Vegas),21.96,Bajo,0.84,166
+Oriente,Cuautla,4,Iztaccíhuatl,22.82,Bajo,0.87,4202
+Centro,Emiliano Zapata,5,Ojo de Agua,14.95,Muy alto,0.57,60
+Centro,Emiliano Zapata,5,Puente Colorado (Campo la Palma),12.71,Muy alto,0.49,14
+Centro,Emiliano Zapata,5,Campo el Órgano (Modesto Rangel),22.21,Bajo,0.85,357
+Centro,Huitzilac,6,Barrio Tezoyo (El Cuartel),22.54,Bajo,0.86,202
+Centro,Huitzilac,6,Colonia Antonio Segura,19.39,Medio,0.74,121
+Centro,Huitzilac,6,"Tres Marías/ AGEB's 92, 105 Y 124 (Cristo Rey)",,ZAP Urbana,,4124
+Centro,Huitzilac,6,Los Hongos,18.58,Alto,0.71,108
+Centro,Huitzilac,6,Camino a la Mina (Tezontle),20.45,Medio,0.78,236
+Centro,Jiutepec,7,Colonia Loma Bonita (Jiutepec),18.42,Alto,0.7,360
+Centro,Jiutepec,7,Colonia Luis Donaldo Colosio,22.11,Bajo,0.84,135
+Centro,Jiutepec,7,Cerro de la Corona,21.95,Bajo,0.84,233
+Centro,Jiutepec,7,Lomas de Chapultepec,22.81,Bajo,0.87,172
+Centro,Jiutepec,7,Ampliación Chapultepec,19.97,Medio,0.76,116
+Sur,Jojutla,8,Vicente Aranda (San Rafael),22.75,Bajo,0.87,335
+Sur,Jojutla,8,Chisco,22.25,Bajo,0.85,516
+Sur,Jojutla,8,Río Seco,22.14,Bajo,0.85,238
+Sur,Jojutla,8,Tenerías,19.83,Medio,0.76,28
+Oriente,Jonacatepec de Leandro Valle,9,Colonia San Martín,19.35,Medio,0.74,41
+Oriente,Jonacatepec de Leandro Valle,9,El Puente Colorado,22.93,Bajo,0.88,40
+Oriente,Jonacatepec de Leandro Valle,9,Tetelilla,21.16,Bajo,0.81,4278
+Oriente,Jonacatepec de Leandro Valle,9,Campo Piedra Rajada,17.61,Alto,0.67,11
+Centro,Temixco,10,Campo Santa Cruz (La Joya),15.78,Alto,0.6,15
+Centro,Temixco,10,Campo Sotelo,24.69,Muy bajo,0.94,1379
+Centro,Temixco,10,Campo El Rayo (Acatlipa),24.46,Muy bajo,0.93,50
+Centro,Temixco,10,Colonia Las Rosas,,,,6
+Oriente,Tepalcingo,11,Pitzotlán,15.9,Alto,0.61,43
+Oriente,Tepalcingo,11,La Joya,22.65,Bajo,0.87,444
+Oriente,Tepalcingo,11,Barrio Palo Revuelto,,,,1170
+Oriente,Tepalcingo,11,Colonia Buenos Aires,25.28,Muy bajo,0.97,931
+Oriente,Tepalcingo,11,Rancho el Bambú (La Presa),17.05,Alto,0.65,32
+Oriente,Tepalcingo,11,Colonia Emiliano Zapata,23.32,Muy bajo,0.89,318
+Altos,Tetela del Volcán,12,Barrio Santiago,,,,2821
+Altos,Tetela del Volcán,12,El Malinal,15.92,Alto,0.61,29
+Altos,Tetela del Volcán,12,Xochicalco,22.64,Bajo,0.86,578
+Sur,Tlaltizapán de Zapata,13,Colonia Francisco Javier Mina,16.99,Alto,0.65,38
+Sur,Tlaltizapán de Zapata,13,Acamilpa,23.48,Muy bajo,0.9,1885
+Sur,Tlaltizapán de Zapata,13,El Texcal,24.88,Muy bajo,0.95,87
+Sur,Tlaltizapán de Zapata,13,Pueblo Nuevo,23.95,Muy bajo,0.91,1280
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,Los Dormidos,16.16,Alto,0.62,38
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,Lorenzo Vázquez (Santa Cruz),22.32,Bajo,0.85,837
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,La Era (Calalpa),21.96,Bajo,0.84,527
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,La Mezquitera (El Astillero),22.47,Bajo,0.86,585
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,Las Bóvedas,21.45,Bajo,0.82,274
+Tlaquiltenango, Tlaquiltenango Lorenzo Vázquez,14,Las Carpas,22.01,Bajo,0.84,337
+Tlaquiltenango,Tlaquiltenango Huautla,15,Huaxtla,22.12,Bajo,0.84,51
+Tlaquiltenango,Tlaquiltenango Huautla,15,Xochipala,22.57,Bajo,0.86,118
+Tlaquiltenango,Tlaquiltenango Huautla,15,Huautla,22.43,Bajo,0.86,860
+Tlaquiltenango,Tlaquiltenango Huautla,15,Rancho Viejo,21.24,Bajo,0.81,48
+Tlaquiltenango,Tlaquiltenango Huautla,15,Santiopa,21.61,Bajo,0.83,130
+Tlaquiltenango,Tlaquiltenango Huautla,15,Ajuchitlán,22.99,Bajo,0.88,187
+Tlaquiltenango,Tlaquiltenango Hornos,16,San Jose de Pala,22.87,Bajo,0.87,486
+Tlaquiltenango,Tlaquiltenango Hornos,16,Valle de Vazquez (Los Hornos),23.88,Muy bajo,0.91,1088
+Tlaquiltenango,Tlaquiltenango Hornos,16,Quilamula,22.75,Bajo,0.87,780
+Tlaquiltenango,Tlaquiltenango Hornos,16,Chimalacatlán,22.29,Bajo,0.85,324
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Coaxitlán,20.65,Medio,0.79,478
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Nexpa,22.28,Bajo,0.85,512
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Huixastla,21.52,Bajo,0.82,251
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Xicatlacotla,23.2,Muy bajo,0.89,375
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Pueblo Viejo,22.91,Bajo,0.88,491
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Paso Palapa,15.97,Alto,0.61,22
+Tlaquiltenango,Tlaquiltenango Huixastla,17,Los Elotes,22.11,Bajo,0.84,85
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Alfredo V Bonfil,22.98,Bajo,0.88,2166
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Miguel Hidalgo,,,,782
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Presidentes,23.03,Bajo,0.88,188
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Gabriel Tepepa,,,,7097
+Tlaquiltenango,Tlaquiltenango Cabecera,18,3 de mayo,22.66,Bajo,0.87,879
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Cantora,25.27,Muy bajo,0.97,13
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Manzanares,24.4,Muy bajo,0.93,18
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Palo Grande,21.71,Bajo,0.83,269
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Emiliano Zapata,23.96,Muy bajo,0.91,354
+Tlaquiltenango,Tlaquiltenango Cabecera,18,Centro,,,,5674
+Altos,Tlayacapan,19,Colonia del Señor santiago,,,,30
+Altos,Tlayacapan,19,Nacatongo,22.33,Bajo,0.85,1136
+Altos,Tlayacapan,19,Colonia Joyas del Astillero,17.52,Alto,0.67,93
+Altos,Tlayacapan,19,Colonia Texalo (La Cerámica),23.28,Muy bajo,0.89,361
+Altos,Tlayacapan,19,Barrio de Texcalpan,,,,1764
+Altos,Tlayacapan,19,Tres de mayo,23.27,Muy bajo,0.89,25
+Centro,Xochitepec,20,Plan de Tlazala,22.14,Bajo,0.85,25
+Centro,Xochitepec,20,Colonia las Flores,15.69,Alto,0.6,63
+Centro,Xochitepec,20,Loma del Tepehuaje,14.74,Muy alto,0.56,15
+Centro,Xochitepec,20,Colonia Loma Bonita (Xochitepec),,,,12
+Centro,Xochitepec,20,La Presa,14.13,Muy alto,0.54,28
+Centro,Xochitepec,20,Ampliación Miguel Hidalgo,22.54,Bajo,0.86,102
+Sur,Coatetelco,21,Campo la Candelaria,19.67,Medio,0.75,29
+Sur,Coatetelco,21,Colonia Benito Juárez,21.75,Bajo,0.83,75
+Sur,Coatetelco,21,La Cuahulotera,11.89,Muy alto,0.45,18
+Sur,Coatetelco,21,Campo el Llanito,21.91,Bajo,0.84,63
+Sur,Coatetelco,21,General Pedro Saavedra,20.32,Medio,0.78,338
+Sur,Coatetelco,21,Colonia San Isidro,19.05,Medio,0.73,13
+Sur,Coatetelco,21,Colonia 3 de Mayo,20.26,Medio,0.77,273
+Sur,Xoxocotla,22,Fábrica de Mármol (Kilómetro 2),17.88,Alto,0.68,76
+Sur,Xoxocotla,22,Morelos,18.48,Alto,0.71,19
+Sur,Xoxocotla,22,El Faro,18.38,Alto,0.7,21
+Sur,Xoxocotla,22,Camino de San Juanes,17.6,Alto,0.67,19
+Sur,Xoxocotla,22,La Pintora,18.49,Alto,0.71,165
+Sur,Xoxocotla,22,Techichilco,17.89,Alto,0.68,42
+Sur,Xoxocotla,22,Campo los Sauces,23.12,Muy bajo,0.88,17
+Altos,Hueyapan,23,Amialtenco,16.58,Alto,0.63,26
+Altos,Hueyapan,23,Barrio de San Miguel,21.54,Bajo,0.82,7352
+Altos,Hueyapan,23,Matlacotla,21.73,Bajo,0.83,45
+Centro,Yautepec,24,San Isidro,23.1,Muy bajo,0.88,1153
+Centro,Yautepec,24,El Fortín Dos,17.37,Alto,0.66,52
+Centro,Yautepec,24,El Fortín,17.92,Alto,0.68,208
+Centro,Yautepec,24,Campo la Tehuixtlera,23.1,Muy bajo,0.88,60
+Centro,Yautepec,24,El Copalar,20.82,Medio,0.8,352
+Altos,Yecapixtla,25,Zacahuacatla,22.81,Bajo,0.87,81
+Altos,Yecapixtla,25,Tezontetelco,21.77,Bajo,0.83,235
+Altos,Yecapixtla,25,Los Capulines,17.56,Alto,0.67,365
+Altos,Yecapixtla,25,La Hacienda,21.25,Bajo,0.81,75
+Altos,Yecapixtla,25,Texcala,21.52,Bajo,0.82,1812
+Sur,Zacatepec,26,El Bonete,14.42,Muy alto,0.55,31
+Sur,Zacatepec,26,Ampliación Plutarco Elías Calles,20.79,Medio,0.79,21
+Sur,Zacatepec,26,Tetelpa,,,,3104
+Sur,Zacatepec,26,Emiliano Zapata,23.96,Muy bajo,0.91,517
+Sur,Zacatepec,26,Colonia Poza Honda,22.58,Bajo,0.86,332
+,,,,,,,87054
