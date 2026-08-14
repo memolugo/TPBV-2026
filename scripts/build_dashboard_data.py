@@ -213,11 +213,34 @@ AGE_BINS = [
     ("15-17", "P_15A17"), ("18-24", "P_18A24"), ("25-59", None), ("60+", "P_60YMAS"),
 ]
 
+# Localidades donde el match difuso con ITER 2020 encontro una localidad
+# homonima equivocada, no esta: verificado el 2026-08-15 comparando POB_TOT
+# de "Lista Comunidades TPBV 2026" contra POBTOT de ITER (diferencias de 3x
+# a 185x -- p.ej. Ampliacion Chinameca tiene 17 habitantes en la lista pero
+# el ITER matcheado tiene 3149, el mismo que "Chinameca", señal clara de que
+# emparejo con la cabecera en vez de con la ampliacion). Se identifican por
+# (poligono, localidad) -- no por (municipio, localidad) como MANUAL_COORDS
+# mas abajo -- porque el poligono es el dato mas confiable que se tiene de
+# la lista pegada por el usuario para cruzar contra estos registros.
+RECHAZAR_MATCH_ITER_POL = {
+    (3, norm("Ampliación Chinameca")),
+    (4, norm("Iztaccíhuatl")),
+    (11, norm("La Joya")),
+    (11, norm("Colonia Buenos Aires")),
+    (11, norm("Colonia Emiliano Zapata")),
+    (19, norm("Tres de mayo")),
+    (18, norm("Palo Grande")),
+    (20, norm("Colonia las Flores")),
+    (24, norm("Campo la Tehuixtlera")),
+}
+
 resultados = []
 for c in comunidades:
     mun_key = norm(c["nom_mun"])
     it_row, it_metodo, it_score, it_name = buscar(c["nom_loc"], it_by_mun.get(mun_key, []))
     bd_row, bd_metodo, bd_score, bd_name = buscar(c["nom_loc"], bd_by_mun.get(mun_key, []))
+    if (int(c["poligono"]), norm(c["nom_loc"])) in RECHAZAR_MATCH_ITER_POL:
+        it_row = None
 
     rec = {
         "region": c["region"], "municipio": c["nom_mun"], "poligono": c["poligono"],
@@ -258,6 +281,15 @@ for c in comunidades:
         rec["latitud"] = None
         rec["longitud"] = None
         rec["piramide"] = None
+
+    # Poblacion: se usa la de "Lista Comunidades TPBV 2026" (pobTotLista) como
+    # fuente unica para pobTotal en vez de la de ITER 2020 -- decision del
+    # 2026-08-15, mismo criterio aplicado a data_propuesta_2026.js (ver
+    # build_data_propuesta_2026.py). Se aplica DESPUES del bloque de ITER
+    # para pisar el pobTotal que haya puesto ITER_MAP; el resto de las
+    # estadisticas SI sigue viniendo de ITER donde hay match.
+    if isinstance(c["pob_tot_lista"], (int, float)):
+        rec["pobTotal"] = int(c["pob_tot_lista"])
 
     if bd_row is not None:
         rec["sinBasicaCompleta"] = numval(bd_row[bd_idx["EDU34"]])
