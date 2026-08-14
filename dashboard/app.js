@@ -7,9 +7,11 @@ const selPoligono = $('#sel-poligono');
 const selLocalidad = $('#sel-localidad');
 
 // Conjunto de datos activo en "Análisis Demográfico": 'actual' (TPBV_DATA,
-// 132 localidades / 26 poligonos vigentes) o 'nueva' (TPBV_DATA_NUEVA, 162
-// localidades / 25 poligonos de la Nueva Propuesta Territorial). Ver
-// activeData()/activePoligonosGeoJSON() mas abajo y setDatasetMode().
+// 132 localidades / 26 poligonos vigentes) o 'nueva' (TPBV_DATA_PROPUESTA_2026,
+// 68 localidades de la hoja "PROPUESTA 2026" -- ver activeData() mas abajo).
+// El dataset anterior (TPBV_DATA_NUEVA, 118 localidades del CSV viejo) ya NO
+// se usa en ningun lado del dashboard (decision del usuario 2026-08-13:
+// "olvida las 118 que teniamos, enfocate solo en las 68").
 let DATASET_MODE = 'actual';
 
 let map = null;
@@ -18,26 +20,37 @@ let polygonLayer = null;
 let markersLayer = null;
 let municipiosLayer = null;
 let showMunicipios = true;
+// Filtro personalizado del "Analisis Demografico": conjunto de numeros de
+// poligono elegidos via la lista de checkboxes (#custom-poligonos-panel),
+// para agregar/comparar solo esos poligonos en vez de uno solo o todos (ver
+// aggregateCustom, applyCustomPoligonosSelection). Se limpia al cambiar de
+// dataset (setDatasetMode) porque los numeros de poligono no son comparables
+// entre 'actual' y 'nueva'.
+let customPoligonos = new Set();
 // Capas de comparacion territorial: ver seccion dedicada "Propuesta
 // Territorial" (renderPropuestaView), con su propio mapa independiente del
-// mapa de "Análisis Demográfico". Ambas visibles por defecto porque el
-// proposito unico de esa vista es comparar.
+// mapa de "Análisis Demográfico".
 let propuestaMap = null;
 let propuestaActualLayer = null;
+let showPropuestaActual = false;
+// Contorno de los 20 poligonos de la Nueva Propuesta Territorial
+// (TPBV_PROPUESTA_NUEVA / poligono_nueva.js): la geometria sigue siendo
+// valida y util para comparar contra la Propuesta Actual (el usuario
+// confirmo el 2026-08-13 que quiere conservar esta capa en el mapa).
 let propuestaNuevaLayer = null;
-let showPropuestaActual = true;
-let showPropuestaNueva = true;
+let showPropuestaNueva = false;
 // Instancia propia (no se comparte con municipiosLayer del mapa de Analisis
 // Demografico): un mismo objeto L.geoJSON solo puede pertenecer a un mapa
 // Leaflet a la vez, y aqui conviven dos mapas independientes.
 let municipiosLayerPropuesta = null;
-let showMunicipiosPropuesta = true;
-// Localidades censales que quedan dentro de los poligonos de la nueva
-// propuesta (ver TPBV_NUEVAS_LOCALIDADES en nuevas_localidades.js).
-let nuevasLocalidadesLayer = null;
-let showNuevasLocalidades = true;
+let showMunicipiosPropuesta = false;
+// Localidades de la hoja "PROPUESTA 2026" (Hoja de trabajo TPBV 2026.xlsx),
+// ver TPBV_PROPUESTA_2026 en propuesta_2026.js: 60 geocodificadas via ITER
+// 2020 + 8 con coordenadas manuales (coordManual:true), 68 en total. Es la
+// unica capa de comparacion visible por defecto.
+let propuesta2026Layer = null;
+let showPropuesta2026 = true;
 let lastMapRec = null;
-let lastMapMode = null;
 
 // El mapa es "sticky" (ver CSS .map-sticky): se queda fijo en pantalla
 // mientras se hace scroll por las tarjetas vecinas, en vez de moverse con el
@@ -168,7 +181,7 @@ function cardHeader(icon, title, borderClass = 'border-outline-variant') {
 // checkbox/legend y el estilo real de las capas en ensurePropuestaLayers.
 const COLOR_PROPUESTA_ACTUAL = '#154212';
 const COLOR_PROPUESTA_NUEVA = '#a6337a';
-const COLOR_NUEVAS_LOCALIDADES = '#d97706';
+const COLOR_PROPUESTA_2026 = '#2a78d6';
 
 function mapCardHeader() {
     return `<div class="flex items-center justify-between gap-2 mb-stack-md pb-3 border-b-2 border-secondary-container flex-wrap">
@@ -232,6 +245,47 @@ const MARGINACION_ACCENT = {
     'Bajo': 'primary', 'Muy bajo': 'primary', 'ZAP Urbana': 'neutral'
 };
 
+// Orden de peor a mejor (mas util para la vista de Inicio, donde interesa ver
+// primero cuantas localidades estan en la situacion mas vulnerable) + colores
+// de barra solida (bg-*, no solo texto) para el mini-grafico de Inicio (ver
+// marginacionBreakdown/marginacionBarsHtml).
+const ORDEN_MARGINACION = ['Muy alto', 'Alto', 'Medio', 'Bajo', 'Muy bajo', 'ZAP Urbana'];
+const MARGINACION_BAR_COLOR = {
+    'Muy alto': 'bg-error', 'Alto': 'bg-warning', 'Medio': 'bg-secondary',
+    'Bajo': 'bg-primary', 'Muy bajo': 'bg-accent-teal', 'ZAP Urbana': 'bg-accent-blue'
+};
+
+// Cuenta localidades por grado de marginacion (solo las que tienen match
+// censal, ver renderAggregateInfoCard para el mismo criterio) y devuelve la
+// distribucion ordenada de peor a mejor, con porcentaje sobre el total con
+// dato disponible.
+function marginacionBreakdown(data) {
+    const counts = {};
+    data.forEach((r) => { if (r.gmMarginacion) counts[r.gmMarginacion] = (counts[r.gmMarginacion] || 0) + 1; });
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    return ORDEN_MARGINACION
+        .filter((g) => counts[g])
+        .map((g) => ({ grado: g, n: counts[g], pct: total ? (counts[g] / total * 100) : 0 }));
+}
+
+function marginacionBarsHtml(data) {
+    const rows = marginacionBreakdown(data);
+    if (!rows.length) {
+        return `<p class="font-body-md text-body-md text-on-surface-variant flex items-start gap-2">
+            <span class="material-symbols-outlined text-lg shrink-0">info</span>
+            La hoja fuente de esta propuesta no incluye grado de marginación por localidad.
+        </p>`;
+    }
+    return `<div class="space-y-2.5">` + rows.map((r) => `
+        <div class="flex items-center gap-3">
+            <span class="w-[5.5rem] shrink-0 font-label-bold text-label-bold text-on-surface-variant">${esc(r.grado)}</span>
+            <div class="flex-1 h-2.5 rounded-full bg-surface-container-high overflow-hidden">
+                <div class="h-full rounded-full ${MARGINACION_BAR_COLOR[r.grado] || 'bg-secondary'}" style="width:${r.pct.toFixed(1)}%"></div>
+            </div>
+            <span class="w-9 shrink-0 text-right font-data-display text-data-display text-on-surface">${r.n}</span>
+        </div>`).join('') + `</div>`;
+}
+
 function kpiTile(icon, label, valueHtml, accentKey = 'neutral') {
     const a = KPI_ACCENTS[accentKey] || KPI_ACCENTS.neutral;
     return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 ${a.border} flex items-center gap-4">
@@ -256,9 +310,12 @@ function kpiStatic(icon, label, text, colorClass = 'text-on-surface', accentKey)
 function renderKpiStrip(rec) {
     const tasa = pct(rec.afiliada, rec.pobTotal);
     const margAccent = MARGINACION_ACCENT[rec.gmMarginacion] || 'neutral';
+    const etiquetaLocalidades = rec.fuente !== 'AGREGADO'
+        ? 'Localidades en el Polígono'
+        : rec.customPoligonos ? 'Localidades Seleccionadas' : rec.poligono === null ? 'Localidades Totales' : 'Localidades en el Polígono';
     const cuartaTile = rec.gmMarginacion
         ? kpiStatic('signal_cellular_alt', 'Grado de Marginación', rec.gmMarginacion, MARGINACION_COLOR[rec.gmMarginacion] || 'text-on-surface', margAccent)
-        : kpiCount('location_city', 'Localidades en el Polígono', rec.nLocalidades ?? 1, 'primary');
+        : kpiCount('location_city', etiquetaLocalidades, rec.nLocalidades ?? 1, 'primary');
 
     return `<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-2 lg:grid-cols-4 gap-gutter-grid">
         ${kpiCount('groups', 'Población Total', rec.pobTotal, 'primary')}
@@ -270,16 +327,18 @@ function renderKpiStrip(rec) {
 
 // ---------------------------------------------------------------------------
 // Anima el conteo de las tarjetas KPI y el relleno de las barras de progreso
-// despues de cada re-render del canvas (ver render()/renderAggregate()).
+// despues de cada re-render (ver render()/renderAggregateView() para #canvas,
+// renderInicioView() para #inicio-view). Recibe el contenedor porque no
+// siempre es #canvas: la franja de KPIs de Inicio vive en #inicio-view.
 // ---------------------------------------------------------------------------
 const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function animateEntrances() {
+function animateEntrances(container = canvas) {
     requestAnimationFrame(() => requestAnimationFrame(() => {
-        canvas.querySelectorAll('.progress-bar-fill').forEach((el) => el.classList.add('fill-in'));
+        container.querySelectorAll('.progress-bar-fill').forEach((el) => el.classList.add('fill-in'));
     }));
 
-    canvas.querySelectorAll('.kpi-value[data-target]').forEach((el) => {
+    container.querySelectorAll('.kpi-value[data-target]').forEach((el) => {
         const target = parseFloat(el.dataset.target);
         if (!isFinite(target)) return;
         if (REDUCED_MOTION) { el.textContent = fmtInt(target); return; }
@@ -321,13 +380,127 @@ function buildPoligonoOptions() {
 }
 
 function buildLocalidadOptions(poligonoFilter) {
-    const items = activeData()
-        .map((r, idx) => ({ ...r, idx }))
+    const items = indexedActiveData()
         .filter((r) => poligonoFilter === 'all' || String(r.poligono) === String(poligonoFilter))
         .sort((a, b) => (a.municipio + a.localidad).localeCompare(b.municipio + b.localidad, 'es'));
     selLocalidad.innerHTML = '<option value="" disabled>Selecciona una localidad…</option>' +
         items.map((r) => `<option value="${r.idx}">${esc(r.municipio)} — ${esc(r.localidad)}</option>`).join('');
     return items;
+}
+
+// ---------------------------------------------------------------------------
+// Filtro personalizado: lista de checkboxes (#custom-poligonos-panel) para
+// elegir varios poligonos del dataset activo y ver un agregado de solo esa
+// seleccion (ver aggregateCustom). Mientras haya al menos un poligono
+// marcado, este filtro tiene prioridad sobre "Filtrar por Poligono" /
+// "Seleccionar Localidad" (ver applyCustomPoligonosSelection), que se
+// deshabilitan visualmente para dejar claro cual filtro esta activo.
+function buildCustomPoligonosPanel() {
+    const panel = $('#custom-poligonos-panel');
+    if (!panel) return;
+    const poligonos = [...new Set(activeData().map((r) => r.poligono))].sort((a, b) => a - b);
+    const items = poligonos.map((p) => `
+        <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-container-low cursor-pointer">
+            <input type="checkbox" class="custom-poligono-check w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary" value="${p}" ${customPoligonos.has(p) ? 'checked' : ''}>
+            <span class="font-body-md text-body-md text-on-surface">${esc(poligonoLabel(p))}</span>
+        </label>`).join('');
+    panel.innerHTML = `
+        <div class="flex items-center justify-between gap-3 mb-2 pb-2 border-b border-outline-variant">
+            <span class="font-label-bold text-label-bold text-on-surface-variant">Elige los polígonos a comparar</span>
+            <button type="button" onclick="clearCustomPoligonos()" class="font-label-bold text-label-bold text-primary hover:underline shrink-0">Limpiar</button>
+        </div>
+        <div class="space-y-0.5">${items}</div>`;
+}
+
+function updateCustomPoligonosButtonLabel() {
+    const label = $('#custom-poligonos-label');
+    const btn = $('#btn-custom-poligonos');
+    if (!label || !btn) return;
+    const n = customPoligonos.size;
+    label.innerHTML = n > 0
+        ? `<span class="material-symbols-outlined text-lg text-primary">checklist</span>${n} polígono${n === 1 ? '' : 's'} seleccionado${n === 1 ? '' : 's'}`
+        : `<span class="material-symbols-outlined text-lg text-secondary">checklist</span>Comparar polígonos…`;
+    btn.classList.toggle('border-primary', n > 0);
+    btn.classList.toggle('text-primary', n > 0);
+}
+
+// El panel vive fuera de #global-filters (ver comentario junto a su <div> en
+// el HTML: #global-filters tiene overflow:hidden para recortar su franja
+// decorativa, lo que recortaba el panel si quedaba anidado adentro). Por eso
+// es position:fixed y su posicion se calcula aqui a partir del boton, en vez
+// de dejar que un ancestro con position:relative la resuelva via CSS.
+function positionCustomPoligonosPanel() {
+    const panel = $('#custom-poligonos-panel');
+    const btn = $('#btn-custom-poligonos');
+    if (!panel || !btn) return;
+    const r = btn.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth || 320;
+    const left = Math.max(8, Math.min(r.right - panelWidth, window.innerWidth - panelWidth - 8));
+    const availableHeight = window.innerHeight - r.bottom - 16;
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 8}px`;
+    panel.style.maxHeight = `${Math.max(160, Math.min(420, availableHeight))}px`;
+}
+
+// Reencuadra el panel si la ventana cambia de tamaño o si se hace scroll
+// mientras esta abierto (el header es sticky, pero durante la transicion de
+// scroll el boton se mueve antes de que el sticky "enganche"). Los listeners
+// solo se enganchan mientras el panel esta realmente abierto (ver
+// toggleCustomPoligonosPanel/closeCustomPoligonosPanel), en vez de quedar
+// permanentemente activos: el de scroll va en fase de captura, asi que sin
+// este on/off correria en CADA scroll de CUALQUIER contenedor de la pagina
+// (la lista de localidades, el propio panel, etc.), no solo el de la ventana.
+function toggleCustomPoligonosPanel() {
+    const panel = $('#custom-poligonos-panel');
+    const btn = $('#btn-custom-poligonos');
+    if (!panel || !btn) return;
+    if (panel.classList.contains('hidden')) {
+        buildCustomPoligonosPanel();
+        panel.classList.remove('hidden');
+        positionCustomPoligonosPanel();
+        window.addEventListener('resize', positionCustomPoligonosPanel);
+        window.addEventListener('scroll', positionCustomPoligonosPanel, { passive: true, capture: true });
+        btn.setAttribute('aria-expanded', 'true');
+    } else {
+        closeCustomPoligonosPanel();
+    }
+}
+
+function closeCustomPoligonosPanel() {
+    const panel = $('#custom-poligonos-panel');
+    const btn = $('#btn-custom-poligonos');
+    if (panel) panel.classList.add('hidden');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+    window.removeEventListener('resize', positionCustomPoligonosPanel);
+    window.removeEventListener('scroll', positionCustomPoligonosPanel, { capture: true });
+}
+
+// Mientras customPoligonos no este vacio, es el filtro activo: se deshabilitan
+// los selects de "Filtrar por Poligono"/"Seleccionar Localidad" (no tiene
+// sentido combinarlos) y se renderiza el agregado de la seleccion. Al vaciarse
+// (clearCustomPoligonos o desmarcar el ultimo checkbox) se vuelve a "Todos
+// los Poligonos", el estado por defecto del panel de Analisis Demografico.
+function applyCustomPoligonosSelection() {
+    updateCustomPoligonosButtonLabel();
+    const active = customPoligonos.size > 0;
+    selPoligono.disabled = active;
+    selLocalidad.disabled = active;
+    if (active) {
+        renderCustomAggregate();
+    } else {
+        selPoligono.value = 'all';
+        selLocalidad.value = '';
+        buildLocalidadOptions('all');
+        renderAggregate(null);
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearCustomPoligonos() {
+    if (customPoligonos.size === 0) return;
+    customPoligonos.clear();
+    buildCustomPoligonosPanel();
+    applyCustomPoligonosSelection();
 }
 
 // ---------------------------------------------------------------------------
@@ -346,12 +519,35 @@ const TPBV_POLIGONOS_NUEVA_NORM = (typeof TPBV_PROPUESTA_NUEVA !== 'undefined') 
     }))
 } : null;
 
+// 'nueva' usa TPBV_DATA_PROPUESTA_2026 (68 localidades, hoja "PROPUESTA
+// 2026" de "Hoja de trabajo TPBV 2026.xlsx", sin Tlaquiltenango). El
+// dataset anterior (TPBV_DATA_NUEVA, 118 localidades del CSV viejo) ya no se
+// usa en ningun lado del dashboard.
 function activeData() {
-    return DATASET_MODE === 'nueva' && typeof TPBV_DATA_NUEVA !== 'undefined' ? TPBV_DATA_NUEVA : TPBV_DATA;
+    if (DATASET_MODE !== 'nueva') return TPBV_DATA;
+    return TPBV_DATA_PROPUESTA_2026;
 }
 
+// activeData() con el indice original de cada registro adjunto (r.idx):
+// necesario en todos lados donde hay que volver de un registro filtrado a su
+// posicion real en el array (selectLocalidad(idx), data-idx en la lista de
+// localidades, "es esta la localidad activa" en el mapa). Se recalcula en
+// cada llamada a proposito -- no se cachea -- porque activeData() cambia con
+// DATASET_MODE y el resultado se usa siempre inmediatamente despues de un
+// filter/sort, nunca se retiene entre renders.
+function indexedActiveData() {
+    return activeData().map((r, idx) => ({ ...r, idx }));
+}
+
+// La columna "PROMOTOR" de la hoja "PROPUESTA 2026" resulto ser el numero
+// real de poligono (POLIGONO_TPBV), no un promotor de campo -- verificado
+// el 2026-08-13 cruzando las 68 localidades contra la geometria oficial (ver
+// build_data_propuesta_2026.py). Por eso 'nueva' SI tiene contorno de
+// poligono: es la misma geometria que TPBV_PROPUESTA_NUEVA (normalizada en
+// TPBV_POLIGONOS_NUEVA_NORM, arriba).
 function activePoligonosGeoJSON() {
-    return DATASET_MODE === 'nueva' ? TPBV_POLIGONOS_NUEVA_NORM : (typeof TPBV_POLIGONOS !== 'undefined' ? TPBV_POLIGONOS : null);
+    if (DATASET_MODE === 'nueva') return TPBV_POLIGONOS_NUEVA_NORM;
+    return (typeof TPBV_POLIGONOS !== 'undefined') ? TPBV_POLIGONOS : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -369,7 +565,7 @@ const REGION_COLORS = {
     'Oriente': '#7570b3',
     'Sur': '#e7298a',
     'Tlaquiltenango': '#66a61e',
-    // Regiones de la Nueva Propuesta Territorial (TPBV_DATA_NUEVA / TPBV_PROPUESTA_NUEVA)
+    // Regiones de la Nueva Propuesta Territorial (TPBV_DATA_PROPUESTA_2026 / TPBV_PROPUESTA_NUEVA)
     'Oeste': '#e6ab02',
     'Suroeste': '#a6761d',
     'Este': '#666666',
@@ -383,6 +579,17 @@ const REGION_COLOR_DEFAULT = '#575f67';
 // su propia instancia de L.geoJSON: ver comentario junto a
 // municipiosLayerPropuesta sobre por que no se comparte el mismo objeto).
 const MUNICIPIOS_STYLE = { color: '#575f67', weight: 1.5, dashArray: '5,4', fill: false, interactive: true };
+
+// Agrega/quita una capa opcional de un mapa Leaflet segun el estado de su
+// checkbox, sin tocar nada mas (no reconstruye la capa ni mueve el
+// zoom/paneo). Centraliza el patron "if (show && !hasLayer) add; else if
+// (!show && hasLayer) remove" repetido en renderMap (chk-municipios) y
+// renderPropuestaView/su listener de checkboxes (4 capas de comparacion).
+function syncLayerVisibility(layer, show, targetMap) {
+    if (!layer || !targetMap) return;
+    if (show && !targetMap.hasLayer(layer)) layer.addTo(targetMap);
+    else if (!show && targetMap.hasLayer(layer)) targetMap.removeLayer(layer);
+}
 
 // Agrega las capas base (Calles/Satelite + su selector) a un mapa Leaflet.
 // Se usa tanto para el mapa de Analisis Demografico como para el de
@@ -447,16 +654,18 @@ function ensurePropuestaLayers() {
             }
         });
     }
-    if (!nuevasLocalidadesLayer && typeof TPBV_NUEVAS_LOCALIDADES !== 'undefined') {
-        nuevasLocalidadesLayer = L.layerGroup(TPBV_NUEVAS_LOCALIDADES.map((loc) => {
+    if (!propuesta2026Layer && typeof TPBV_PROPUESTA_2026 !== 'undefined') {
+        propuesta2026Layer = L.featureGroup(TPBV_PROPUESTA_2026.map((loc) => {
             const m = L.circleMarker([loc.lat, loc.lon], {
                 radius: 5,
                 color: '#fff',
                 weight: 1,
-                fillColor: COLOR_NUEVAS_LOCALIDADES,
+                fillColor: COLOR_PROPUESTA_2026,
                 fillOpacity: 0.9
             });
-            m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)} · Polígono ${esc(loc.poligono)} (${esc(loc.nombrePoligono)})<br>Población: ${fmtInt(loc.pobTotal)}`, { sticky: true });
+            const poligonoTxt = loc.nombrePoligono ? ` · Polígono ${esc(loc.poligono)} (${esc(loc.nombrePoligono)})` : '';
+            const nota = loc.coordManual ? '<br><span style="color:#8a5a00">Coordenada capturada manualmente</span>' : '';
+            m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true });
             return m;
         }));
     }
@@ -465,8 +674,13 @@ function ensurePropuestaLayers() {
 function propuestaControlsHTML() {
     const nActual = (typeof TPBV_POLIGONOS !== 'undefined') ? TPBV_POLIGONOS.features.length : 0;
     const nNueva = (typeof TPBV_PROPUESTA_NUEVA !== 'undefined') ? TPBV_PROPUESTA_NUEVA.features.length : 0;
-    const nLocalidades = (typeof TPBV_NUEVAS_LOCALIDADES !== 'undefined') ? TPBV_NUEVAS_LOCALIDADES.length : 0;
+    const nPropuesta2026 = (typeof TPBV_PROPUESTA_2026 !== 'undefined') ? TPBV_PROPUESTA_2026.length : 0;
     return `<div class="flex items-center flex-wrap gap-x-5 gap-y-2">
+        <label class="flex items-center gap-2 font-body-md text-body-md text-on-surface cursor-pointer select-none">
+            <input type="checkbox" id="chk-propuesta-2026" ${showPropuesta2026 ? 'checked' : ''} class="rounded border-outline-variant focus:ring-primary" style="accent-color:${COLOR_PROPUESTA_2026}" />
+            <span class="inline-block w-3.5 h-3.5 rounded-full shrink-0" style="background:${COLOR_PROPUESTA_2026}; border:1.5px solid #fff; box-shadow:0 0 0 1px ${COLOR_PROPUESTA_2026}"></span>
+            Propuesta 2026 (${nPropuesta2026})
+        </label>
         <label class="flex items-center gap-2 font-body-md text-body-md text-on-surface cursor-pointer select-none">
             <input type="checkbox" id="chk-propuesta-actual" ${showPropuestaActual ? 'checked' : ''} class="rounded border-outline-variant focus:ring-primary" style="accent-color:${COLOR_PROPUESTA_ACTUAL}" />
             <span class="inline-block w-3.5 h-3.5 rounded-sm shrink-0" style="background:${COLOR_PROPUESTA_ACTUAL}"></span>
@@ -476,11 +690,6 @@ function propuestaControlsHTML() {
             <input type="checkbox" id="chk-propuesta-nueva" ${showPropuestaNueva ? 'checked' : ''} class="rounded border-outline-variant focus:ring-primary" style="accent-color:${COLOR_PROPUESTA_NUEVA}" />
             <span class="inline-block w-3.5 h-3.5 rounded-sm shrink-0" style="background:${COLOR_PROPUESTA_NUEVA}; border:1.5px dashed #fff"></span>
             Nueva Propuesta (${nNueva} polígonos)
-        </label>
-        <label class="flex items-center gap-2 font-body-md text-body-md text-on-surface cursor-pointer select-none">
-            <input type="checkbox" id="chk-nuevas-localidades" ${showNuevasLocalidades ? 'checked' : ''} class="rounded border-outline-variant focus:ring-primary" style="accent-color:${COLOR_NUEVAS_LOCALIDADES}" />
-            <span class="inline-block w-3.5 h-3.5 rounded-full shrink-0" style="background:${COLOR_NUEVAS_LOCALIDADES}; border:1.5px solid #fff; box-shadow:0 0 0 1px ${COLOR_NUEVAS_LOCALIDADES}"></span>
-            Nuevas Localidades (${nLocalidades})
         </label>
         <label class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
             <input type="checkbox" id="chk-municipios-propuesta" ${showMunicipiosPropuesta ? 'checked' : ''} class="rounded border-outline-variant text-primary focus:ring-primary" />
@@ -527,22 +736,10 @@ function renderPropuestaView() {
     }
 
     ensurePropuestaLayers();
-    if (propuestaActualLayer) {
-        if (showPropuestaActual && !propuestaMap.hasLayer(propuestaActualLayer)) propuestaActualLayer.addTo(propuestaMap);
-        else if (!showPropuestaActual && propuestaMap.hasLayer(propuestaActualLayer)) propuestaMap.removeLayer(propuestaActualLayer);
-    }
-    if (propuestaNuevaLayer) {
-        if (showPropuestaNueva && !propuestaMap.hasLayer(propuestaNuevaLayer)) propuestaNuevaLayer.addTo(propuestaMap);
-        else if (!showPropuestaNueva && propuestaMap.hasLayer(propuestaNuevaLayer)) propuestaMap.removeLayer(propuestaNuevaLayer);
-    }
-    if (municipiosLayerPropuesta) {
-        if (showMunicipiosPropuesta && !propuestaMap.hasLayer(municipiosLayerPropuesta)) municipiosLayerPropuesta.addTo(propuestaMap);
-        else if (!showMunicipiosPropuesta && propuestaMap.hasLayer(municipiosLayerPropuesta)) propuestaMap.removeLayer(municipiosLayerPropuesta);
-    }
-    if (nuevasLocalidadesLayer) {
-        if (showNuevasLocalidades && !propuestaMap.hasLayer(nuevasLocalidadesLayer)) nuevasLocalidadesLayer.addTo(propuestaMap);
-        else if (!showNuevasLocalidades && propuestaMap.hasLayer(nuevasLocalidadesLayer)) propuestaMap.removeLayer(nuevasLocalidadesLayer);
-    }
+    syncLayerVisibility(propuestaActualLayer, showPropuestaActual, propuestaMap);
+    syncLayerVisibility(propuestaNuevaLayer, showPropuestaNueva, propuestaMap);
+    syncLayerVisibility(municipiosLayerPropuesta, showMunicipiosPropuesta, propuestaMap);
+    syncLayerVisibility(propuesta2026Layer, showPropuesta2026, propuestaMap);
 
     // invalidateSize primero: el contenedor pudo estar oculto (display:none,
     // sin layout) hasta este mismo momento. El encuadre solo se recalcula la
@@ -554,8 +751,9 @@ function renderPropuestaView() {
         propuestaMap.invalidateSize();
         if (!isFirstOpen) return;
         const boundsList = [];
-        if (propuestaActualLayer && propuestaMap.hasLayer(propuestaActualLayer)) boundsList.push(propuestaActualLayer.getBounds());
-        if (propuestaNuevaLayer && propuestaMap.hasLayer(propuestaNuevaLayer)) boundsList.push(propuestaNuevaLayer.getBounds());
+        [propuestaActualLayer, propuestaNuevaLayer, propuesta2026Layer].forEach((layer) => {
+            if (layer && propuestaMap.hasLayer(layer)) boundsList.push(layer.getBounds());
+        });
         if (boundsList.length) {
             let combined = boundsList[0];
             boundsList.slice(1).forEach((b) => { combined = combined.extend(b); });
@@ -599,7 +797,16 @@ function renderInicioView() {
     const nPolActual = new Set(TPBV_DATA.map((r) => r.poligono)).size;
     const pobActual = TPBV_DATA.reduce((s, r) => s + (r.pobTotal || 0), 0);
     const nPolNueva = (typeof TPBV_PROPUESTA_NUEVA !== 'undefined') ? TPBV_PROPUESTA_NUEVA.features.length : 0;
-    const nLocNueva = (typeof TPBV_DATA_NUEVA !== 'undefined') ? TPBV_DATA_NUEVA.length : 0;
+    const nLocNueva = (typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined') ? TPBV_DATA_PROPUESTA_2026.length : 0;
+    const pobNueva = (typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined')
+        ? TPBV_DATA_PROPUESTA_2026.reduce((s, r) => s + (r.pobTotal || 0), 0)
+        : 0;
+    // La Nueva Propuesta Territorial ya esta curada para representar solo
+    // cobertura NUEVA (Tlaquiltenango se excluyo justamente por duplicar
+    // poligonos de la Propuesta Actual, ver build_propuesta_nueva.py), asi
+    // que sumar ambos datasets da la cobertura total combinada real.
+    const crecimientoLoc = nLocActual ? (nLocNueva / nLocActual * 100) : 0;
+    const crecimientoPob = pobActual ? (pobNueva / pobActual * 100) : 0;
 
     view.innerHTML = `
     <div class="text-center w-full py-10 px-4 rounded-2xl bg-gradient-to-br from-primary-container/10 via-transparent to-secondary-container/25">
@@ -614,11 +821,43 @@ function renderInicioView() {
         </button>
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter-grid">
-        ${kpiTile('groups', 'Localidades (Actual)', `<p class="font-kpi-value text-kpi-value text-on-surface leading-none">${fmtInt(nLocActual)}</p>`, 'primary')}
-        ${kpiTile('map', 'Polígonos Vigentes', `<p class="font-kpi-value text-kpi-value text-on-surface leading-none">${fmtInt(nPolActual)}</p>`, 'blue')}
-        ${kpiTile('layers', 'Polígonos (Nueva)', `<p class="font-kpi-value text-kpi-value text-on-surface leading-none">${fmtInt(nPolNueva)}</p>`, 'teal')}
-        ${kpiTile('groups', 'Población Analizada', `<p class="font-kpi-value text-kpi-value text-on-surface leading-none">${fmtInt(pobActual)}</p>`, 'warning')}
+    <div class="rounded-2xl p-6 bg-gradient-to-br from-primary/10 via-primary-container/25 to-transparent border border-primary/20 flex flex-col md:flex-row items-center gap-5">
+        <span class="shrink-0 w-14 h-14 rounded-2xl bg-primary text-on-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-3xl">trending_up</span>
+        </span>
+        <div class="flex-1 text-center md:text-left">
+            <p class="font-label-bold text-label-bold text-primary uppercase tracking-wider">Impacto de la ampliación territorial</p>
+            <p class="font-headline-sm text-headline-sm text-on-surface mt-1 leading-snug">
+                Con la Nueva Propuesta Territorial, la cobertura del programa pasaría de <b>${fmtInt(nLocActual)}</b> a
+                <b>${fmtInt(nLocActual + nLocNueva)}</b> localidades
+                (<span class="text-primary font-bold">+${crecimientoLoc.toFixed(0)}%</span>) y de
+                <b>${fmtInt(pobActual)}</b> a <b>${fmtInt(pobActual + pobNueva)}</b> habitantes atendidos
+                (<span class="text-primary font-bold">+${crecimientoPob.toFixed(0)}%</span>).
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-gutter-grid">
+        ${sectionLabel('Propuesta Actual', 'map', 'primary')}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
+            ${kpiCount('groups', 'Localidades', nLocActual, 'primary')}
+            ${kpiCount('map', 'Polígonos', nPolActual, 'blue')}
+            ${kpiCount('groups', 'Población', pobActual, 'warning')}
+        </div>
+        ${sectionLabel('Nueva Propuesta Territorial', 'layers', 'teal')}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
+            ${kpiCount('groups', 'Localidades', nLocNueva, 'primary')}
+            ${kpiCount('layers', 'Polígonos', nPolNueva, 'blue')}
+            ${kpiCount('groups', 'Población', pobNueva, 'warning')}
+        </div>
+    </div>
+
+    <div>
+        ${sectionLabel('Grados de Marginación', 'signal_cellular_alt', 'warning')}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-grid mt-3">
+            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Propuesta Actual</h3>${marginacionBarsHtml(TPBV_DATA)}`)}
+            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml((typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined') ? TPBV_DATA_PROPUESTA_2026 : [])}`)}
+        </div>
     </div>
 
     <div>
@@ -648,18 +887,48 @@ function renderInicioView() {
             </ol>
         `, 'mt-3')}
     </div>`;
+    animateEntrances(view);
+}
+
+// Dibuja un circleMarker por localidad (con popup + link "Ver detalle") en
+// markersLayer, usado tanto en el modo overview (una localidad activa
+// resaltada, ver activeRec) como en el filtro personalizado (activeRec null,
+// ninguna localidad resaltada sobre las demas). Comparte la logica de estilo
+// para que ambos modos se vean consistentes en el mapa.
+function drawLocalidadMarkers(records, activeRec, boundsOut) {
+    const data = activeData();
+    markersLayer = L.layerGroup().addTo(map);
+    records.forEach((r) => {
+        const isActive = !!activeRec && r.idx === data.indexOf(activeRec);
+        const m = L.circleMarker([r.latitud, r.longitud], {
+            radius: isActive ? 9 : 6,
+            color: '#154212',
+            weight: isActive ? 3 : 1.5,
+            fillColor: isActive ? '#a1d494' : '#3b6934',
+            fillOpacity: isActive ? 1 : 0.7
+        }).addTo(markersLayer);
+        const nota = r.coordManual ? '<br><span class="text-warning">Coordenada capturada manualmente</span>' : '';
+        m.bindPopup(`<b>${esc(r.localidad)}</b><br>${esc(r.municipio)}, Morelos${nota}
+            <br><a href="#" onclick="selectLocalidad(${r.idx}); return false;" class="text-primary font-semibold">Ver detalle &rarr;</a>`);
+        boundsOut.push(L.latLngBounds([[r.latitud, r.longitud]]));
+    });
 }
 
 function renderMap(rec, mapMode) {
     lastMapRec = rec;
-    lastMapMode = mapMode;
     const container = $('#map-container');
     const feature = findPoligonoFeature(rec.poligono);
     const hasPoint = rec.latitud !== null && rec.longitud !== null;
     const showAll = selPoligono.value === 'all';
     const overview = mapMode === 'overview' && !showAll;
 
-    if (!feature && !hasPoint && !showAll) {
+    // En modo overview (agregado de poligono/municipio) siempre hay algo que
+    // intentar dibujar -- las localidades hermanas con coordenadas -- aunque
+    // el agregado en si no tenga feature/hasPoint propios (los datasets sin
+    // geometria de poligono, ver activePoligonosGeoJSON, nunca tienen
+    // feature). El mensaje de "sin datos" solo aplica a una localidad
+    // individual sin poligono y sin coordenada.
+    if (!overview && !rec.customPoligonos && !feature && !hasPoint && !showAll) {
         container.innerHTML = `<div class="absolute inset-0 flex items-center justify-center text-on-surface-variant flex-col gap-2">
             <span class="material-symbols-outlined text-4xl opacity-50">location_off</span>
             <span class="font-body-md text-center px-4">No hay datos geográficos disponibles para esta localidad</span>
@@ -678,10 +947,7 @@ function renderMap(rec, mapMode) {
     }
 
     ensureMunicipiosLayer();
-    if (municipiosLayer) {
-        if (showMunicipios && !map.hasLayer(municipiosLayer)) municipiosLayer.addTo(map);
-        else if (!showMunicipios && map.hasLayer(municipiosLayer)) map.removeLayer(municipiosLayer);
-    }
+    syncLayerVisibility(municipiosLayer, showMunicipios, map);
 
     if (marker) { marker.remove(); marker = null; }
     if (polygonLayer) { polygonLayer.remove(); polygonLayer = null; }
@@ -689,36 +955,47 @@ function renderMap(rec, mapMode) {
 
     const bounds = [];
 
-    if (overview && feature) {
-        // Vista del poligono seleccionado con TODAS sus localidades marcadas;
-        // solo se hace zoom a una localidad especifica cuando el usuario la
-        // selecciona explicitamente (ver mapMode 'zoom').
-        polygonLayer = L.geoJSON(feature, {
-            style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.18 }
-        }).addTo(map);
-        polygonLayer.bindTooltip(`Polígono ${feature.properties.Pol} — ${esc(feature.properties.Nom_pol)}`, { sticky: true });
-        bounds.push(polygonLayer.getBounds());
+    if (rec.customPoligonos) {
+        // Filtro personalizado (ver aggregateCustom): resalta el contorno de
+        // cada poligono elegido (si el dataset activo tiene geometria, ver
+        // activePoligonosGeoJSON) y dibuja las localidades de todos ellos
+        // juntas, sin distinguir "localidad activa" (no hay una sola).
+        const fc = activePoligonosGeoJSON();
+        if (fc) {
+            const selectedFeatures = fc.features.filter((f) => rec.customPoligonos.includes(f.properties.Pol));
+            if (selectedFeatures.length) {
+                polygonLayer = L.geoJSON({ type: 'FeatureCollection', features: selectedFeatures }, {
+                    style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.2 },
+                    onEachFeature: (f, layer) => {
+                        layer.bindTooltip(`Polígono ${f.properties.Pol} — ${esc(f.properties.Nom_pol)}`, { sticky: true });
+                    }
+                }).addTo(map);
+                bounds.push(polygonLayer.getBounds());
+            }
+        }
 
-        const data = activeData();
-        const hermanas = data
-            .map((r, idx) => ({ ...r, idx }))
+        const hermanas = indexedActiveData()
+            .filter((r) => rec.customPoligonos.includes(r.poligono) && r.latitud !== null && r.longitud !== null);
+        drawLocalidadMarkers(hermanas, null, bounds);
+    } else if (overview) {
+        // Vista del poligono/grupo seleccionado con TODAS sus localidades
+        // marcadas; solo se hace zoom a una localidad especifica cuando el
+        // usuario la selecciona explicitamente (ver mapMode 'zoom'). El
+        // contorno del poligono es opcional (feature puede ser null si el
+        // dataset activo no tiene geometria de poligono, ver
+        // activePoligonosGeoJSON) -- las localidades hermanas siempre se
+        // dibujan, con o sin contorno.
+        if (feature) {
+            polygonLayer = L.geoJSON(feature, {
+                style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.18 }
+            }).addTo(map);
+            polygonLayer.bindTooltip(`Polígono ${feature.properties.Pol} — ${esc(feature.properties.Nom_pol)}`, { sticky: true });
+            bounds.push(polygonLayer.getBounds());
+        }
+
+        const hermanas = indexedActiveData()
             .filter((r) => r.poligono === rec.poligono && r.latitud !== null && r.longitud !== null);
-
-        markersLayer = L.layerGroup().addTo(map);
-        hermanas.forEach((r) => {
-            const isActive = r.idx === data.indexOf(rec);
-            const m = L.circleMarker([r.latitud, r.longitud], {
-                radius: isActive ? 9 : 6,
-                color: '#154212',
-                weight: isActive ? 3 : 1.5,
-                fillColor: isActive ? '#a1d494' : '#3b6934',
-                fillOpacity: isActive ? 1 : 0.7
-            }).addTo(markersLayer);
-            const nota = r.coordManual ? '<br><span class="text-warning">Coordenada capturada manualmente</span>' : '';
-            m.bindPopup(`<b>${esc(r.localidad)}</b><br>${esc(r.municipio)}, Morelos${nota}
-                <br><a href="#" onclick="selectLocalidad(${r.idx}); return false;" class="text-primary font-semibold">Ver detalle &rarr;</a>`);
-            bounds.push(L.latLngBounds([[r.latitud, r.longitud]]));
-        });
+        drawLocalidadMarkers(hermanas, rec, bounds);
     } else if (showAll && activePoligonosGeoJSON()) {
         // Vista de conjunto: todos los poligonos del dataset activo,
         // coloreados por region, con el de la localidad actual resaltado en
@@ -765,29 +1042,14 @@ function renderMap(rec, mapMode) {
             let combined = bounds[0];
             bounds.slice(1).forEach((b) => { combined = combined.extend(b); });
             map.fitBounds(combined, { padding: [20, 20], maxZoom: hasPoint ? 15 : 14 });
+        } else {
+            // Sin nada que encuadrar (p.ej. "Todos los Poligonos" en un
+            // dataset sin geometria de poligono, ver activePoligonosGeoJSON):
+            // vista general de Morelos en vez de dejar el mapa en el zoom
+            // por defecto de Leaflet (centro [0,0]).
+            map.setView([18.75, -99.15], 9);
         }
     }, 150);
-}
-
-// ---------------------------------------------------------------------------
-// Estado "sin seleccion": se muestra cuando el filtro esta en "Todos los
-// Poligonos" y aun no se ha elegido una localidad especifica.
-// ---------------------------------------------------------------------------
-function renderNoSelection() {
-    canvas.innerHTML = `
-    <div class="col-span-1 md:col-span-2 xl:col-span-12">
-        <div id="map-card" class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col h-full min-h-[500px]">
-            ${mapCardHeader()}
-            <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="map-container"></div>
-        </div>
-    </div>
-    <div class="col-span-1 md:col-span-2 xl:col-span-12">` + card(`
-        <div class="flex items-center gap-4 text-on-surface-variant py-1">
-            ${iconChip('touch_app', 'w-11 h-11', 'text-2xl')}
-            <p class="font-body-lg text-body-lg">Selecciona un <b>polígono</b> o una <b>localidad</b> en los filtros de arriba para ver su información sociodemográfica detallada.</p>
-        </div>
-    `) + `</div>`;
-    renderMap({ poligono: -1, latitud: null, longitud: null, localidad: '', municipio: '' }, 'all');
 }
 
 // ---------------------------------------------------------------------------
@@ -810,8 +1072,8 @@ function render(idx, mapMode) {
                 No se encontró una coincidencia confiable para <b>${esc(rec.localidad)}</b> en el Censo INEGI 2020 (ITER Morelos).
                 Esto ocurre principalmente con colonias/barrios urbanos que no se registran como localidad censal independiente.
                 ${rec.latitud !== null
-                    ? 'El mapa muestra su ubicación (coordenada capturada manualmente) dentro del polígono ' + esc(rec.poligono) + '.'
-                    : 'El mapa muestra el polígono ' + esc(rec.poligono) + ' al que pertenece, pero no la ubicación exacta de la localidad.'}
+                    ? 'El mapa muestra su ubicación (coordenada capturada manualmente) dentro de ' + esc(rec.nombrePoligono || `polígono ${rec.poligono}`) + '.'
+                    : 'El mapa muestra ' + esc(rec.nombrePoligono || `el polígono ${rec.poligono}`) + ' al que pertenece, pero no la ubicación exacta de la localidad.'}
             </p>
             <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Población reportada (Lista TPBV 2026)</span>
             <span class="font-data-display text-data-display text-on-surface">${fmtInt(rec.pobTotLista)}</span></div>
@@ -985,27 +1247,38 @@ function renderInfoCard(rec) {
         <div class="space-y-1">
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Municipio</span><span class="font-data-display text-data-display text-on-surface">${esc(rec.municipio)}</span></div>
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Región</span><span class="font-data-display text-data-display text-on-surface">${esc(rec.region || '—')}</span></div>
-        <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígono</span><span class="font-data-display text-data-display text-on-surface">${esc(rec.poligono)}</span></div>
+        <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígono</span><span class="font-data-display text-data-display text-on-surface">${esc(rec.nombrePoligono || rec.poligono)}</span></div>
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Grado de Marginación</span><span class="font-data-display text-data-display text-on-surface">${esc(rec.gmMarginacion || '—')}</span></div>
         </div>
     </div>`;
 }
 
 function renderLocalidadesCard(rec) {
-    const hermanos = activeData()
-        .map((r, idx) => ({ ...r, idx }))
-        .filter((r) => r.poligono === rec.poligono)
-        .sort((a, b) => a.localidad.localeCompare(b.localidad, 'es'));
+    // rec.customPoligonos (filtro personalizado, ver aggregateCustom) o
+    // rec.poligono === null sin customPoligonos ("Todos los Poligonos", ver
+    // aggregateTodos): en ambos casos se listan varias localidades de mas de
+    // un poligono, agrupadas visualmente por municipio (mas facil de escanear
+    // que muchos nombres sueltos en orden alfabetico plano).
+    const esCustom = !!rec.customPoligonos;
+    const esTodos = !esCustom && rec.poligono === null;
+    const agrupar = esCustom || esTodos;
+    const hermanos = indexedActiveData()
+        .filter((r) => inAggScope(r, rec))
+        .sort((a, b) => agrupar
+            ? (a.municipio + a.localidad).localeCompare(b.municipio + b.localidad, 'es')
+            : a.localidad.localeCompare(b.localidad, 'es'));
 
     const listItems = hermanos.map((r) => {
         const isActive = r.localidad === rec.localidad && r.municipio === rec.municipio;
-        return `<li class="loc-item px-3 py-2.5 rounded-lg font-body-md text-body-md transition-colors ${isActive ? 'active' : 'text-on-surface-variant hover:bg-surface-container-low'}" data-idx="${r.idx}" role="button" tabindex="0" aria-current="${isActive ? 'true' : 'false'}">${esc(r.localidad)}</li>`;
+        const etiqueta = agrupar ? `${esc(r.localidad)} <span class="text-on-surface-variant">— ${esc(r.municipio)}</span>` : esc(r.localidad);
+        return `<li class="loc-item px-3 py-2.5 rounded-lg font-body-md text-body-md transition-colors ${isActive ? 'active' : 'text-on-surface-variant hover:bg-surface-container-low'}" data-idx="${r.idx}" role="button" tabindex="0" aria-current="${isActive ? 'true' : 'false'}">${etiqueta}</li>`;
     }).join('');
 
+    const titulo = esCustom ? 'Localidades Seleccionadas' : esTodos ? 'Todas las Localidades' : 'Localidades en este Polígono';
     return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col">
         <div class="flex items-center gap-2 mb-stack-md pb-2 border-b-2 border-secondary-container">
             <span class="material-symbols-outlined text-secondary">location_city</span>
-            <h2 class="font-headline-md text-headline-md text-on-surface">Localidades en este Polígono</h2>
+            <h2 class="font-headline-md text-headline-md text-on-surface">${titulo}</h2>
             <span class="ml-auto font-label-bold text-label-bold text-on-surface-variant bg-surface-container-high px-2.5 py-1 rounded-full">${hermanos.length}</span>
         </div>
         <ul class="space-y-1 max-h-[420px] overflow-y-auto pr-1">${listItems}</ul>
@@ -1025,8 +1298,10 @@ const AGG_SUM_FIELDS = [
     'pob0a14', 'pob15a64', 'pob65mas', 'sinBasicaCompleta', 'ocupadaPrimario', 'hacinamiento'
 ];
 
-function aggregatePoligono(polNum) {
-    const todas = activeData().map((r, idx) => ({ ...r, idx })).filter((r) => r.poligono === polNum);
+// Suma/promedia los campos de AGG_SUM_FIELDS sobre una lista de registros ya
+// filtrada; el llamador solo aporta los metadatos especificos del grupo
+// (municipio, poligono, nombre, etc. -- ver aggregatePoligono/aggregateTodos).
+function aggregateRecords(todas, meta) {
     const conDatos = todas.filter((r) => r.fuente !== 'SIN DATOS');
 
     const agg = {};
@@ -1051,10 +1326,6 @@ function aggregatePoligono(polNum) {
         }))
         : null;
 
-    agg.region = todas.length ? todas[0].region : null;
-    agg.municipio = todas.length ? todas[0].municipio : null;
-    agg.poligono = polNum;
-    agg.localidad = `Polígono ${polNum} — todas las localidades`;
     agg.pobTotLista = todas.reduce((s, r) => s + (r.pobTotLista || 0), 0);
     agg.latitud = null;
     agg.longitud = null;
@@ -1063,32 +1334,104 @@ function aggregatePoligono(polNum) {
     agg.nConDatos = conDatos.length;
     agg.nSinDatos = todas.length - conDatos.length;
     agg.gmMarginacion = null;
+    Object.assign(agg, meta);
     return agg;
+}
+
+function aggregatePoligono(polNum) {
+    const todas = indexedActiveData().filter((r) => r.poligono === polNum);
+    const nombrePoligono = todas.length ? todas[0].nombrePoligono : null;
+    return aggregateRecords(todas, {
+        region: todas.length ? todas[0].region : null,
+        municipio: todas.length ? todas[0].municipio : null,
+        poligono: polNum,
+        nombrePoligono,
+        localidad: `${nombrePoligono || `Polígono ${polNum}`} — todas las localidades`,
+    });
+}
+
+// Totales generales: suma TODAS las localidades del dataset activo, sin
+// filtrar por poligono (rec.poligono queda en null -- ver renderMap,
+// renderLocalidadesCard y renderAggregateInfoCard, que ya saben tratar null
+// como "sin filtro" en vez de "sin poligono valido").
+function aggregateTodos() {
+    const todas = indexedActiveData();
+    const nPoligonos = new Set(todas.map((r) => r.poligono)).size;
+    const nMunicipios = new Set(todas.map((r) => r.municipio)).size;
+    return aggregateRecords(todas, {
+        region: null,
+        municipio: `${nMunicipios} municipios`,
+        poligono: null,
+        nombrePoligono: 'Todos los Polígonos',
+        localidad: 'Todos los Polígonos — Vista General',
+        nPoligonos,
+    });
+}
+
+// Filtro personalizado (#custom-poligonos-panel): agrega solo los poligonos
+// elegidos por el usuario, en vez de uno solo (aggregatePoligono) o todos
+// (aggregateTodos). agg.poligono se deja en null (igual que aggregateTodos,
+// "sin un unico poligono") y se agrega agg.customPoligonos con la lista
+// elegida -- ver inAggScope, que es el que realmente decide que localidades
+// entran en el agregado en los tres casos.
+function aggregateCustom(polNums) {
+    const set = new Set(polNums);
+    const todas = indexedActiveData().filter((r) => set.has(r.poligono));
+    const regiones = [...new Set(todas.map((r) => r.region).filter(Boolean))];
+    const municipios = new Set(todas.map((r) => r.municipio));
+    return aggregateRecords(todas, {
+        region: regiones.length === 1 ? regiones[0] : regiones.length > 1 ? `${regiones.length} regiones` : null,
+        municipio: `${municipios.size} municipio${municipios.size === 1 ? '' : 's'}`,
+        poligono: null,
+        customPoligonos: polNums,
+        nombrePoligono: `Selección personalizada (${polNums.length} polígonos)`,
+        localidad: `Selección personalizada — ${polNums.map((p) => poligonoLabel(p)).join(', ')}`,
+        nPoligonos: polNums.length,
+    });
+}
+
+// Decide si una localidad "pertenece" al agregado que se esta mostrando,
+// para las tres variantes que puede tomar un agg (ver aggregatePoligono /
+// aggregateTodos / aggregateCustom): un solo poligono, todo el dataset
+// activo, o la seleccion personalizada del panel de checkboxes.
+function inAggScope(r, agg) {
+    if (agg.customPoligonos) return agg.customPoligonos.includes(r.poligono);
+    if (agg.poligono === null) return true;
+    return r.poligono === agg.poligono;
 }
 
 function renderAggregateInfoCard(agg) {
     const grados = activeData()
-        .filter((r) => r.poligono === agg.poligono && r.gmMarginacion)
+        .filter((r) => inAggScope(r, agg) && r.gmMarginacion)
         .reduce((acc, r) => { acc[r.gmMarginacion] = (acc[r.gmMarginacion] || 0) + 1; return acc; }, {});
     const gradosHtml = Object.entries(grados)
         .map(([g, n]) => `${esc(g)} (${n})`)
         .join(', ') || '—';
+    const poligonosRow = agg.nPoligonos !== undefined
+        ? `<div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígonos incluidos</span><span class="font-data-display text-data-display text-on-surface">${fmtInt(agg.nPoligonos)}</span></div>`
+        : '';
+    const poligonoRow = agg.customPoligonos
+        ? `<div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígonos seleccionados</span><span class="font-data-display text-data-display text-on-surface text-right">${agg.customPoligonos.map((p) => esc(poligonoLabel(p))).join(', ')}</span></div>`
+        : `<div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígono</span><span class="font-data-display text-data-display text-on-surface">${esc(agg.nombrePoligono || agg.poligono)}</span></div>`;
 
     return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-primary">
         ${cardHeader('info', 'Información General')}
         <div class="space-y-1">
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Municipio</span><span class="font-data-display text-data-display text-on-surface">${esc(agg.municipio)}</span></div>
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Región</span><span class="font-data-display text-data-display text-on-surface">${esc(agg.region || '—')}</span></div>
-        <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Polígono</span><span class="font-data-display text-data-display text-on-surface">${esc(agg.poligono)}</span></div>
+        ${poligonoRow}
+        ${poligonosRow}
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Localidades incluidas</span><span class="font-data-display text-data-display text-on-surface">${agg.nConDatos} de ${agg.nLocalidades}</span></div>
         <div class="data-row"><span class="font-body-md text-body-md text-on-surface-variant">Grados de Marginación</span><span class="font-data-display text-data-display text-on-surface text-right">${gradosHtml}</span></div>
         </div>
     </div>`;
 }
 
-function renderAggregate(polNum) {
-    const agg = aggregatePoligono(polNum);
-
+// Cuerpo compartido por las tres formas de ver un agregado: un solo poligono,
+// todos los poligonos (renderAggregate(null)) o la seleccion personalizada
+// (renderCustomAggregate). Recibe el objeto agg ya armado (aggregatePoligono
+// / aggregateTodos / aggregateCustom) para no repetir el markup del canvas.
+function renderAggregateView(agg) {
     const parts = [];
     parts.push(renderKpiStrip(agg));
     parts.push(`<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">`);
@@ -1104,7 +1447,7 @@ function renderAggregate(polNum) {
             <div class="flex items-center gap-3 text-on-surface-variant">
                 <span class="material-symbols-outlined text-2xl text-warning">info</span>
                 <p class="font-body-md text-body-md">
-                    <b>${agg.nSinDatos} de ${agg.nLocalidades}</b> localidades de este polígono no tienen coincidencia en el Censo INEGI 2020 y
+                    <b>${agg.nSinDatos} de ${agg.nLocalidades}</b> localidades${agg.poligono === null && !agg.customPoligonos ? '' : ' de este polígono'} no tienen coincidencia en el Censo INEGI 2020 y
                     <b>no están incluidas</b> en los totales de abajo (suelen ser colonias/barrios dentro de una cabecera urbana). Revísalas en la lista de localidades.
                 </p>
             </div>
@@ -1116,6 +1459,19 @@ function renderAggregate(polNum) {
     canvas.innerHTML = parts.join('');
     renderMap(agg, 'overview');
     animateEntrances();
+}
+
+// polNum === null => totales generales de todo el dataset activo (ver
+// aggregateTodos); se usa cuando "Filtrar por Poligono" esta en "Todos los
+// Poligonos" y no hay una localidad especifica elegida.
+function renderAggregate(polNum) {
+    renderAggregateView(polNum === null ? aggregateTodos() : aggregatePoligono(polNum));
+}
+
+// Filtro personalizado (ver applyCustomPoligonosSelection): agrega y
+// renderiza solo los poligonos marcados en #custom-poligonos-panel.
+function renderCustomAggregate() {
+    renderAggregateView(aggregateCustom([...customPoligonos].sort((a, b) => a - b)));
 }
 
 // ---------------------------------------------------------------------------
@@ -1144,13 +1500,13 @@ function reportFooter(fecha) {
 function buildReportHTML(rec) {
     const isAgg = rec.fuente === 'AGREGADO';
     const fecha = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
-    const titulo = isAgg ? `Polígono ${rec.poligono} — Todas las localidades` : rec.localidad;
+    const titulo = isAgg ? `${rec.nombrePoligono || `Polígono ${rec.poligono}`} — Todas las localidades` : rec.localidad;
 
     let metaHtml = `
         <div>Localidad / Ámbito: <b>${esc(titulo)}</b></div>
         <div>Municipio: <b>${esc(rec.municipio)}</b></div>
         <div>Región: <b>${esc(rec.region || '—')}</b></div>
-        <div>Polígono: <b>${esc(rec.poligono)}</b></div>`;
+        <div>Polígono: <b>${esc(rec.nombrePoligono || rec.poligono)}</b></div>`;
     metaHtml += isAgg
         ? `<div>Localidades incluidas: <b>${rec.nConDatos} de ${rec.nLocalidades}</b></div>`
         : `<div>Grado de Marginación: <b>${esc(rec.gmMarginacion || '—')}</b></div>`;
@@ -1266,7 +1622,7 @@ function buildReportHTML(rec) {
 }
 
 function printReport() {
-    if (!lastMapRec || lastMapRec.poligono === -1) {
+    if (!lastMapRec) {
         alert('Selecciona un polígono o una localidad antes de generar el reporte.');
         return;
     }
@@ -1399,11 +1755,12 @@ function showView(view) {
 // ---------------------------------------------------------------------------
 // Switch "Conjunto de datos" en Analisis Demografico: alterna entre
 // TPBV_DATA (Propuesta Actual, 132 localidades / 26 poligonos vigentes) y
-// TPBV_DATA_NUEVA (Nueva Propuesta Territorial, 162 localidades / 25
-// poligonos), ver activeData()/activePoligonosGeoJSON() y DATASET_MODE. Al
-// cambiar se reconstruyen los selects y se vuelve al estado "sin seleccion"
-// en vez de intentar preservar la localidad elegida: los dos datasets no
-// comparten indices ni, en general, las mismas localidades/poligonos.
+// TPBV_DATA_PROPUESTA_2026 (Nueva Propuesta Territorial, 68 localidades / 20
+// poligonos, hoja "PROPUESTA 2026"), ver activeData()/activePoligonosGeoJSON()
+// y DATASET_MODE. Al cambiar se reconstruyen los selects y se vuelve al
+// estado "sin seleccion" en vez de intentar preservar la localidad elegida:
+// los dos datasets no comparten indices ni, en general, las mismas
+// localidades/poligonos.
 // ---------------------------------------------------------------------------
 const DATASET_BTN_ACTIVE = 'px-4 py-1.5 rounded-full font-label-bold text-label-bold transition-colors bg-primary text-on-primary';
 const DATASET_BTN_INACTIVE = 'px-4 py-1.5 rounded-full font-label-bold text-label-bold transition-colors text-on-surface-variant hover:bg-surface-container-highest';
@@ -1422,12 +1779,20 @@ function updateDatasetToggleUI() {
 function setDatasetMode(mode) {
     if (DATASET_MODE === mode) return;
     DATASET_MODE = mode;
+    // Los numeros de poligono no son comparables entre datasets (ver
+    // aggregateCustom / TPBV_POLIGONOS_NUEVA_NORM), asi que el filtro
+    // personalizado se limpia y sus selects vuelven a habilitarse.
+    customPoligonos.clear();
+    closeCustomPoligonosPanel();
+    selPoligono.disabled = false;
+    selLocalidad.disabled = false;
+    updateCustomPoligonosButtonLabel();
     updateDatasetToggleUI();
     buildPoligonoOptions();
     buildLocalidadOptions('all');
     selPoligono.value = 'all';
     selLocalidad.value = '';
-    renderNoSelection();
+    renderAggregate(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1449,10 +1814,7 @@ window.addEventListener('resize', () => {
 canvas.addEventListener('change', (e) => {
     if (e.target && e.target.id === 'chk-municipios') {
         showMunicipios = e.target.checked;
-        if (municipiosLayer && map) {
-            if (showMunicipios) municipiosLayer.addTo(map);
-            else map.removeLayer(municipiosLayer);
-        }
+        syncLayerVisibility(municipiosLayer, showMunicipios, map);
     }
 });
 
@@ -1461,44 +1823,56 @@ canvas.addEventListener('change', (e) => {
 $('#propuesta-view').addEventListener('change', (e) => {
     if (e.target && e.target.id === 'chk-propuesta-actual') {
         showPropuestaActual = e.target.checked;
-        if (propuestaActualLayer && propuestaMap) {
-            if (showPropuestaActual) propuestaActualLayer.addTo(propuestaMap);
-            else propuestaMap.removeLayer(propuestaActualLayer);
-        }
+        syncLayerVisibility(propuestaActualLayer, showPropuestaActual, propuestaMap);
     }
     if (e.target && e.target.id === 'chk-propuesta-nueva') {
         showPropuestaNueva = e.target.checked;
-        if (propuestaNuevaLayer && propuestaMap) {
-            if (showPropuestaNueva) propuestaNuevaLayer.addTo(propuestaMap);
-            else propuestaMap.removeLayer(propuestaNuevaLayer);
-        }
+        syncLayerVisibility(propuestaNuevaLayer, showPropuestaNueva, propuestaMap);
     }
     if (e.target && e.target.id === 'chk-municipios-propuesta') {
         showMunicipiosPropuesta = e.target.checked;
-        if (municipiosLayerPropuesta && propuestaMap) {
-            if (showMunicipiosPropuesta) municipiosLayerPropuesta.addTo(propuestaMap);
-            else propuestaMap.removeLayer(municipiosLayerPropuesta);
-        }
+        syncLayerVisibility(municipiosLayerPropuesta, showMunicipiosPropuesta, propuestaMap);
     }
-    if (e.target && e.target.id === 'chk-nuevas-localidades') {
-        showNuevasLocalidades = e.target.checked;
-        if (nuevasLocalidadesLayer && propuestaMap) {
-            if (showNuevasLocalidades) nuevasLocalidadesLayer.addTo(propuestaMap);
-            else propuestaMap.removeLayer(nuevasLocalidadesLayer);
-        }
+    if (e.target && e.target.id === 'chk-propuesta-2026') {
+        showPropuesta2026 = e.target.checked;
+        syncLayerVisibility(propuesta2026Layer, showPropuesta2026, propuestaMap);
     }
+});
+
+// Checkboxes del filtro personalizado (#custom-poligonos-panel): cada
+// cambio actualiza customPoligonos y re-renderiza el agregado de la
+// seleccion (ver applyCustomPoligonosSelection). Delegado sobre document
+// (no sobre #global-filters: el panel vive fuera de el a proposito, ver el
+// comentario junto a su <div> en el HTML) porque el panel se reconstruye
+// por completo cada vez que se abre (buildCustomPoligonosPanel), lo que
+// perderia un listener puesto directo sobre los <input>.
+document.addEventListener('change', (e) => {
+    if (!e.target.classList || !e.target.classList.contains('custom-poligono-check')) return;
+    const p = Number(e.target.value);
+    if (e.target.checked) customPoligonos.add(p); else customPoligonos.delete(p);
+    applyCustomPoligonosSelection();
+});
+
+// Cierra el panel de seleccion personalizada al hacer clic fuera de el (y
+// fuera del boton que lo abre), igual que cualquier otro menu desplegable.
+document.addEventListener('click', (e) => {
+    const panel = $('#custom-poligonos-panel');
+    const btn = $('#btn-custom-poligonos');
+    if (!panel || panel.classList.contains('hidden')) return;
+    if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+    closeCustomPoligonosPanel();
 });
 
 // Al cambiar el poligono se muestra la vista general (poligono + todas sus
 // localidades); el zoom a una localidad especifica solo ocurre cuando el
 // usuario la selecciona explicitamente (dropdown, lista lateral o popup).
-// "Todos los Poligonos" no preselecciona ninguna localidad: se queda en un
-// estado neutro hasta que el usuario elija un poligono o una localidad.
+// "Todos los Poligonos" ya no deja un estado neutro/vacio: muestra los
+// totales generales de todo el dataset activo (ver aggregateTodos).
 selPoligono.addEventListener('change', () => {
     buildLocalidadOptions(selPoligono.value);
     selLocalidad.value = '';
     if (selPoligono.value === 'all') {
-        renderNoSelection();
+        renderAggregate(null);
     } else {
         renderAggregate(Number(selPoligono.value));
     }
@@ -1516,5 +1890,11 @@ selLocalidad.addEventListener('change', () => {
 updateDatasetToggleUI();
 buildPoligonoOptions();
 buildLocalidadOptions('all');
+// Se precarga una localidad en #canvas (aunque arranque oculto detras de
+// Inicio, ver showView mas abajo) para que Analisis Demografico no aparezca
+// vacio la primera vez que el usuario entra a esa vista.
 const initialIdx = activeData().findIndex((r) => r.localidad.includes('Tlaltetelco'));
 selectLocalidad(initialIdx >= 0 ? initialIdx : 0);
+// La primera pantalla que ve el usuario es "Inicio" (bienvenida + guia),
+// no el analisis de una localidad al azar.
+showView('inicio');
