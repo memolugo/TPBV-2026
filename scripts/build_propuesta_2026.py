@@ -139,8 +139,15 @@ COORD_OVERRIDES = {
     (norm("Puente de Ixtla"), norm("El Roble")): (18.48669, -99.27936),
     (norm("Ocuituco"), norm("Colonia 5 de mayo")): (18.86706609096941, -98.77800205582561),
     (norm("Tlaltizapán de Zapata"), norm("Carlos Pacheco")): (18.694759037950032, -99.11308672471041),
-    (norm("Tlaltizapán de Zapata"), norm("El Olmedo")): (18.6805, -99.1120),
-    (norm("Yautepec"), norm("Arco Blanco")): (18.8953, -99.0435),
+    # Actualizadas el 2026-08-15 (reemplazan coordenadas anteriores).
+    (norm("Yautepec"), norm("Arco Blanco")): (18.91672, -99.03622),
+    (norm("Tlayacapan"), norm("Colonia el Partidor (El Capulín)")): (18.91897, -99.02467),
+    (norm("Xochitepec"), norm("Campo los San Juanes")): (18.73065, -99.18727),
+    (norm("Tlaltizapán de Zapata"), norm("Campo el Escape")): (18.6971, -99.1145),
+    # Actualizadas el 2026-08-15: quedaban fuera del poligono de la Nueva
+    # Propuesta que les corresponde (verificado con shapely, ver sesion).
+    (norm("Tlaltizapán de Zapata"), norm("El Olmedo")): (18.70194, -99.11238),
+    (norm("Jantetelco"), norm("Gabriel Tepepa Amayuca")): (18.72172, -98.80484),
 }
 
 # --- Cargar PROPUESTA 2026 ---

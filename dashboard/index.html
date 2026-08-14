@@ -219,9 +219,10 @@
 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Filtrar por Polígono</label>
 <select id="sel-poligono" class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface disabled:opacity-50 disabled:bg-surface-container-low disabled:cursor-not-allowed"></select>
 </div>
-<div class="flex-1 w-full">
-<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Seleccionar Localidad</label>
-<select id="sel-localidad" class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface disabled:opacity-50 disabled:bg-surface-container-low disabled:cursor-not-allowed"></select>
+<div class="flex-1 w-full relative">
+<label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Buscar Localidad</label>
+<input type="text" id="input-localidad" placeholder="Escribe el nombre de una localidad…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="localidad-suggestions" aria-autocomplete="list" class="w-full border-outline-variant rounded-lg p-2 pr-9 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface disabled:opacity-50 disabled:bg-surface-container-low disabled:cursor-not-allowed" />
+<span class="material-symbols-outlined absolute right-2.5 bottom-2.5 text-on-surface-variant pointer-events-none text-xl">search</span>
 </div>
 <div class="w-full md:w-auto">
 <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Filtro Personalizado</label>
@@ -242,6 +243,8 @@
      toggleCustomPoligonosPanel en app.js), asi que su lugar en el DOM no
      afecta el layout. -->
 <div id="custom-poligonos-panel" class="hidden fixed z-50 w-80 max-h-[420px] overflow-y-auto bg-surface-container-lowest rounded-xl card-shadow border border-outline-variant p-3"></div>
+
+<div id="localidad-suggestions" class="hidden fixed z-50 max-h-[360px] overflow-y-auto bg-surface-container-lowest rounded-xl card-shadow border border-outline-variant p-1" role="listbox"></div>
 
 <div id="canvas" class="p-margin-page grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-gutter-grid flex-1"></div>
 

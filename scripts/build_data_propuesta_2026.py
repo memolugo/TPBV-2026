@@ -191,8 +191,30 @@ COORD_OVERRIDES = {
     (norm("Puente de Ixtla"), norm("El Roble")): (18.48669, -99.27936),
     (norm("Ocuituco"), norm("Colonia 5 de mayo")): (18.86706609096941, -98.77800205582561),
     (norm("Tlaltizapán de Zapata"), norm("Carlos Pacheco")): (18.694759037950032, -99.11308672471041),
-    (norm("Tlaltizapán de Zapata"), norm("El Olmedo")): (18.6805, -99.1120),
-    (norm("Yautepec"), norm("Arco Blanco")): (18.8953, -99.0435),
+    # Actualizadas el 2026-08-15 (reemplazan coordenadas anteriores).
+    (norm("Yautepec"), norm("Arco Blanco")): (18.91672, -99.03622),
+    (norm("Tlayacapan"), norm("Colonia el Partidor (El Capulín)")): (18.91897, -99.02467),
+    (norm("Xochitepec"), norm("Campo los San Juanes")): (18.73065, -99.18727),
+    (norm("Tlaltizapán de Zapata"), norm("Campo el Escape")): (18.6971, -99.1145),
+    # Actualizadas el 2026-08-15: quedaban fuera del poligono de la Nueva
+    # Propuesta que les corresponde (verificado con shapely, ver sesion).
+    (norm("Tlaltizapán de Zapata"), norm("El Olmedo")): (18.70194, -99.11238),
+    (norm("Jantetelco"), norm("Gabriel Tepepa Amayuca")): (18.72172, -98.80484),
+}
+
+# Localidades donde el match difuso con ITER 2020 encontro una localidad
+# homonima equivocada, no esta: verificado el 2026-08-15 comparando POB_TOTAL
+# de la hoja contra POBTOT de ITER (diferencias de 3x a 60x -- p.ej. Metepec
+# en la hoja tiene 49 habitantes pero el ITER matcheado tiene 2942, señal
+# clara de que emparejo con el Metepec grande de otro lado, no con esta
+# colonia de Ocuituco). Se fuerza fuente='SIN DATOS' para estas 4 (quedan
+# solo con la poblacion de la hoja, sin viviendas/salud/educacion de un
+# lugar que no es este) en vez de aceptar estadisticas de otro sitio.
+RECHAZAR_MATCH_ITER = {
+    (norm("Ocuituco"), norm("Metepec")),
+    (norm("Tlaltizapán de Zapata"), norm("Palo Prieto")),
+    (norm("Zacualpan de Amilpas"), norm("Mariano Escobedo")),
+    (norm("Jantetelco"), norm("Gabriel Tepepa Amayuca")),
 }
 
 # --- Cargar PROPUESTA 2026 ---
@@ -253,6 +275,8 @@ for r in propuesta:
     mun_key = norm(nom_mun)
     it_row, it_metodo, it_score, it_name = buscar(loc, it_by_mun.get(mun_key, []))
     bd_row, bd_metodo, bd_score, bd_name = buscar(loc, bd_by_mun.get(mun_key, []))
+    if (mun_key, norm(loc)) in RECHAZAR_MATCH_ITER:
+        it_row = None
 
     pol_num = parse_promotor(promotor)
     info = poligono_info.get(pol_num)
@@ -313,6 +337,20 @@ for r in propuesta:
         rec["fuente"] = "SIN DATOS"
         rec["latitud"] = None
         rec["longitud"] = None
+
+    # Poblacion: se usa la de la hoja "PROPUESTA 2026" (columna POB_TOTAL,
+    # ya en pob_total/pobTotLista) como fuente unica para pobTotal, pisando
+    # la de ITER 2020 cuando hay match. Decision del 2026-08-15: al comparar
+    # ambas fuentes se encontraron 18 localidades con match censal donde la
+    # poblacion de ITER difiere mucho de la de la hoja (p.ej. Metepec: 49 en
+    # la hoja vs 2942 en ITER, ~60x -- señal de que el match difuso emparejo
+    # con una localidad homonima equivocada, no con esta). El resto de las
+    # estadisticas (vivienda, salud, educacion...) SI sigue viniendo de ITER
+    # donde hay match; solo pobTotal se pisa. Para las localidades SIN
+    # DATOS esto no cambia nada visible (ya mostraban esta misma cifra via
+    # pobTotLista), pero se deja pobTotal consistente con propuesta_2026.js.
+    if isinstance(pob_total, (int, float)):
+        rec["pobTotal"] = int(pob_total)
 
     # Override de coordenada (ver COORD_OVERRIDES): se aplica DESPUES del
     # match censal y pisa lat/lon aunque ya vinieran de ITER -- la

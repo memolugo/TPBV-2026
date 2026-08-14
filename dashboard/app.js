@@ -4,7 +4,16 @@
 const $ = (sel) => document.querySelector(sel);
 const canvas = $('#canvas');
 const selPoligono = $('#sel-poligono');
-const selLocalidad = $('#sel-localidad');
+// "Seleccionar Localidad" es un campo de busqueda (combobox), no un <select>
+// nativo: con 132/68 localidades, escanear una lista larga es mas lento que
+// escribir el nombre. Ver buildLocalidadOptions/openLocalidadSuggestions
+// mas abajo -- localidadOptions es el "candidate set" vigente (ya filtrado
+// por poligono si aplica) del que sale tanto la lista de sugerencias como
+// la validacion de que idx elegir.
+const inputLocalidad = $('#input-localidad');
+let localidadOptions = [];
+let localidadOptionsFiltradas = [];
+let localidadActiveIndex = -1;
 
 // Conjunto de datos activo en "Análisis Demográfico": 'actual' (TPBV_DATA,
 // 132 localidades / 26 poligonos vigentes) o 'nueva' (TPBV_DATA_PROPUESTA_2026,
@@ -50,6 +59,10 @@ let showMunicipiosPropuesta = false;
 // unica capa de comparacion visible por defecto.
 let propuesta2026Layer = null;
 let showPropuesta2026 = true;
+// circleMarker por localidad de TPBV_PROPUESTA_2026, mismo orden/indice que
+// el array de datos -- ver ensurePropuestaLayers y el buscador de localidad
+// de esta vista (choosePropuesta2026Locality).
+let propuesta2026Markers = [];
 let lastMapRec = null;
 
 // El mapa es "sticky" (ver CSS .map-sticky): se queda fijo en pantalla
@@ -380,12 +393,95 @@ function buildPoligonoOptions() {
 }
 
 function buildLocalidadOptions(poligonoFilter) {
-    const items = indexedActiveData()
+    localidadOptions = indexedActiveData()
         .filter((r) => poligonoFilter === 'all' || String(r.poligono) === String(poligonoFilter))
         .sort((a, b) => (a.municipio + a.localidad).localeCompare(b.municipio + b.localidad, 'es'));
-    selLocalidad.innerHTML = '<option value="" disabled>Selecciona una localidad…</option>' +
-        items.map((r) => `<option value="${r.idx}">${esc(r.municipio)} — ${esc(r.localidad)}</option>`).join('');
-    return items;
+    return localidadOptions;
+}
+
+// ---------------------------------------------------------------------------
+// Buscador de localidad (#input-localidad + #localidad-suggestions): filtra
+// localidadOptions en vivo mientras se escribe, ignorando acentos/mayusculas
+// (normalizeSearch), y arma el HTML de la lista de sugerencias. El panel
+// vive fuera de #global-filters y usa position:fixed calculado en JS por la
+// misma razon que #custom-poligonos-panel (ver su comentario en el HTML):
+// #global-filters tiene overflow:hidden que lo recortaria si quedara
+// anidado adentro.
+// ---------------------------------------------------------------------------
+function normalizeSearch(s) {
+    return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
+function filterLocalidadOptions(query) {
+    const q = normalizeSearch(query);
+    if (!q) return localidadOptions;
+    return localidadOptions.filter((r) =>
+        normalizeSearch(r.localidad).includes(q) || normalizeSearch(r.municipio).includes(q)
+    );
+}
+
+function localidadSuggestionsHtml(items) {
+    if (!items.length) {
+        return `<div class="px-3 py-2.5 font-body-md text-body-md text-on-surface-variant">Sin resultados.</div>`;
+    }
+    return items.map((r, i) => `
+        <div class="loc-suggestion px-3 py-2.5 rounded-lg font-body-md text-body-md cursor-pointer transition-colors ${i === localidadActiveIndex ? 'bg-primary-container text-on-primary-container' : 'text-on-surface hover:bg-surface-container-low'}" data-idx="${r.idx}" role="option" aria-selected="${i === localidadActiveIndex}">
+            ${esc(r.localidad)} <span class="${i === localidadActiveIndex ? '' : 'text-on-surface-variant'}">— ${esc(r.municipio)}</span>
+        </div>`).join('');
+}
+
+function positionLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions');
+    if (!panel || !inputLocalidad) return;
+    const r = inputLocalidad.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - r.width - 8));
+    const availableHeight = window.innerHeight - r.bottom - 16;
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 6}px`;
+    panel.style.width = `${r.width}px`;
+    panel.style.maxHeight = `${Math.max(160, Math.min(360, availableHeight))}px`;
+}
+
+// Se re-renderiza el HTML completo en cada tecla/apertura (barato: como
+// mucho 132 localidades) en vez de mantener estado incremental -- mas simple
+// y consistente con como el resto del tablero re-renderiza vistas completas.
+function renderLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions');
+    if (!panel) return;
+    panel.innerHTML = localidadSuggestionsHtml(localidadOptionsFiltradas);
+}
+
+// query=undefined => usa el texto actual del input (caso normal, mientras se
+// escribe). query='' explicito (ver el listener de 'focus') muestra el
+// candidate set completo sin filtrar: al enfocar el campo, su valor no es
+// una busqueda en curso sino la etiqueta "Municipio — Localidad" de la
+// ultima seleccion, que filtrada tal cual casi siempre da "sin resultados"
+// (ningun campo individual contiene el separador " — ").
+function openLocalidadSuggestions(query) {
+    const panel = $('#localidad-suggestions');
+    if (!panel || !inputLocalidad || inputLocalidad.disabled) return;
+    localidadOptionsFiltradas = filterLocalidadOptions(query === undefined ? inputLocalidad.value : query);
+    localidadActiveIndex = -1;
+    renderLocalidadSuggestions();
+    panel.classList.remove('hidden');
+    positionLocalidadSuggestions();
+    inputLocalidad.setAttribute('aria-expanded', 'true');
+    window.addEventListener('resize', positionLocalidadSuggestions);
+    window.addEventListener('scroll', positionLocalidadSuggestions, { passive: true, capture: true });
+}
+
+function closeLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions');
+    if (panel) panel.classList.add('hidden');
+    inputLocalidad?.setAttribute('aria-expanded', 'false');
+    window.removeEventListener('resize', positionLocalidadSuggestions);
+    window.removeEventListener('scroll', positionLocalidadSuggestions, { capture: true });
+}
+
+function chooseLocalidad(idx) {
+    closeLocalidadSuggestions();
+    selectLocalidad(idx);
+    inputLocalidad.blur();
 }
 
 // ---------------------------------------------------------------------------
@@ -484,12 +580,12 @@ function applyCustomPoligonosSelection() {
     updateCustomPoligonosButtonLabel();
     const active = customPoligonos.size > 0;
     selPoligono.disabled = active;
-    selLocalidad.disabled = active;
+    inputLocalidad.disabled = active;
     if (active) {
         renderCustomAggregate();
     } else {
         selPoligono.value = 'all';
-        selLocalidad.value = '';
+        inputLocalidad.value = '';
         buildLocalidadOptions('all');
         renderAggregate(null);
     }
@@ -655,7 +751,11 @@ function ensurePropuestaLayers() {
         });
     }
     if (!propuesta2026Layer && typeof TPBV_PROPUESTA_2026 !== 'undefined') {
-        propuesta2026Layer = L.featureGroup(TPBV_PROPUESTA_2026.map((loc) => {
+        // propuesta2026Markers guarda los circleMarker en el mismo orden que
+        // TPBV_PROPUESTA_2026, para poder saltar de "localidad elegida en el
+        // buscador" (ver choosePropuesta2026Locality) al marcador real sin
+        // tener que recorrer las capas del mapa buscandolo.
+        propuesta2026Markers = TPBV_PROPUESTA_2026.map((loc) => {
             const m = L.circleMarker([loc.lat, loc.lon], {
                 radius: 5,
                 color: '#fff',
@@ -667,7 +767,8 @@ function ensurePropuestaLayers() {
             const nota = loc.coordManual ? '<br><span style="color:#8a5a00">Coordenada capturada manualmente</span>' : '';
             m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true });
             return m;
-        }));
+        });
+        propuesta2026Layer = L.featureGroup(propuesta2026Markers);
     }
 }
 
@@ -720,7 +821,13 @@ function renderPropuestaView() {
                     ${iconChip('layers')}
                     <h2 class="font-headline-md text-headline-md text-on-surface">Comparación de Polígonos</h2>
                 </div>
-                <div id="propuesta-controls"></div>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="input-localidad-propuesta" placeholder="Buscar localidad…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="localidad-suggestions-propuesta" aria-autocomplete="list" class="w-full border-outline-variant rounded-lg p-2 pr-9 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface" />
+                        <span class="material-symbols-outlined absolute right-2.5 bottom-2.5 text-on-surface-variant pointer-events-none text-xl">search</span>
+                    </div>
+                    <div id="propuesta-controls"></div>
+                </div>
             </div>
             <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="propuesta-map-container">
                 <div id="propuesta-map"></div>
@@ -766,6 +873,101 @@ function renderPropuestaView() {
 }
 
 // ---------------------------------------------------------------------------
+// Buscador de localidad de "Propuesta Territorial" (#input-localidad-propuesta):
+// busca sobre TPBV_PROPUESTA_2026 (las 68 localidades geocodificadas de la
+// hoja "PROPUESTA 2026", la unica capa de este mapa con un punto por
+// localidad -- Propuesta Actual/Nueva Propuesta son solo contornos de
+// poligono). Elegir un resultado hace zoom al punto y abre su tooltip. Mismo
+// patron (position:fixed fuera del contenedor, listeners solo mientras esta
+// abierto) que el buscador de Analisis Demografico y el filtro personalizado
+// de poligonos -- ver sus comentarios para el porque.
+// ---------------------------------------------------------------------------
+let propuestaLocalidadFiltradas = [];
+let propuestaLocalidadActiveIndex = -1;
+
+function filterPropuesta2026(query) {
+    const q = normalizeSearch(query);
+    const items = (typeof TPBV_PROPUESTA_2026 !== 'undefined') ? TPBV_PROPUESTA_2026 : [];
+    if (!q) return items.map((loc, i) => ({ ...loc, i }));
+    return items
+        .map((loc, i) => ({ ...loc, i }))
+        .filter((loc) => normalizeSearch(loc.localidad).includes(q) || normalizeSearch(loc.municipio).includes(q));
+}
+
+function propuestaLocalidadSuggestionsHtml(items) {
+    if (!items.length) {
+        return `<div class="px-3 py-2.5 font-body-md text-body-md text-on-surface-variant">Sin resultados.</div>`;
+    }
+    return items.map((loc, i) => `
+        <div class="loc-suggestion-propuesta px-3 py-2.5 rounded-lg font-body-md text-body-md cursor-pointer transition-colors ${i === propuestaLocalidadActiveIndex ? 'bg-primary-container text-on-primary-container' : 'text-on-surface hover:bg-surface-container-low'}" data-i="${loc.i}" role="option" aria-selected="${i === propuestaLocalidadActiveIndex}">
+            ${esc(loc.localidad)} <span class="${i === propuestaLocalidadActiveIndex ? '' : 'text-on-surface-variant'}">— ${esc(loc.municipio)}</span>
+        </div>`).join('');
+}
+
+function positionPropuestaLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions-propuesta');
+    const input = $('#input-localidad-propuesta');
+    if (!panel || !input) return;
+    const r = input.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - r.width - 8));
+    const availableHeight = window.innerHeight - r.bottom - 16;
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 6}px`;
+    panel.style.width = `${r.width}px`;
+    panel.style.maxHeight = `${Math.max(160, Math.min(360, availableHeight))}px`;
+}
+
+function renderPropuestaLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions-propuesta');
+    if (panel) panel.innerHTML = propuestaLocalidadSuggestionsHtml(propuestaLocalidadFiltradas);
+}
+
+function openPropuestaLocalidadSuggestions(query) {
+    const panel = $('#localidad-suggestions-propuesta');
+    const input = $('#input-localidad-propuesta');
+    if (!panel || !input) return;
+    propuestaLocalidadFiltradas = filterPropuesta2026(query === undefined ? input.value : query);
+    propuestaLocalidadActiveIndex = -1;
+    renderPropuestaLocalidadSuggestions();
+    panel.classList.remove('hidden');
+    positionPropuestaLocalidadSuggestions();
+    input.setAttribute('aria-expanded', 'true');
+    window.addEventListener('resize', positionPropuestaLocalidadSuggestions);
+    window.addEventListener('scroll', positionPropuestaLocalidadSuggestions, { passive: true, capture: true });
+}
+
+function closePropuestaLocalidadSuggestions() {
+    const panel = $('#localidad-suggestions-propuesta');
+    const input = $('#input-localidad-propuesta');
+    if (panel) panel.classList.add('hidden');
+    input?.setAttribute('aria-expanded', 'false');
+    window.removeEventListener('resize', positionPropuestaLocalidadSuggestions);
+    window.removeEventListener('scroll', positionPropuestaLocalidadSuggestions, { capture: true });
+}
+
+// Hace zoom al punto elegido y abre su tooltip; si la capa "Propuesta 2026"
+// estaba apagada la reactiva (buscar algo invisible seria confuso), tanto en
+// el estado (showPropuesta2026) como en el checkbox visible.
+function choosePropuesta2026Locality(i) {
+    closePropuestaLocalidadSuggestions();
+    const loc = TPBV_PROPUESTA_2026[i];
+    const marker = propuesta2026Markers[i];
+    if (!loc || !marker || !propuestaMap) return;
+
+    const input = $('#input-localidad-propuesta');
+    if (input) input.value = `${loc.localidad} — ${loc.municipio}`;
+
+    if (!showPropuesta2026) {
+        showPropuesta2026 = true;
+        const chk = $('#chk-propuesta-2026');
+        if (chk) chk.checked = true;
+        syncLayerVisibility(propuesta2026Layer, true, propuestaMap);
+    }
+    propuestaMap.setView([loc.lat, loc.lon], 15);
+    marker.openTooltip();
+}
+
+// ---------------------------------------------------------------------------
 // Vista "Inicio": bienvenida + guia rapida del tablero. Se reconstruye cada
 // vez que se abre (es barata: no toca mapas ni Leaflet) para que las cifras
 // resumen siempre reflejen los datos embebidos actuales.
@@ -795,11 +997,15 @@ function renderInicioView() {
 
     const nLocActual = TPBV_DATA.length;
     const nPolActual = new Set(TPBV_DATA.map((r) => r.poligono)).size;
-    const pobActual = TPBV_DATA.reduce((s, r) => s + (r.pobTotal || 0), 0);
+    // pobTotal ?? pobTotLista: mismo respaldo que aggregateRecords (ver su
+    // comentario) para que el total de Inicio coincida con el de "Todos los
+    // Poligonos" en Analisis Demografico -- sin esto, las localidades SIN
+    // DATOS restaban su poblacion del total aqui pero no alla.
+    const pobActual = TPBV_DATA.reduce((s, r) => s + (r.pobTotal ?? r.pobTotLista ?? 0), 0);
     const nPolNueva = (typeof TPBV_PROPUESTA_NUEVA !== 'undefined') ? TPBV_PROPUESTA_NUEVA.features.length : 0;
     const nLocNueva = (typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined') ? TPBV_DATA_PROPUESTA_2026.length : 0;
     const pobNueva = (typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined')
-        ? TPBV_DATA_PROPUESTA_2026.reduce((s, r) => s + (r.pobTotal || 0), 0)
+        ? TPBV_DATA_PROPUESTA_2026.reduce((s, r) => s + (r.pobTotal ?? r.pobTotLista ?? 0), 0)
         : 0;
     // La Nueva Propuesta Territorial ya esta curada para representar solo
     // cobertura NUEVA (Tlaquiltenango se excluyo justamente por duplicar
@@ -1290,7 +1496,7 @@ function renderLocalidadesCard(rec) {
 // dar un analisis conjunto, en vez de mostrar solo la primera localidad.
 // ---------------------------------------------------------------------------
 const AGG_SUM_FIELDS = [
-    'pobTotal', 'pobMujeres', 'pobHombres', 'analfabetas', 'pea', 'desocupada', 'ocupada',
+    'pobMujeres', 'pobHombres', 'analfabetas', 'pea', 'desocupada', 'ocupada',
     'afromexicana', 'conDiscapacidad', 'conLimitacion', 'conProblemaMental', 'afiliada', 'sinAfiliacion',
     'imss', 'issste', 'otrosSalud', 'totalViviendas', 'pisoTierra', 'unSoloCuarto', 'aguaEntubada', 'drenaje',
     'electricidad', 'refrigerador', 'lavadora', 'automovil', 'computadora', 'internet', 'celular',
@@ -1309,6 +1515,18 @@ function aggregateRecords(todas, meta) {
         const vals = conDatos.map((r) => r[f]).filter((v) => v !== null && v !== undefined);
         agg[f] = vals.length ? vals.reduce((a, b) => a + b, 0) : null;
     });
+
+    // Poblacion Total: a diferencia del resto de AGG_SUM_FIELDS, se suma
+    // sobre TODAS las localidades (no solo conDatos), usando pobTotLista
+    // (poblacion reportada en la Lista TPBV 2026) como respaldo cuando una
+    // localidad no tiene coincidencia censal. Sin esto, el total de un
+    // poligono/seleccion "desaparecia" silenciosamente la poblacion de sus
+    // localidades SIN DATOS -- p.ej. Puente de Ixtla Oriente+Poniente suman
+    // 3,352 habitantes segun la Lista TPBV 2026, pero solo 1,351 tenian
+    // coincidencia censal; el resto de los indicadores (vivienda, salud...)
+    // siguen sin poder calcularse para esas localidades, asi que esos SI
+    // siguen sumando solo sobre conDatos.
+    agg.pobTotal = todas.reduce((s, r) => s + (r.pobTotal ?? r.pobTotLista ?? 0), 0) || null;
 
     // Grado de escolaridad: promedio ponderado por poblacion (no se puede sumar)
     const escVals = conDatos.filter((r) => r.gradoEscolaridad !== null && r.pobTotal);
@@ -1447,8 +1665,9 @@ function renderAggregateView(agg) {
             <div class="flex items-center gap-3 text-on-surface-variant">
                 <span class="material-symbols-outlined text-2xl text-warning">info</span>
                 <p class="font-body-md text-body-md">
-                    <b>${agg.nSinDatos} de ${agg.nLocalidades}</b> localidades${agg.poligono === null && !agg.customPoligonos ? '' : ' de este polígono'} no tienen coincidencia en el Censo INEGI 2020 y
-                    <b>no están incluidas</b> en los totales de abajo (suelen ser colonias/barrios dentro de una cabecera urbana). Revísalas en la lista de localidades.
+                    <b>${agg.nSinDatos} de ${agg.nLocalidades}</b> localidades${agg.poligono === null && !agg.customPoligonos ? '' : ' de este polígono'} no tienen coincidencia en el Censo INEGI 2020
+                    (suelen ser colonias/barrios dentro de una cabecera urbana). Su población sí está incluida en el total (vía la Lista TPBV 2026), pero
+                    <b>vivienda, salud, educación y economía no</b> — esos indicadores solo suman las localidades con coincidencia censal. Revísalas en la lista de localidades.
                 </p>
             </div>
         `) + `</div>`);
@@ -1532,8 +1751,8 @@ function buildReportHTML(rec) {
     }
 
     if (isAgg && rec.nSinDatos > 0) {
-        html += `<div class="report-warn-box"><b>${rec.nSinDatos} de ${rec.nLocalidades}</b> localidades de este polígono no tienen coincidencia en el Censo INEGI 2020
-            y no están incluidas en los totales de este reporte.</div>`;
+        html += `<div class="report-warn-box"><b>${rec.nSinDatos} de ${rec.nLocalidades}</b> localidades de este polígono no tienen coincidencia en el Censo INEGI 2020.
+            Su población sí está incluida en el total (vía la Lista TPBV 2026), pero vivienda, salud, educación y economía solo suman las localidades con coincidencia censal.</div>`;
     }
 
     html += `<div class="report-section-title">Población</div>` + reportTable(
@@ -1648,9 +1867,10 @@ function printReport() {
 // Eventos
 // ---------------------------------------------------------------------------
 function selectLocalidad(idx) {
-    selPoligono.value = String(activeData()[idx].poligono);
+    const rec = activeData()[idx];
+    selPoligono.value = String(rec.poligono);
     buildLocalidadOptions(selPoligono.value);
-    selLocalidad.value = String(idx);
+    inputLocalidad.value = `${rec.municipio} — ${rec.localidad}`;
     render(idx, 'zoom');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1785,13 +2005,13 @@ function setDatasetMode(mode) {
     customPoligonos.clear();
     closeCustomPoligonosPanel();
     selPoligono.disabled = false;
-    selLocalidad.disabled = false;
+    inputLocalidad.disabled = false;
     updateCustomPoligonosButtonLabel();
     updateDatasetToggleUI();
     buildPoligonoOptions();
     buildLocalidadOptions('all');
     selPoligono.value = 'all';
-    selLocalidad.value = '';
+    inputLocalidad.value = '';
     renderAggregate(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -1839,6 +2059,49 @@ $('#propuesta-view').addEventListener('change', (e) => {
     }
 });
 
+// Buscador de localidad de "Propuesta Territorial" (#input-localidad-propuesta):
+// delegado sobre #propuesta-view (igual que los checkboxes de arriba) porque
+// el input se crea recien la primera vez que se abre esa vista, no existe
+// en el HTML estatico. 'focusin' en vez de 'focus': a diferencia de 'focus',
+// si burbujea, que es lo que necesita la delegacion.
+$('#propuesta-view').addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'input-localidad-propuesta') openPropuestaLocalidadSuggestions();
+});
+$('#propuesta-view').addEventListener('focusin', (e) => {
+    if (!e.target || e.target.id !== 'input-localidad-propuesta') return;
+    e.target.select();
+    openPropuestaLocalidadSuggestions('');
+});
+$('#propuesta-view').addEventListener('keydown', (e) => {
+    if (!e.target || e.target.id !== 'input-localidad-propuesta') return;
+    const panel = $('#localidad-suggestions-propuesta');
+    if (!panel) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (panel.classList.contains('hidden')) { openPropuestaLocalidadSuggestions(); return; }
+        const delta = e.key === 'ArrowDown' ? 1 : -1;
+        propuestaLocalidadActiveIndex = Math.max(0, Math.min(propuestaLocalidadActiveIndex + delta, propuestaLocalidadFiltradas.length - 1));
+        renderPropuestaLocalidadSuggestions();
+        panel.querySelector('.loc-suggestion-propuesta[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+        if (panel.classList.contains('hidden')) return;
+        e.preventDefault();
+        const chosen = propuestaLocalidadFiltradas[propuestaLocalidadActiveIndex] ?? propuestaLocalidadFiltradas[0];
+        if (chosen) choosePropuesta2026Locality(chosen.i);
+    } else if (e.key === 'Escape') {
+        closePropuestaLocalidadSuggestions();
+    }
+});
+document.addEventListener('click', (e) => {
+    const item = e.target.closest('.loc-suggestion-propuesta');
+    if (item) { choosePropuesta2026Locality(parseInt(item.dataset.i, 10)); return; }
+    const panel = $('#localidad-suggestions-propuesta');
+    const input = $('#input-localidad-propuesta');
+    if (!panel || panel.classList.contains('hidden')) return;
+    if (panel.contains(e.target) || (input && input.contains(e.target))) return;
+    closePropuestaLocalidadSuggestions();
+});
+
 // Checkboxes del filtro personalizado (#custom-poligonos-panel): cada
 // cambio actualiza customPoligonos y re-renderiza el agregado de la
 // seleccion (ver applyCustomPoligonosSelection). Delegado sobre document
@@ -1865,12 +2128,12 @@ document.addEventListener('click', (e) => {
 
 // Al cambiar el poligono se muestra la vista general (poligono + todas sus
 // localidades); el zoom a una localidad especifica solo ocurre cuando el
-// usuario la selecciona explicitamente (dropdown, lista lateral o popup).
+// usuario la selecciona explicitamente (buscador, lista lateral o popup).
 // "Todos los Poligonos" ya no deja un estado neutro/vacio: muestra los
 // totales generales de todo el dataset activo (ver aggregateTodos).
 selPoligono.addEventListener('change', () => {
     buildLocalidadOptions(selPoligono.value);
-    selLocalidad.value = '';
+    inputLocalidad.value = '';
     if (selPoligono.value === 'all') {
         renderAggregate(null);
     } else {
@@ -1879,9 +2142,44 @@ selPoligono.addEventListener('change', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-selLocalidad.addEventListener('change', () => {
-    if (!selLocalidad.value) return;
-    selectLocalidad(parseInt(selLocalidad.value, 10));
+// Buscador de localidad: cada tecla re-filtra localidadOptions (ver
+// filterLocalidadOptions) y vuelve a pintar la lista de sugerencias; foco
+// la vuelve a abrir con el filtro vigente para poder retomar la busqueda sin
+// perder lo ya escrito. La eleccion final ocurre por click (delegado en
+// document, igual que el filtro personalizado) o por teclado.
+inputLocalidad.addEventListener('input', () => openLocalidadSuggestions());
+inputLocalidad.addEventListener('focus', () => {
+    inputLocalidad.select();
+    openLocalidadSuggestions('');
+});
+
+inputLocalidad.addEventListener('keydown', (e) => {
+    const panel = $('#localidad-suggestions');
+    if (!panel) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (panel.classList.contains('hidden')) { openLocalidadSuggestions(); return; }
+        const delta = e.key === 'ArrowDown' ? 1 : -1;
+        localidadActiveIndex = Math.max(0, Math.min(localidadActiveIndex + delta, localidadOptionsFiltradas.length - 1));
+        renderLocalidadSuggestions();
+        panel.querySelector('.loc-suggestion[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+        if (panel.classList.contains('hidden')) return;
+        e.preventDefault();
+        const chosen = localidadOptionsFiltradas[localidadActiveIndex] ?? localidadOptionsFiltradas[0];
+        if (chosen) chooseLocalidad(chosen.idx);
+    } else if (e.key === 'Escape') {
+        closeLocalidadSuggestions();
+    }
+});
+
+document.addEventListener('click', (e) => {
+    const item = e.target.closest('.loc-suggestion');
+    if (item) { chooseLocalidad(parseInt(item.dataset.idx, 10)); return; }
+    const panel = $('#localidad-suggestions');
+    if (!panel || panel.classList.contains('hidden')) return;
+    if (panel.contains(e.target) || inputLocalidad.contains(e.target)) return;
+    closeLocalidadSuggestions();
 });
 
 // ---------------------------------------------------------------------------
