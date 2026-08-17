@@ -968,6 +968,633 @@ function choosePropuesta2026Locality(i) {
 }
 
 // ---------------------------------------------------------------------------
+// Vista "Banco de Proyectos": filtro en cascada Municipio -> Localidad sobre
+// TPBV_BANCO_PROYECTOS (2,295 proyectos, ver banco_proyectos.js /
+// scripts/build_banco_proyectos.py para la limpieza de nombres aplicada).
+// No usa mapa (esta fuente no trae coordenadas por proyecto), asi que a
+// diferencia de Analisis Demografico/Propuesta Territorial es una vista
+// puramente de filtro + lista de tarjetas.
+// ---------------------------------------------------------------------------
+const BANCO_ESTATUS_STYLE = {
+    'EJECUTADO': { badge: 'bg-primary-container text-on-primary-container', border: 'border-primary', icon: 'check_circle' },
+    'NO EJECUTADO': { badge: 'bg-surface-container-high text-on-surface-variant', border: 'border-outline-variant', icon: 'schedule' },
+};
+
+// Filtro de estatus (#banco-estatus-toggle): 'todos' | 'EJECUTADO' | 'NO
+// EJECUTADO'. Se aplica en bancoDataset(), el punto unico de entrada a
+// TPBV_BANCO_PROYECTOS para todo lo que se calcula/renderiza (lista de
+// proyectos de una localidad, resumen de un municipio, informe general de
+// "Todo el Estado") -- asi el filtro afecta parejo a las tres vistas sin
+// tocar cada una por separado. Los selects de Municipio/Localidad SI se
+// siguen poblando desde TPBV_BANCO_PROYECTOS sin filtrar (bancoMunicipios/
+// bancoLocalidades mas abajo): que el filtro de estatus vacie los
+// resultados de un municipio no debe hacer que ese municipio desaparezca
+// del desplegable.
+let bancoEstatusFiltro = 'todos';
+
+function bancoDataset() {
+    return bancoEstatusFiltro === 'todos'
+        ? TPBV_BANCO_PROYECTOS
+        : TPBV_BANCO_PROYECTOS.filter((p) => p.estatus === bancoEstatusFiltro);
+}
+
+function bancoMunicipios() {
+    const municipios = [...new Set(TPBV_BANCO_PROYECTOS.map((p) => p.municipio))];
+    // "Todo el Estado" agrupa programas sin municipio especifico (ver
+    // build_banco_proyectos.py): va primero, no le corresponde un lugar
+    // alfabetico entre municipios reales.
+    municipios.sort((a, b) => {
+        if (a === 'Todo el Estado') return -1;
+        if (b === 'Todo el Estado') return 1;
+        return a.localeCompare(b, 'es');
+    });
+    return municipios;
+}
+
+function bancoLocalidades(municipio) {
+    return [...new Set(TPBV_BANCO_PROYECTOS.filter((p) => p.municipio === municipio).map((p) => p.localidad))]
+        .sort((a, b) => a.localeCompare(b, 'es'));
+}
+
+function bancoProyectosDe(municipio, localidad) {
+    return bancoDataset().filter((p) => p.municipio === municipio && p.localidad === localidad);
+}
+
+function bancoMetaItem(icon, label, value) {
+    return `<div class="flex items-start gap-1.5 min-w-0">
+        <span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-0.5 shrink-0">${icon}</span>
+        <div class="min-w-0">
+            <p class="font-label-bold text-label-bold text-on-surface-variant">${esc(label)}</p>
+            <p class="font-body-md text-body-md text-on-surface truncate" title="${esc(value ?? '')}">${esc(value ?? '—')}</p>
+        </div>
+    </div>`;
+}
+
+// mostrarUbicacion=true (ver bancoResultadosBusquedaTextoHtml): el buscador
+// de texto libre devuelve proyectos de cualquier municipio/localidad
+// mezclados, asi que cada tarjeta necesita decir de donde es -- a
+// diferencia del resto de las vistas de este modulo, donde el municipio y
+// la localidad ya estan fijados por los selects y serian redundantes.
+function bancoProyectoCard(p, mostrarUbicacion) {
+    const style = BANCO_ESTATUS_STYLE[p.estatus] || BANCO_ESTATUS_STYLE['NO EJECUTADO'];
+    const chips = [p.generica, p.tipoObra].filter(Boolean)
+        .map((c) => `<span class="font-label-bold text-label-bold text-secondary bg-surface-container-high px-2.5 py-1 rounded-full">${esc(c)}</span>`)
+        .join('');
+    const ubicacion = mostrarUbicacion
+        ? `<p class="flex items-center gap-1 font-label-bold text-label-bold text-primary mb-2">
+            <span class="material-symbols-outlined text-[16px]">location_on</span>${esc(p.localidad)} — ${esc(p.municipio)}
+        </p>`
+        : '';
+    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 ${style.border}">
+        ${ubicacion}
+        <div class="flex items-start justify-between gap-3 mb-3">
+            <h3 class="font-headline-md text-headline-md text-on-surface">${esc(p.obra || 'Proyecto sin descripción')}</h3>
+            <span class="shrink-0 flex items-center gap-1.5 font-label-bold text-label-bold px-2.5 py-1 rounded-full ${style.badge}">
+                <span class="material-symbols-outlined text-[16px]">${style.icon}</span>${esc(p.estatus || '—')}
+            </span>
+        </div>
+        ${chips ? `<div class="flex flex-wrap gap-2 mb-3">${chips}</div>` : ''}
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-4 pt-3 border-t border-outline-variant">
+            ${bancoMetaItem('flag', 'Estrategia', p.estrategia)}
+            ${bancoMetaItem('priority_high', 'Prioridad', p.indice)}
+            ${bancoMetaItem('event', 'Año', p.anio)}
+            ${bancoMetaItem('tag', 'Clave de localidad', p.claveLocalidad)}
+        </div>
+    </div>`;
+}
+
+function bancoEstadoVacio() {
+    const dataset = bancoDataset();
+    const total = dataset.length;
+    const nMun = new Set(dataset.map((p) => p.municipio)).size;
+    const nEjecutado = dataset.filter((p) => p.estatus === 'EJECUTADO').length;
+    return `<div class="flex flex-col items-center justify-center text-center gap-2 py-16 px-4 bg-surface-container-lowest rounded-xl card-shadow">
+        <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40">inventory_2</span>
+        <p class="font-headline-sm text-headline-sm text-on-surface mt-2">Elige un municipio y una localidad</p>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-md">Selecciona ambos filtros arriba para ver los proyectos de esa localidad, elige <b>Todas las Localidades</b> para un resumen del municipio, o <b>Todo el Estado</b> para un informe general.</p>
+        <p class="font-body-md text-body-md text-secondary mt-2">${fmtInt(total)} proyectos en total · ${nMun} municipios · ${fmtInt(nEjecutado)} ejecutados</p>
+    </div>`;
+}
+
+// Barra horizontal ranqueada (mismo patron que marginacionBarsHtml en
+// Inicio): usada en el informe general de "Todo el Estado" para las 3
+// distribuciones (municipio/categoria/año), ordenadas de mayor a menor.
+function bancoRankingHtml(counts, colorClass, max) {
+    const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return `<p class="font-body-md text-body-md text-on-surface-variant">Sin datos.</p>`;
+    const tope = max || entries[0][1];
+    return `<div class="space-y-2.5">` + entries.map(([label, n]) => `
+        <div class="flex items-center gap-3">
+            <span class="w-44 shrink-0 font-body-md text-body-md text-on-surface truncate" title="${esc(label)}">${esc(label)}</span>
+            <div class="flex-1 h-2.5 rounded-full bg-surface-container-high overflow-hidden">
+                <div class="h-full rounded-full ${colorClass}" style="width:${(n / tope * 100).toFixed(1)}%"></div>
+            </div>
+            <span class="w-10 shrink-0 text-right font-data-display text-data-display text-on-surface">${fmtInt(n)}</span>
+        </div>`).join('') + `</div>`;
+}
+
+function bancoContarPor(campo, excluir) {
+    const counts = {};
+    TPBV_BANCO_PROYECTOS.forEach((p) => {
+        if (excluir && excluir(p)) return;
+        const key = p[campo] || 'Sin dato';
+        counts[key] = (counts[key] || 0) + 1;
+    });
+    return counts;
+}
+
+// Informe general de "Todo el Estado": en vez de pedir una localidad (que
+// para este "municipio" especial son solo los 7 programas sin municipio
+// propio, ver build_banco_proyectos.py), muestra un panorama completo --
+// principalmente pensado para responder "¿donde se han hecho mas obras?".
+// Informe compartido por "Todo el Estado" (ranking por municipio) y por el
+// resumen de un municipio especifico (ranking por localidad, ver
+// bancoResumenMunicipioHtml): KPIs + 3 rankings (campo elegido / categoria /
+// año). proyectosTotal se usa para los KPIs y para categoria/año; puede
+// diferir de proyectosRanking (el primero incluye todo, el segundo puede
+// excluir filas que no tengan un valor real para el campo que se rankea --
+// ver el caso "Todo el Estado", que excluye sus propios 7 registros sin
+// municipio del ranking por municipio).
+function bancoResumenHtml(proyectosTotal, proyectosRanking, opts) {
+    const nEjecutado = proyectosTotal.filter((p) => p.estatus === 'EJECUTADO').length;
+    const porCampo = {};
+    proyectosRanking.forEach((p) => { const k = p[opts.campoRanking] || 'Sin dato'; porCampo[k] = (porCampo[k] || 0) + 1; });
+    const porCategoria = {};
+    proyectosTotal.forEach((p) => { const k = p.generica || 'Sin categoría'; porCategoria[k] = (porCategoria[k] || 0) + 1; });
+    const topCategorias = Object.fromEntries(Object.entries(porCategoria).sort((a, b) => b[1] - a[1]).slice(0, 10));
+    const porAnio = {};
+    proyectosTotal.forEach((p) => { const k = p.anio ? String(p.anio) : 'Sin año'; porAnio[k] = (porAnio[k] || 0) + 1; });
+
+    const parts = [];
+    parts.push(`<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter-grid">
+        ${kpiCount('inventory_2', 'Proyectos', proyectosTotal.length, 'primary')}
+        ${kpiCount('check_circle', 'Ejecutados', nEjecutado, 'primary')}
+        ${kpiCount('schedule', 'No Ejecutados', proyectosTotal.length - nEjecutado, 'neutral')}
+        ${kpiCount(opts.kpiIcon, opts.kpiLabel, Object.keys(porCampo).length, 'blue')}
+    </div>`);
+
+    parts.push(`<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">`);
+    parts.push(card(`
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-1">${esc(opts.tituloRanking)}</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-4">${esc(opts.subtituloRanking)}</p>
+        <div class="max-h-[420px] overflow-y-auto pr-1">${bancoRankingHtml(porCampo, opts.colorRanking)}</div>
+    `));
+    parts.push(`<div class="flex flex-col gap-gutter-grid">
+        ${card(`
+            <h3 class="font-headline-md text-headline-md text-on-surface mb-1">Categorías más frecuentes</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-4">Top 10 tipos de programa (GENERICA).</p>
+            ${bancoRankingHtml(topCategorias, 'bg-accent-blue')}
+        `)}
+        ${card(`
+            <h3 class="font-headline-md text-headline-md text-on-surface mb-1">Proyectos por año</h3>
+            ${bancoRankingHtml(porAnio, 'bg-accent-teal')}
+        `)}
+    </div>`);
+    parts.push(`</div>`);
+    return parts.join('');
+}
+
+function bancoInformeGeneralHtml() {
+    const proyectos = bancoDataset();
+    const proyectosRankeables = proyectos.filter((p) => p.municipio !== 'Todo el Estado');
+    const nSinMunicipio = proyectos.length - proyectosRankeables.length;
+
+    const parts = [bancoResumenHtml(proyectos, proyectosRankeables, {
+        tituloRanking: 'Municipios con más obras',
+        subtituloRanking: 'Total de proyectos registrados por municipio.',
+        campoRanking: 'municipio',
+        colorRanking: 'bg-primary',
+        kpiIcon: 'location_city',
+        kpiLabel: 'Municipios con obras',
+    })];
+
+    if (nSinMunicipio > 0) {
+        const sinMunicipio = proyectos.filter((p) => p.municipio === 'Todo el Estado');
+        parts.push(sectionLabel(`Programas estatales sin municipio específico (${fmtInt(nSinMunicipio)})`, 'public', 'neutral'));
+        parts.push(`<p class="font-body-md text-body-md text-on-surface-variant -mt-2">No tienen un municipio capturado en la hoja original; no se incluyen en el ranking de arriba.</p>`);
+        parts.push(`<div class="flex flex-col gap-gutter-grid">${sinMunicipio.map(bancoProyectoCard).join('')}</div>`);
+    }
+
+    return parts.join('');
+}
+
+// Resumen de "Todas las Localidades" dentro de un municipio (ver la opcion
+// del mismo nombre en #sel-banco-localidad): mismo formato que el informe
+// general de "Todo el Estado", pero rankeando localidades en vez de
+// municipios y sin la seccion de "sin municipio" (no aplica aqui).
+function bancoResumenMunicipioHtml(municipio) {
+    const proyectos = bancoDataset().filter((p) => p.municipio === municipio);
+    return bancoResumenHtml(proyectos, proyectos, {
+        tituloRanking: 'Localidades con más obras',
+        subtituloRanking: `Total de proyectos por localidad en ${municipio}.`,
+        campoRanking: 'localidad',
+        colorRanking: 'bg-primary',
+        kpiIcon: 'location_on',
+        kpiLabel: 'Localidades con obras',
+    });
+}
+
+function bancoSinProyectos() {
+    return `<div class="flex flex-col items-center justify-center text-center gap-2 py-16 px-4 bg-surface-container-lowest rounded-xl card-shadow">
+        <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40">search_off</span>
+        <p class="font-body-md text-body-md text-on-surface-variant">No hay proyectos registrados para esta localidad.</p>
+    </div>`;
+}
+
+// Busca en descripcion (obra), categoria (generica) y tipo de obra -- no
+// solo en "obra": muchos proyectos de una categoria (p.ej. GENERICA="RED DE
+// AGUA POTABLE") tienen una descripcion que no repite el nombre de la
+// categoria (p.ej. "Ampliación de red"), y buscar solo en obra los dejaria
+// fuera de un resultado como "agua potable" que claramente los deberia
+// incluir.
+function filterBancoPorTexto(query) {
+    const q = normalizeSearch(query);
+    if (!q) return [];
+    return bancoDataset().filter((p) =>
+        normalizeSearch(p.obra).includes(q) ||
+        normalizeSearch(p.tipoObra).includes(q) ||
+        normalizeSearch(p.generica).includes(q)
+    );
+}
+
+function bancoResultadosBusquedaTextoHtml(query) {
+    const proyectos = filterBancoPorTexto(query);
+    if (!proyectos.length) {
+        return `<div class="flex flex-col items-center justify-center text-center gap-2 py-16 px-4 bg-surface-container-lowest rounded-xl card-shadow">
+            <span class="material-symbols-outlined text-5xl text-on-surface-variant opacity-40">search_off</span>
+            <p class="font-body-md text-body-md text-on-surface-variant">Ningún proyecto coincide con "${esc(query)}".</p>
+        </div>`;
+    }
+    const nEjecutado = proyectos.filter((p) => p.estatus === 'EJECUTADO').length;
+    const nMunicipios = new Set(proyectos.map((p) => p.municipio)).size;
+    const parts = [];
+    parts.push(`<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter-grid">
+        ${kpiCount('inventory_2', 'Proyectos', proyectos.length, 'primary')}
+        ${kpiCount('check_circle', 'Ejecutados', nEjecutado, 'primary')}
+        ${kpiCount('schedule', 'No Ejecutados', proyectos.length - nEjecutado, 'neutral')}
+        ${kpiCount('location_city', 'Municipios', nMunicipios, 'blue')}
+    </div>`);
+
+    // Un termino comun (p.ej. "pavimentacion") puede devolver 200+
+    // proyectos: mostrarlos todos como tarjeta completa vuelve la pagina
+    // kilometrica. Se limita la lista (los KPI de arriba SI reflejan el
+    // total real, no el limite) y se avisa que hay mas.
+    const LIMITE = 60;
+    const mostrados = proyectos.slice(0, LIMITE);
+    parts.push(`<div class="flex flex-col gap-gutter-grid">${mostrados.map((p) => bancoProyectoCard(p, true)).join('')}</div>`);
+    if (proyectos.length > LIMITE) {
+        parts.push(`<p class="font-body-md text-body-md text-on-surface-variant text-center">Mostrando ${fmtInt(LIMITE)} de ${fmtInt(proyectos.length)} proyectos. Escribe una búsqueda más específica para acotar el resultado.</p>`);
+    }
+    return parts.join('');
+}
+
+function renderBancoResultados() {
+    const container = $('#banco-resultados');
+    if (!container) return;
+
+    // Buscador de texto libre (#input-banco-texto) tiene prioridad sobre los
+    // filtros de Municipio/Localidad: busca en TODO el estado sin importar
+    // que este seleccionado abajo (ver el listener de 'input', que ademas
+    // limpia esos selects para que no quede una combinacion confusa de
+    // "Xochitepec elegido" + "resultados de todos lados").
+    const texto = $('#input-banco-texto')?.value.trim() || '';
+    if (texto) {
+        container.innerHTML = bancoResultadosBusquedaTextoHtml(texto);
+        animateEntrances(container);
+        return;
+    }
+
+    const municipio = $('#sel-banco-municipio').value;
+    const localidad = $('#sel-banco-localidad').value;
+
+    // "Todo el Estado" sin localidad elegida: informe general (ranking de
+    // municipios/categorias/años) en vez del mensaje "elige una localidad" --
+    // ver bancoInformeGeneralHtml. Si el usuario SI elige una localidad
+    // dentro de "Todo el Estado" (los 7 programas estatales sin municipio
+    // propio: "Morelos"/"OTRO"), se sigue mostrando esa lista puntual mas
+    // abajo, como con cualquier otro municipio.
+    if (municipio === 'Todo el Estado' && !localidad) {
+        container.innerHTML = bancoInformeGeneralHtml();
+        animateEntrances(container);
+        return;
+    }
+
+    // "Todas las Localidades" (opcion agregada en el select junto a las
+    // localidades reales del municipio, ver el listener de 'change' mas
+    // abajo): mismo tipo de resumen que "Todo el Estado" pero rankeando las
+    // localidades de ESTE municipio en vez de todos los municipios.
+    if (municipio && localidad === '__todas__') {
+        container.innerHTML = bancoResumenMunicipioHtml(municipio);
+        animateEntrances(container);
+        return;
+    }
+
+    if (!municipio || !localidad) {
+        container.innerHTML = bancoEstadoVacio();
+        return;
+    }
+
+    const proyectos = bancoProyectosDe(municipio, localidad);
+    if (!proyectos.length) {
+        container.innerHTML = bancoSinProyectos();
+        return;
+    }
+    const nEjecutado = proyectos.filter((p) => p.estatus === 'EJECUTADO').length;
+
+    const parts = [];
+    parts.push(`<div class="grid grid-cols-2 md:grid-cols-3 gap-gutter-grid">
+        ${kpiCount('inventory_2', 'Proyectos', proyectos.length, 'primary')}
+        ${kpiCount('check_circle', 'Ejecutados', nEjecutado, 'primary')}
+        ${kpiCount('schedule', 'No Ejecutados', proyectos.length - nEjecutado, 'neutral')}
+    </div>`);
+    parts.push(`<div class="flex flex-col gap-gutter-grid">${proyectos.map(bancoProyectoCard).join('')}</div>`);
+    container.innerHTML = parts.join('');
+    animateEntrances(container);
+}
+
+// ---------------------------------------------------------------------------
+// Buscador de localidad (#input-banco-buscar): atajo directo a un municipio+
+// localidad sin tener que saber de antemano en que municipio esta -- busca
+// por nombre en TODAS las combinaciones (municipio, localidad) del dataset
+// filtrado (bancoDataset(), respeta el filtro de Estatus), ignorando
+// acentos/mayusculas (normalizeSearch, definida junto al buscador de
+// Analisis Demografico). Al elegir un resultado ajusta los selects de
+// Municipio/Localidad exactamente como si el usuario los hubiera usado a
+// mano, para que ambos caminos queden sincronizados. "Todo el Estado" queda
+// fuera de este buscador: sus "localidades" (OTRO/Morelos) no son
+// localidades reales, ya se muestran directo en el informe general.
+// ---------------------------------------------------------------------------
+let bancoBuscarFiltradas = [];
+let bancoBuscarActiveIndex = -1;
+
+function bancoLocalidadesTodas() {
+    const counts = new Map();
+    bancoDataset().forEach((p) => {
+        if (p.municipio === 'Todo el Estado') return;
+        const key = p.municipio + '|' + p.localidad;
+        if (!counts.has(key)) counts.set(key, { municipio: p.municipio, localidad: p.localidad, n: 0 });
+        counts.get(key).n += 1;
+    });
+    return [...counts.values()].sort((a, b) => a.localidad.localeCompare(b.localidad, 'es'));
+}
+
+function filterBancoLocalidades(query) {
+    const q = normalizeSearch(query);
+    const items = bancoLocalidadesTodas();
+    if (!q) return items;
+    return items.filter((it) => normalizeSearch(it.localidad).includes(q) || normalizeSearch(it.municipio).includes(q));
+}
+
+function bancoBuscarSuggestionsHtml(items) {
+    if (!items.length) {
+        return `<div class="px-3 py-2.5 font-body-md text-body-md text-on-surface-variant">Sin resultados.</div>`;
+    }
+    return items.map((it, i) => `
+        <div class="loc-suggestion-banco px-3 py-2.5 rounded-lg font-body-md text-body-md cursor-pointer transition-colors ${i === bancoBuscarActiveIndex ? 'bg-primary-container text-on-primary-container' : 'text-on-surface hover:bg-surface-container-low'}" data-municipio="${esc(it.municipio)}" data-localidad="${esc(it.localidad)}" role="option" aria-selected="${i === bancoBuscarActiveIndex}">
+            ${esc(it.localidad)} <span class="${i === bancoBuscarActiveIndex ? '' : 'text-on-surface-variant'}">— ${esc(it.municipio)} (${it.n})</span>
+        </div>`).join('');
+}
+
+function positionBancoBuscarSuggestions() {
+    const panel = $('#banco-buscar-suggestions');
+    const input = $('#input-banco-buscar');
+    if (!panel || !input) return;
+    const r = input.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - r.width - 8));
+    const availableHeight = window.innerHeight - r.bottom - 16;
+    panel.style.left = `${left}px`;
+    panel.style.top = `${r.bottom + 6}px`;
+    panel.style.width = `${r.width}px`;
+    panel.style.maxHeight = `${Math.max(160, Math.min(360, availableHeight))}px`;
+}
+
+function renderBancoBuscarSuggestions() {
+    const panel = $('#banco-buscar-suggestions');
+    if (panel) panel.innerHTML = bancoBuscarSuggestionsHtml(bancoBuscarFiltradas);
+}
+
+function openBancoBuscarSuggestions(query) {
+    const panel = $('#banco-buscar-suggestions');
+    const input = $('#input-banco-buscar');
+    if (!panel || !input) return;
+    bancoBuscarFiltradas = filterBancoLocalidades(query === undefined ? input.value : query);
+    bancoBuscarActiveIndex = -1;
+    renderBancoBuscarSuggestions();
+    panel.classList.remove('hidden');
+    positionBancoBuscarSuggestions();
+    input.setAttribute('aria-expanded', 'true');
+    window.addEventListener('resize', positionBancoBuscarSuggestions);
+    window.addEventListener('scroll', positionBancoBuscarSuggestions, { passive: true, capture: true });
+}
+
+function closeBancoBuscarSuggestions() {
+    const panel = $('#banco-buscar-suggestions');
+    const input = $('#input-banco-buscar');
+    if (panel) panel.classList.add('hidden');
+    input?.setAttribute('aria-expanded', 'false');
+    window.removeEventListener('resize', positionBancoBuscarSuggestions);
+    window.removeEventListener('scroll', positionBancoBuscarSuggestions, { capture: true });
+}
+
+// Sincroniza los selects de Municipio/Localidad con lo elegido en el
+// buscador (mismo resultado que si el usuario los hubiera usado a mano) y
+// dispara el render normal.
+function elegirBancoLocalidad(municipio, localidad) {
+    closeBancoBuscarSuggestions();
+    const input = $('#input-banco-buscar');
+    if (input) input.value = `${localidad} — ${municipio}`;
+
+    const selMun = $('#sel-banco-municipio');
+    const selLoc = $('#sel-banco-localidad');
+    selMun.value = municipio;
+    selLoc.disabled = false;
+    selLoc.innerHTML = '<option value="">Selecciona una localidad…</option>' +
+        '<option value="__todas__">Todas las Localidades</option>' +
+        bancoLocalidades(municipio).map((l) => `<option value="${esc(l)}">${esc(l)}</option>`).join('');
+    selLoc.value = localidad;
+    renderBancoResultados();
+}
+
+let bancoProyectosViewBuilt = false;
+
+function renderBancoProyectosView() {
+    const view = $('#banco-proyectos-view');
+    if (!bancoProyectosViewBuilt) {
+        view.innerHTML = `
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-primary">Banco de Proyectos</h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Consulta los proyectos y obras registrados por municipio y localidad (Banco de Proyectos PP TPBV).</p>
+        </div>
+        <div class="w-full bg-surface-container-lowest rounded-xl p-4 card-shadow flex flex-col md:flex-row gap-4">
+            <div class="flex-1 w-full">
+                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Buscar en descripción de obra</label>
+                <div class="relative">
+                    <input type="text" id="input-banco-texto" placeholder="Ej. &quot;agua potable&quot;, &quot;pavimentación&quot;, &quot;gallinas&quot;…" autocomplete="off" class="w-full border-outline-variant rounded-lg p-2 pr-9 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface" />
+                    <span class="material-symbols-outlined absolute right-2.5 bottom-2.5 text-on-surface-variant pointer-events-none text-xl">search</span>
+                </div>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-1">Busca en todos los municipios a la vez (sí respeta el filtro de Estatus).</p>
+            </div>
+            <div class="flex-1 w-full relative">
+                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Buscar Localidad</label>
+                <div class="relative">
+                    <input type="text" id="input-banco-buscar" placeholder="Escribe el nombre de una localidad…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="banco-buscar-suggestions" aria-autocomplete="list" class="w-full border-outline-variant rounded-lg p-2 pr-9 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface" />
+                    <span class="material-symbols-outlined absolute right-2.5 bottom-2.5 text-on-surface-variant pointer-events-none text-xl">search</span>
+                </div>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-1">Salta directo a una localidad sin saber antes su municipio.</p>
+            </div>
+        </div>
+        <div class="w-full bg-surface-container-lowest rounded-xl p-4 card-shadow flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1 w-full">
+                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Municipio</label>
+                <select id="sel-banco-municipio" class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface">
+                    <option value="">Selecciona un municipio…</option>
+                </select>
+            </div>
+            <div class="flex-1 w-full">
+                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Localidad</label>
+                <select id="sel-banco-localidad" class="w-full border-outline-variant rounded-lg p-2 font-body-md text-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white text-on-surface disabled:opacity-50 disabled:bg-surface-container-low disabled:cursor-not-allowed" disabled>
+                    <option value="">Selecciona una localidad…</option>
+                </select>
+            </div>
+            <div class="w-full md:w-auto">
+                <label class="block font-label-bold text-label-bold text-on-surface-variant mb-1">Estatus</label>
+                <div id="banco-estatus-toggle" class="inline-flex rounded-full bg-surface-container-high p-1 gap-1" role="group" aria-label="Filtrar por estatus">
+                    <button type="button" data-estatus="todos" class="${DATASET_BTN_ACTIVE}" aria-pressed="true">Todos</button>
+                    <button type="button" data-estatus="EJECUTADO" class="${DATASET_BTN_INACTIVE}" aria-pressed="false">Ejecutado</button>
+                    <button type="button" data-estatus="NO EJECUTADO" class="${DATASET_BTN_INACTIVE}" aria-pressed="false">No Ejecutado</button>
+                </div>
+            </div>
+        </div>
+        <div id="banco-resultados" class="flex flex-col gap-gutter-grid"></div>`;
+        bancoProyectosViewBuilt = true;
+
+        $('#sel-banco-municipio').innerHTML = '<option value="">Selecciona un municipio…</option>' +
+            bancoMunicipios().map((m) => `<option value="${esc(m)}">${esc(m)}</option>`).join('');
+
+        // Por defecto, la primera vez que se abre esta vista ya se ve el
+        // informe general de "Todo el Estado" (ver bancoInformeGeneralHtml)
+        // en vez de la pantalla vacia "elige un municipio" -- el usuario
+        // pidio que la vista no arranque sin informacion. Localidad se deja
+        // deshabilitada, igual que cuando se elige "Todo el Estado" a mano
+        // (ver el listener de 'change' de sel-banco-municipio).
+        $('#sel-banco-municipio').value = 'Todo el Estado';
+        $('#sel-banco-localidad').disabled = true;
+
+        renderBancoResultados();
+    }
+}
+
+// Delegado sobre #banco-proyectos-view: los selects se crean recien la
+// primera vez que se abre esta vista (ver renderBancoProyectosView), no
+// existen en el HTML estatico -- mismo patron que #propuesta-view.
+$('#banco-proyectos-view').addEventListener('change', (e) => {
+    if (e.target && (e.target.id === 'sel-banco-municipio' || e.target.id === 'sel-banco-localidad')) {
+        // Elegir Municipio/Localidad "a mano" cancela una busqueda de texto
+        // libre en curso -- ver renderBancoResultados, que le da prioridad
+        // al texto si sigue presente, lo que dejaria estos selects sin
+        // efecto visible y confundiria al usuario.
+        const inputTexto = $('#input-banco-texto');
+        if (inputTexto) inputTexto.value = '';
+    }
+    if (e.target && e.target.id === 'sel-banco-municipio') {
+        const municipio = e.target.value;
+        const selLoc = $('#sel-banco-localidad');
+        // "Todo el Estado" no necesita el paso de Localidad: su unico
+        // contenido ademas del informe general son 7 filas sin municipio
+        // real capturado en la hoja original ("TODO EL ESTADO"/"Morelos ",
+        // ver build_banco_proyectos.py), cuyas localidades "OTRO"/"Morelos"
+        // no significan nada para el usuario. Esos 7 se muestran directo
+        // dentro del informe general (ver bancoInformeGeneralHtml) en vez de
+        // obligar a elegir una de esas dos opciones confusas.
+        const esTodoElEstado = municipio === 'Todo el Estado';
+        selLoc.disabled = !municipio || esTodoElEstado;
+        selLoc.innerHTML = '<option value="">Selecciona una localidad…</option>' +
+            (municipio && !esTodoElEstado
+                ? '<option value="__todas__">Todas las Localidades</option>' +
+                  bancoLocalidades(municipio).map((l) => `<option value="${esc(l)}">${esc(l)}</option>`).join('')
+                : '');
+        renderBancoResultados();
+    }
+    if (e.target && e.target.id === 'sel-banco-localidad') {
+        renderBancoResultados();
+    }
+});
+
+// Filtro de estatus (#banco-estatus-toggle): igual que Municipio/Localidad,
+// no afecta a que Municipio/Localidad esten seleccionados, solo recalcula
+// bancoDataset() y vuelve a renderizar con lo que ya estaba elegido.
+function updateBancoEstatusToggleUI() {
+    document.querySelectorAll('#banco-estatus-toggle [data-estatus]').forEach((btn) => {
+        const active = btn.dataset.estatus === bancoEstatusFiltro;
+        btn.className = active ? DATASET_BTN_ACTIVE : DATASET_BTN_INACTIVE;
+        btn.setAttribute('aria-pressed', String(active));
+    });
+}
+
+$('#banco-proyectos-view').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-estatus]');
+    if (!btn) return;
+    bancoEstatusFiltro = btn.dataset.estatus;
+    updateBancoEstatusToggleUI();
+    renderBancoResultados();
+});
+
+// Buscador de localidad de "Banco de Proyectos" (#input-banco-buscar):
+// delegado sobre #banco-proyectos-view (el input se crea recien la primera
+// vez que se abre esta vista) -- mismo patron que el buscador de "Propuesta
+// Territorial".
+$('#banco-proyectos-view').addEventListener('input', (e) => {
+    if (e.target && e.target.id === 'input-banco-buscar') openBancoBuscarSuggestions();
+    if (e.target && e.target.id === 'input-banco-texto') {
+        // Escribir aqui reemplaza (visualmente) la seleccion de Municipio/
+        // Localidad, para no dejar un estado mixto confuso -- ver el
+        // comentario junto al listener de 'change' de esos selects.
+        const selMun = $('#sel-banco-municipio');
+        if (selMun && selMun.value) {
+            selMun.value = '';
+            const selLoc = $('#sel-banco-localidad');
+            selLoc.disabled = true;
+            selLoc.innerHTML = '<option value="">Selecciona una localidad…</option>';
+        }
+        renderBancoResultados();
+    }
+});
+$('#banco-proyectos-view').addEventListener('focusin', (e) => {
+    if (!e.target || e.target.id !== 'input-banco-buscar') return;
+    e.target.select();
+    openBancoBuscarSuggestions('');
+});
+$('#banco-proyectos-view').addEventListener('keydown', (e) => {
+    if (!e.target || e.target.id !== 'input-banco-buscar') return;
+    const panel = $('#banco-buscar-suggestions');
+    if (!panel) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (panel.classList.contains('hidden')) { openBancoBuscarSuggestions(); return; }
+        const delta = e.key === 'ArrowDown' ? 1 : -1;
+        bancoBuscarActiveIndex = Math.max(0, Math.min(bancoBuscarActiveIndex + delta, bancoBuscarFiltradas.length - 1));
+        renderBancoBuscarSuggestions();
+        panel.querySelector('.loc-suggestion-banco[aria-selected="true"]')?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+        if (panel.classList.contains('hidden')) return;
+        e.preventDefault();
+        const chosen = bancoBuscarFiltradas[bancoBuscarActiveIndex] ?? bancoBuscarFiltradas[0];
+        if (chosen) elegirBancoLocalidad(chosen.municipio, chosen.localidad);
+    } else if (e.key === 'Escape') {
+        closeBancoBuscarSuggestions();
+    }
+});
+document.addEventListener('click', (e) => {
+    const item = e.target.closest('.loc-suggestion-banco');
+    if (item) { elegirBancoLocalidad(item.dataset.municipio, item.dataset.localidad); return; }
+    const panel = $('#banco-buscar-suggestions');
+    const input = $('#input-banco-buscar');
+    if (!panel || panel.classList.contains('hidden')) return;
+    if (panel.contains(e.target) || (input && input.contains(e.target))) return;
+    closeBancoBuscarSuggestions();
+});
+
+// ---------------------------------------------------------------------------
 // Vista "Inicio": bienvenida + guia rapida del tablero. Se reconstruye cada
 // vez que se abre (es barata: no toca mapas ni Leaflet) para que las cifras
 // resumen siempre reflejen los datos embebidos actuales.
@@ -1068,13 +1695,16 @@ function renderInicioView() {
 
     <div>
         ${sectionLabel('¿Qué encontrarás en este tablero?', 'explore', 'primary')}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter-grid mt-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-grid mt-3">
             ${homeSectionCard('analytics', 'Análisis Demográfico',
                 `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía por localidad o por polígono completo. Alterna entre la <b>Propuesta Actual</b> (${fmtInt(nLocActual)} localidades) y la <b>Nueva Propuesta Territorial</b> (${fmtInt(nLocNueva)} localidades) con un solo clic.`,
                 'Ir a Análisis Demográfico', 'analisis')}
             ${homeSectionCard('layers', 'Propuesta Territorial',
                 `Compara la delimitación vigente de los polígonos TPBV contra la nueva propuesta de ampliación: polígonos, límites municipales y localidades nuevas, todo superponible en un mismo mapa interactivo.`,
                 'Ir a Propuesta Territorial', 'propuesta')}
+            ${homeSectionCard('inventory_2', 'Banco de Proyectos',
+                `Consulta los ${fmtInt(typeof TPBV_BANCO_PROYECTOS !== 'undefined' ? TPBV_BANCO_PROYECTOS.length : 0)} proyectos y obras del Banco de Proyectos PP TPBV: filtra por municipio y localidad para ver descripción, categoría, estatus y prioridad de cada uno.`,
+                'Ir al Banco de Proyectos', 'banco')}
             ${homeSectionCard('description', 'Reportes Institucionales',
                 `Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.`,
                 'Ir a generar un reporte', 'analisis')}
@@ -1936,11 +2566,12 @@ const NAV_LINK_INACTIVE = 'flex items-center gap-3 p-3 text-on-surface-variant h
 // que enlace del nav queda activo. La carga inicial de la pagina sigue
 // aterrizando en 'analisis' (ver Init al final del archivo); 'inicio' solo
 // se muestra si el usuario hace clic en el nav.
-const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view'];
+const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view'];
 const VIEWS = {
     inicio: { shown: ['#inicio-view'], navId: 'nav-inicio' },
     analisis: { shown: ['#hero-analisis', '#global-filters', '#canvas'], navId: 'nav-analisis' },
-    propuesta: { shown: ['#propuesta-view'], navId: 'nav-propuesta' }
+    propuesta: { shown: ['#propuesta-view'], navId: 'nav-propuesta' },
+    banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' }
 };
 
 function showView(view) {
@@ -1963,6 +2594,7 @@ function showView(view) {
 
     if (view === 'inicio') renderInicioView();
     if (view === 'propuesta') renderPropuestaView();
+    if (view === 'banco') renderBancoProyectosView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
         // #canvas estaba oculto (display:none no tiene layout).
