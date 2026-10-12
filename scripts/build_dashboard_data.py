@@ -319,6 +319,20 @@ MANUAL_COORDS = {
     ("Tlayacapan", "Colonia del Señor santiago"): (18.953001268346082, -98.97095263695748),
     ("Zacatepec", "Emiliano Zapata"): (18.65374332209217, -99.19499499033442),
     ("Zacatepec", "Tetelpa"): (18.665026395393628, -99.20477966372283),
+    # 2026-10-12: localidades de RECHAZAR_MATCH_ITER_POL. Coordenada del CSV
+    # completo del censo (iter_17_cpv2020, clave LOC entre parentesis),
+    # validada dentro del poligono. Excepciones: Iztaccihuatl es aproximada
+    # (calle "Camino a Iztaccihuatl" de OpenStreetMap, CP 62743) y Tres de
+    # mayo (LOC 0054, POBTOT 25 = lista) queda 0.4 km fuera del poligono 19.
+    ("Ayala", "Ampliación Chinameca"): (18.611187, -99.016804),  # 0106
+    ("Cuautla", "Iztaccíhuatl"): (18.788234, -98.902323),  # OSM, aproximada
+    ("Tepalcingo", "La Joya"): (18.588022, -98.839349),  # 0051
+    ("Tepalcingo", "Colonia Buenos Aires"): (18.583739, -98.845695),  # 0031
+    ("Tepalcingo", "Colonia Emiliano Zapata"): (18.588799, -98.854231),  # 0043
+    ("Tlaquiltenango", "Palo Grande"): (18.594695, -99.147836),  # 0053
+    ("Tlayacapan", "Tres de mayo"): (18.949466, -98.983352),  # 0054
+    ("Xochitepec", "Colonia las Flores"): (18.809918, -99.252455),  # 0111
+    ("Yautepec", "Campo la Tehuixtlera"): (18.842899, -99.104523),  # 0133
 }
 n_manual = 0
 for r in resultados:
