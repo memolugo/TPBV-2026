@@ -37,6 +37,7 @@ NUEVOS_BLOQUES = {
     "aulas_mapa.js": "mapa_morelos.js",
     "aulas_contexto.js": "aulas_mapa.js",
     "aulas_view.js": "aulas_contexto.js",
+    "datos_abiertos.js": "aulas_view.js",
 }
 
 BLOQUE_RE = re.compile(r"(<script>\r\n/\* EMBEBIDO: ([\w.]+) \*/\r\n)(.*?)(\r\n</script>)", re.S)

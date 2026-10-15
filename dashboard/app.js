@@ -1701,8 +1701,11 @@ function renderInicioView() {
                 `Consulta los ${fmtInt(typeof TPBV_BANCO_PROYECTOS !== 'undefined' ? TPBV_BANCO_PROYECTOS.length : 0)} proyectos y obras del Banco de Proyectos PP TPBV: filtra por municipio y localidad para ver descripción, categoría, estatus y prioridad de cada uno.`,
                 'Ir al Banco de Proyectos', 'banco')}
             ${homeSectionCard('computer', 'Aulas Tecnológicas',
-                `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, fase de entrega, nivel educativo y ubicación de cada una.`,
+                `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
+            ${homeSectionCard('database', 'Datos Abiertos',
+                `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos de ambas propuestas, Banco de Proyectos, Aulas Tecnológicas y límites municipales.`,
+                'Ir a Datos Abiertos', 'datos')}
             ${homeSectionCard('description', 'Reportes Institucionales',
                 `Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.`,
                 'Ir a generar un reporte', 'analisis')}
@@ -2571,13 +2574,14 @@ const NAV_LINK_INACTIVE = 'nav-pill';
 // que enlace del nav queda activo. La carga inicial de la pagina sigue
 // aterrizando en 'analisis' (ver Init al final del archivo); 'inicio' solo
 // se muestra si el usuario hace clic en el nav.
-const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view'];
+const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view', '#datos-view'];
 const VIEWS = {
     inicio: { shown: ['#inicio-view'], navId: 'nav-inicio' },
     analisis: { shown: ['#hero-analisis', '#global-filters', '#canvas'], navId: 'nav-analisis' },
     propuesta: { shown: ['#propuesta-view'], navId: 'nav-propuesta' },
     banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' },
-    aulas: { shown: ['#aulas-view'], navId: 'nav-aulas' }
+    aulas: { shown: ['#aulas-view'], navId: 'nav-aulas' },
+    datos: { shown: ['#datos-view'], navId: 'nav-datos' }
 };
 
 function showView(view) {
@@ -2607,6 +2611,8 @@ function showView(view) {
     if (view === 'banco') renderBancoProyectosView();
     // renderAulasView vive en aulas_view.js (cargado despues de este archivo).
     if (view === 'aulas' && typeof renderAulasView === 'function') renderAulasView();
+    // renderDatosAbiertosView vive en datos_abiertos.js.
+    if (view === 'datos' && typeof renderDatosAbiertosView === 'function') renderDatosAbiertosView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
         // #canvas estaba oculto (display:none no tiene layout).
