@@ -48,11 +48,9 @@ let showPropuestaActual = false;
 // confirmo el 2026-08-13 que quiere conservar esta capa en el mapa).
 let propuestaNuevaLayer = null;
 let showPropuestaNueva = false;
-// Instancia propia (no se comparte con municipiosLayer del mapa de Analisis
-// Demografico): un mismo objeto L.geoJSON solo puede pertenecer a un mapa
-// Leaflet a la vez, y aqui conviven dos mapas independientes.
-let municipiosLayerPropuesta = null;
-let showMunicipiosPropuesta = false;
+// Base "solo Morelos" (contorno + municipios, ver agregarBaseMorelos en
+// mapa_morelos.js): siempre visible, instancia propia de este mapa.
+let basePropuesta = null;
 // Localidades de la hoja "PROPUESTA 2026" (Hoja de trabajo TPBV 2026.xlsx),
 // ver TPBV_PROPUESTA_2026 en propuesta_2026.js: 60 geocodificadas via ITER
 // 2020 + 8 con coordenadas manuales (coordManual:true), 68 en total. Es la
@@ -192,9 +190,12 @@ function cardHeader(icon, title, borderClass = 'border-outline-variant') {
 // Colores fijos de la comparacion territorial (ver seccion dedicada
 // "Propuesta Territorial" / renderPropuestaView), compartidos entre el
 // checkbox/legend y el estilo real de las capas en ensurePropuestaLayers.
-const COLOR_PROPUESTA_ACTUAL = '#154212';
-const COLOR_PROPUESTA_NUEVA = '#a6337a';
-const COLOR_PROPUESTA_2026 = '#2a78d6';
+// Paleta del manual ATD (ver mapa_morelos.js): verde Morelos para la
+// delimitacion vigente, terracota (discontinuo) para la nueva propuesta y
+// vino institucional para las localidades 2026.
+const COLOR_PROPUESTA_ACTUAL = '#71785B';
+const COLOR_PROPUESTA_NUEVA = '#7C4A36';
+const COLOR_PROPUESTA_2026 = '#773357';
 
 function mapCardHeader() {
     return `<div class="flex items-center justify-between gap-2 mb-stack-md pb-3 border-b-2 border-secondary-container flex-wrap">
@@ -670,10 +671,9 @@ const REGION_COLORS = {
 };
 const REGION_COLOR_DEFAULT = '#575f67';
 
-// Estilo compartido de la capa "Limites municipales" (usada tanto en el mapa
-// de Analisis Demografico como en el de Propuesta Territorial, cada uno con
-// su propia instancia de L.geoJSON: ver comentario junto a
-// municipiosLayerPropuesta sobre por que no se comparte el mismo objeto).
+// Estilo de la capa "Limites municipales" del mapa de Analisis Demografico
+// (Propuesta Territorial y Aulas usan la base "solo Morelos" de
+// mapa_morelos.js, con su propia instancia de L.geoJSON por mapa).
 const MUNICIPIOS_STYLE = { color: '#575f67', weight: 1.5, dashArray: '5,4', fill: false, interactive: true };
 
 // Agrega/quita una capa opcional de un mapa Leaflet segun el estado de su
@@ -727,26 +727,18 @@ function ensureMunicipiosLayer() {
 function ensurePropuestaLayers() {
     if (!propuestaActualLayer && typeof TPBV_POLIGONOS !== 'undefined') {
         propuestaActualLayer = L.geoJSON(TPBV_POLIGONOS, {
-            style: { color: COLOR_PROPUESTA_ACTUAL, weight: 3, fillColor: COLOR_PROPUESTA_ACTUAL, fillOpacity: 0.06 },
+            style: { color: COLOR_PROPUESTA_ACTUAL, weight: 2.5, fillColor: COLOR_PROPUESTA_ACTUAL, fillOpacity: 0.28 },
             onEachFeature: (f, layer) => {
-                layer.bindTooltip(`Actual · Polígono ${esc(f.properties.Pol)} — ${esc(f.properties.Nom_pol)}`, { sticky: true });
+                layer.bindTooltip(`Actual · Polígono ${esc(f.properties.Pol)} — ${esc(f.properties.Nom_pol)}`, { sticky: true, className: 'atd-tooltip' });
             }
         });
     }
     if (!propuestaNuevaLayer && typeof TPBV_PROPUESTA_NUEVA !== 'undefined') {
         propuestaNuevaLayer = L.geoJSON(TPBV_PROPUESTA_NUEVA, {
-            style: { color: COLOR_PROPUESTA_NUEVA, weight: 3, dashArray: '8,5', fillColor: COLOR_PROPUESTA_NUEVA, fillOpacity: 0.06 },
+            style: { color: COLOR_PROPUESTA_NUEVA, weight: 2.5, dashArray: '7,5', fillColor: COLOR_PROPUESTA_NUEVA, fillOpacity: 0.16 },
             onEachFeature: (f, layer) => {
                 const p = f.properties;
-                layer.bindTooltip(`Nueva Propuesta · Polígono ${esc(p.POLIGONO)} — ${esc(p.NOMBRE)} (${esc(p.MUNICIPIO)})`, { sticky: true });
-            }
-        });
-    }
-    if (!municipiosLayerPropuesta && typeof TPBV_LIMITES_MUNICIPALES !== 'undefined') {
-        municipiosLayerPropuesta = L.geoJSON(TPBV_LIMITES_MUNICIPALES, {
-            style: MUNICIPIOS_STYLE,
-            onEachFeature: (f, layer) => {
-                layer.bindTooltip(esc(f.properties.NOMGEO), { sticky: true });
+                layer.bindTooltip(`Nueva Propuesta · Polígono ${esc(p.POLIGONO)} — ${esc(p.NOMBRE)} (${esc(p.MUNICIPIO)})`, { sticky: true, className: 'atd-tooltip' });
             }
         });
     }
@@ -757,19 +749,30 @@ function ensurePropuestaLayers() {
         // tener que recorrer las capas del mapa buscandolo.
         propuesta2026Markers = TPBV_PROPUESTA_2026.map((loc) => {
             const m = L.circleMarker([loc.lat, loc.lon], {
-                radius: 5,
+                radius: 5.5,
                 color: '#fff',
-                weight: 1,
+                weight: 1.5,
                 fillColor: COLOR_PROPUESTA_2026,
-                fillOpacity: 0.9
+                fillOpacity: 0.92
             });
             const poligonoTxt = loc.nombrePoligono ? ` · Polígono ${esc(loc.poligono)} (${esc(loc.nombrePoligono)})` : '';
             const nota = loc.coordManual ? '<br><span style="color:#8a5a00">Coordenada capturada manualmente</span>' : '';
-            m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true });
+            m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true, className: 'atd-tooltip' });
+            m.on('mouseover', () => m.setStyle({ color: '#BC9B73', weight: 3, radius: 7 }));
+            m.on('mouseout', () => m.setStyle({ color: '#fff', weight: 1.5, radius: 5.5 }));
             return m;
         });
         propuesta2026Layer = L.featureGroup(propuesta2026Markers);
     }
+}
+
+// Aplica los checkboxes a las capas y deja las localidades (puntos) siempre
+// por encima de los poligonos, sin importar en que orden se activaron.
+function syncPropuestaCapas() {
+    syncLayerVisibility(propuestaActualLayer, showPropuestaActual, propuestaMap);
+    syncLayerVisibility(propuestaNuevaLayer, showPropuestaNueva, propuestaMap);
+    syncLayerVisibility(propuesta2026Layer, showPropuesta2026, propuestaMap);
+    if (propuesta2026Layer && propuestaMap.hasLayer(propuesta2026Layer)) propuesta2026Layer.bringToFront();
 }
 
 function propuestaControlsHTML() {
@@ -792,10 +795,6 @@ function propuestaControlsHTML() {
             <span class="inline-block w-3.5 h-3.5 rounded-sm shrink-0" style="background:${COLOR_PROPUESTA_NUEVA}; border:1.5px dashed #fff"></span>
             Nueva Propuesta (${nNueva} polígonos)
         </label>
-        <label class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
-            <input type="checkbox" id="chk-municipios-propuesta" ${showMunicipiosPropuesta ? 'checked' : ''} class="rounded border-outline-variant text-primary focus:ring-primary" />
-            Límites municipales
-        </label>
     </div>`;
 }
 
@@ -815,7 +814,7 @@ function renderPropuestaView() {
             <h2 class="font-headline-lg text-headline-lg text-primary">Propuesta Territorial 2026</h2>
             <p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Compara la delimitación vigente de los polígonos TPBV contra la nueva propuesta de ampliación territorial. Activa o desactiva cada capa para verlas por separado o superpuestas.</p>
         </div>
-        <div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col flex-1" style="min-height:88vh">
+        <div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col">
             <div class="flex items-center justify-between gap-3 mb-stack-md pb-3 border-b-2 border-secondary-container flex-wrap">
                 <div class="flex items-center gap-2.5">
                     ${iconChip('layers')}
@@ -829,7 +828,9 @@ function renderPropuestaView() {
                     <div id="propuesta-controls"></div>
                 </div>
             </div>
-            <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="propuesta-map-container">
+            <!-- Mismo encuadre que el mapa de Aulas: angosto, centrado y con la
+                 proporcion de Morelos (el mapa solo muestra el estado). -->
+            <div class="overflow-hidden relative w-full mx-auto" id="propuesta-map-container" style="max-width:900px;aspect-ratio:1/0.9;max-height:80vh;border-radius:16px;border:1px solid #CBCABE">
                 <div id="propuesta-map"></div>
             </div>
         </div>`;
@@ -837,16 +838,15 @@ function renderPropuestaView() {
     }
     $('#propuesta-controls').innerHTML = propuestaControlsHTML();
 
+    // Mapa "solo Morelos" (crearMapaMorelos/agregarBaseMorelos en
+    // mapa_morelos.js, cargado despues de este archivo).
     if (!propuestaMap) {
-        propuestaMap = L.map('propuesta-map', { attributionControl: true });
-        addBaseLayers(propuestaMap);
+        propuestaMap = crearMapaMorelos('propuesta-map');
+        basePropuesta = agregarBaseMorelos(propuestaMap);
     }
 
     ensurePropuestaLayers();
-    syncLayerVisibility(propuestaActualLayer, showPropuestaActual, propuestaMap);
-    syncLayerVisibility(propuestaNuevaLayer, showPropuestaNueva, propuestaMap);
-    syncLayerVisibility(municipiosLayerPropuesta, showMunicipiosPropuesta, propuestaMap);
-    syncLayerVisibility(propuesta2026Layer, showPropuesta2026, propuestaMap);
+    syncPropuestaCapas();
 
     // invalidateSize primero: el contenedor pudo estar oculto (display:none,
     // sin layout) hasta este mismo momento. El encuadre solo se recalcula la
@@ -857,14 +857,9 @@ function renderPropuestaView() {
         if (!propuestaMap) return;
         propuestaMap.invalidateSize();
         if (!isFirstOpen) return;
-        const boundsList = [];
-        [propuestaActualLayer, propuestaNuevaLayer, propuesta2026Layer].forEach((layer) => {
-            if (layer && propuestaMap.hasLayer(layer)) boundsList.push(layer.getBounds());
-        });
-        if (boundsList.length) {
-            let combined = boundsList[0];
-            boundsList.slice(1).forEach((b) => { combined = combined.extend(b); });
-            propuestaMap.fitBounds(combined, { padding: [24, 24] });
+        // Siempre todo Morelos (el mapa solo muestra el estado).
+        if (basePropuesta && basePropuesta.contorno) {
+            propuestaMap.fitBounds(basePropuesta.contorno.getBounds(), { padding: [24, 24] });
             propuestaMap._tpbvFitted = true;
         } else {
             propuestaMap.setView([18.75, -99.15], 9);
@@ -961,9 +956,9 @@ function choosePropuesta2026Locality(i) {
         showPropuesta2026 = true;
         const chk = $('#chk-propuesta-2026');
         if (chk) chk.checked = true;
-        syncLayerVisibility(propuesta2026Layer, true, propuestaMap);
+        syncPropuestaCapas();
     }
-    propuestaMap.setView([loc.lat, loc.lon], 15);
+    propuestaMap.setView([loc.lat, loc.lon], 12);
     marker.openTooltip();
 }
 
@@ -1642,7 +1637,7 @@ function renderInicioView() {
     const crecimientoPob = pobActual ? (pobNueva / pobActual * 100) : 0;
 
     view.innerHTML = `
-    <div class="text-center w-full py-10 px-4 rounded-2xl bg-gradient-to-br from-primary-container/10 via-transparent to-secondary-container/25">
+    <div class="text-center w-full py-12 px-4 rounded-3xl bg-surface-container-low">
         <span class="material-symbols-outlined text-primary" style="font-size:44px">waving_hand</span>
         <h1 class="font-headline-xl text-headline-xl text-primary mt-2">Bienvenido al Dashboard de TPBV</h1>
         <p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl mx-auto">
@@ -1654,7 +1649,7 @@ function renderInicioView() {
         </button>
     </div>
 
-    <div class="rounded-2xl p-6 bg-gradient-to-br from-primary/10 via-primary-container/25 to-transparent border border-primary/20 flex flex-col md:flex-row items-center gap-5">
+    <div class="rounded-3xl p-6 bg-secondary-container/50 border border-outline-variant flex flex-col md:flex-row items-center gap-5">
         <span class="shrink-0 w-14 h-14 rounded-2xl bg-primary text-on-primary flex items-center justify-center">
             <span class="material-symbols-outlined text-3xl">trending_up</span>
         </span>
@@ -1695,7 +1690,7 @@ function renderInicioView() {
 
     <div>
         ${sectionLabel('¿Qué encontrarás en este tablero?', 'explore', 'primary')}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter-grid mt-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-grid mt-3">
             ${homeSectionCard('analytics', 'Análisis Demográfico',
                 `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía por localidad o por polígono completo. Alterna entre la <b>Propuesta Actual</b> (${fmtInt(nLocActual)} localidades) y la <b>Nueva Propuesta Territorial</b> (${fmtInt(nLocNueva)} localidades) con un solo clic.`,
                 'Ir a Análisis Demográfico', 'analisis')}
@@ -1705,6 +1700,9 @@ function renderInicioView() {
             ${homeSectionCard('inventory_2', 'Banco de Proyectos',
                 `Consulta los ${fmtInt(typeof TPBV_BANCO_PROYECTOS !== 'undefined' ? TPBV_BANCO_PROYECTOS.length : 0)} proyectos y obras del Banco de Proyectos PP TPBV: filtra por municipio y localidad para ver descripción, categoría, estatus y prioridad de cada uno.`,
                 'Ir al Banco de Proyectos', 'banco')}
+            ${homeSectionCard('computer', 'Aulas Tecnológicas',
+                `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, fase de entrega, nivel educativo y ubicación de cada una.`,
+                'Ir a Aulas Tecnológicas', 'aulas')}
             ${homeSectionCard('description', 'Reportes Institucionales',
                 `Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.`,
                 'Ir a generar un reporte', 'analisis')}
@@ -2521,9 +2519,10 @@ canvas.addEventListener('keydown', (e) => {
 });
 
 // ---------------------------------------------------------------------------
-// Menu lateral en movil/tablet (drawer fuera de pantalla via transform, ver
-// #sidebar-nav en index.html). En escritorio (lg+) el nav queda siempre
-// visible por CSS (lg:translate-x-0) y estos controles quedan ocultos.
+// Menu en movil/tablet (drawer fuera de pantalla via transform, ver
+// #sidebar-nav en TPBV_2026_COMPLETO_PRO.html). En escritorio (xl+, ver
+// NAV_BREAKPOINT) el mismo nav se muestra como fila de pildoras en el
+// encabezado (xl:translate-x-0, xl:static) y estos controles quedan ocultos.
 // ---------------------------------------------------------------------------
 function openNav() {
     const nav = $('#sidebar-nav');
@@ -2559,19 +2558,26 @@ function toggleNav() {
 // mapa de comparacion dedicado). No es un router real: solo oculta/muestra
 // los contenedores correspondientes y actualiza el estado activo del nav.
 // ---------------------------------------------------------------------------
-const NAV_LINK_ACTIVE = 'flex items-center gap-3 p-3 bg-primary-container text-on-primary-container rounded-lg font-bold transition-all duration-300 font-body-md text-body-md';
-const NAV_LINK_INACTIVE = 'flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface rounded-lg transition-all duration-300 hover:translate-x-1 font-body-md text-body-md';
+// Pildoras del menu superior, mismo patron que digital.morelos.gob.mx: la
+// activa con fondo verde claro (accent-secondary-low), el resto transparente
+// con hover verde tierra al 10%.
+// Ancho desde el que el menu se muestra como fila de pildoras (Tailwind xl);
+// debajo es drawer. Debe coincidir con las clases xl: de #sidebar-nav.
+const NAV_BREAKPOINT = 1280;
+const NAV_LINK_ACTIVE = 'nav-pill nav-pill-active';
+const NAV_LINK_INACTIVE = 'nav-pill';
 
 // Cada vista declara que contenedores le pertenecen (el resto se oculta) y
 // que enlace del nav queda activo. La carga inicial de la pagina sigue
 // aterrizando en 'analisis' (ver Init al final del archivo); 'inicio' solo
 // se muestra si el usuario hace clic en el nav.
-const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view'];
+const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view'];
 const VIEWS = {
     inicio: { shown: ['#inicio-view'], navId: 'nav-inicio' },
     analisis: { shown: ['#hero-analisis', '#global-filters', '#canvas'], navId: 'nav-analisis' },
     propuesta: { shown: ['#propuesta-view'], navId: 'nav-propuesta' },
-    banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' }
+    banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' },
+    aulas: { shown: ['#aulas-view'], navId: 'nav-aulas' }
 };
 
 function showView(view) {
@@ -2587,7 +2593,11 @@ function showView(view) {
         const link = $('#' + navId);
         if (!link) return;
         const isActive = navId === target.navId;
-        link.className = isActive ? NAV_LINK_ACTIVE : NAV_LINK_INACTIVE;
+        // classList (no className): el enlace de Inicio lleva ademas
+        // "nav-home" (pildora solo con icono en escritorio), que no se debe
+        // perder al cambiar de vista.
+        link.classList.add(...NAV_LINK_INACTIVE.split(' '));
+        link.classList.toggle(NAV_LINK_ACTIVE.split(' ').pop(), isActive);
         if (isActive) link.setAttribute('aria-current', 'page');
         else link.removeAttribute('aria-current');
     });
@@ -2595,12 +2605,17 @@ function showView(view) {
     if (view === 'inicio') renderInicioView();
     if (view === 'propuesta') renderPropuestaView();
     if (view === 'banco') renderBancoProyectosView();
+    // renderAulasView vive en aulas_view.js (cargado despues de este archivo).
+    if (view === 'aulas' && typeof renderAulasView === 'function') renderAulasView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
         // #canvas estaba oculto (display:none no tiene layout).
         setTimeout(() => map.invalidateSize(), 50);
     }
-    if (window.innerWidth < 1024) closeNav();
+    // Solo si el drawer esta abierto: closeNav() enfoca el boton de menu, lo
+    // que en la carga inicial (showView('inicio')) dejaba ese boton marcado.
+    const navAbierto = !$('#sidebar-nav').classList.contains('-translate-x-full');
+    if (window.innerWidth < NAV_BREAKPOINT && navAbierto) closeNav();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -2651,11 +2666,11 @@ function setDatasetMode(mode) {
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     const nav = $('#sidebar-nav');
-    if (nav && !nav.classList.contains('-translate-x-full') && window.innerWidth < 1024) closeNav();
+    if (nav && !nav.classList.contains('-translate-x-full') && window.innerWidth < NAV_BREAKPOINT) closeNav();
 });
 
 window.addEventListener('resize', () => {
-    if (window.innerWidth < 1024) return;
+    if (window.innerWidth < NAV_BREAKPOINT) return;
     document.body.style.overflow = '';
     $('#nav-backdrop')?.classList.add('opacity-0', 'pointer-events-none');
     $('#nav-toggle-btn')?.setAttribute('aria-expanded', 'false');
@@ -2673,22 +2688,10 @@ canvas.addEventListener('change', (e) => {
 // Checkboxes de la vista "Propuesta Territorial": igual que chk-municipios,
 // se aplican directo sobre propuestaMap sin re-renderizar la vista completa.
 $('#propuesta-view').addEventListener('change', (e) => {
-    if (e.target && e.target.id === 'chk-propuesta-actual') {
-        showPropuestaActual = e.target.checked;
-        syncLayerVisibility(propuestaActualLayer, showPropuestaActual, propuestaMap);
-    }
-    if (e.target && e.target.id === 'chk-propuesta-nueva') {
-        showPropuestaNueva = e.target.checked;
-        syncLayerVisibility(propuestaNuevaLayer, showPropuestaNueva, propuestaMap);
-    }
-    if (e.target && e.target.id === 'chk-municipios-propuesta') {
-        showMunicipiosPropuesta = e.target.checked;
-        syncLayerVisibility(municipiosLayerPropuesta, showMunicipiosPropuesta, propuestaMap);
-    }
-    if (e.target && e.target.id === 'chk-propuesta-2026') {
-        showPropuesta2026 = e.target.checked;
-        syncLayerVisibility(propuesta2026Layer, showPropuesta2026, propuestaMap);
-    }
+    if (e.target && e.target.id === 'chk-propuesta-actual') showPropuestaActual = e.target.checked;
+    if (e.target && e.target.id === 'chk-propuesta-nueva') showPropuestaNueva = e.target.checked;
+    if (e.target && e.target.id === 'chk-propuesta-2026') showPropuesta2026 = e.target.checked;
+    syncPropuestaCapas();
 });
 
 // Buscador de localidad de "Propuesta Territorial" (#input-localidad-propuesta):
