@@ -12,9 +12,17 @@ los archivos de NUEVOS_BLOQUES que aun no esten embebidos, inserta su bloque
 despues del indicado. El markup (nav, contenedores de vistas, CSS) se edita a
 mano en el HTML.
 
+Ademas incrusta como data: URI los recursos del shell (tipografias de
+@font-face y los logos <img> del encabezado), fuera de los bloques EMBEBIDO:
+tpbv.morelos.gob.mx sirve este HTML a traves de un proxy que responde 400 a
+archivos nuevos de assets/ (GitHub Pages si los sirve), asi que el HTML no
+debe depender de ellos. La ruta original queda anotada (/*recurso:...*/ en
+CSS, data-recurso="..." en <img>) para volver a incrustar si cambia el archivo.
+
 Uso: python scripts/embed_dashboard.py [--check]
   --check  solo informa que bloques cambiarian, sin escribir.
 """
+import base64
 import re
 import sys
 from pathlib import Path
@@ -33,6 +41,12 @@ NUEVOS_BLOQUES = {
 
 BLOQUE_RE = re.compile(r"(<script>\r\n/\* EMBEBIDO: ([\w.]+) \*/\r\n)(.*?)(\r\n</script>)", re.S)
 
+MIME = {".woff2": "font/woff2", ".svg": "image/svg+xml", ".png": "image/png"}
+# CSS: url(assets/fonts/X.woff2) o /*recurso:assets/fonts/X.woff2*/url(data:...)
+CSS_RECURSO_RE = re.compile(r"(?:/\*recurso:(assets/[^*]+)\*/url\([^)]*\)|url\((assets/fonts/[^)]+)\))")
+# <img src="assets/logo-*.svg"> o <img data-recurso="assets/..." src="data:...">
+IMG_RECURSO_RE = re.compile(r'(?:data-recurso="(assets/[^"]+)" src="[^"]*"|src="(assets/logo-[^"]+\.svg)")')
+
 
 def contenido(nombre):
     texto = (DASHBOARD / nombre).read_text(encoding="utf-8")
@@ -43,10 +57,38 @@ def bloque(nombre):
     return f"<script>\r\n/* EMBEBIDO: {nombre} */\r\n{contenido(nombre)}\r\n</script>"
 
 
+def data_uri(ruta):
+    archivo = DASHBOARD / ruta
+    datos = base64.b64encode(archivo.read_bytes()).decode("ascii")
+    return f"data:{MIME[archivo.suffix]};base64,{datos}"
+
+
+def incrustar_recursos(shell, cambios):
+    """Recursos del shell (antes del primer bloque EMBEBIDO) -> data: URI."""
+    def css(m):
+        ruta = m.group(1) or m.group(2)
+        nuevo = f"/*recurso:{ruta}*/url({data_uri(ruta)})"
+        if nuevo != m.group(0):
+            cambios.append(f"incrustado: {ruta}")
+        return nuevo
+
+    def img(m):
+        ruta = m.group(1) or m.group(2)
+        nuevo = f'data-recurso="{ruta}" src="{data_uri(ruta)}"'
+        if nuevo != m.group(0):
+            cambios.append(f"incrustado: {ruta}")
+        return nuevo
+
+    return IMG_RECURSO_RE.sub(img, CSS_RECURSO_RE.sub(css, shell))
+
+
 def main():
     check = "--check" in sys.argv
     html = HTML.read_bytes().decode("utf-8")
     cambios = []
+
+    inicio_bloques = html.find("<script>\r\n/* EMBEBIDO:")
+    html = incrustar_recursos(html[:inicio_bloques], cambios) + html[inicio_bloques:]
 
     def reemplazar(m):
         nombre = m.group(2)
