@@ -17,8 +17,15 @@ const URL = process.argv[2] || 'http://127.0.0.1:8080/TPBV_2026_COMPLETO_PRO.htm
 const SALIDA = process.argv[3] || path.join(__dirname, '..', 'traducciones', 'textos_extraidos.json');
 
 // Recorrido: [vista, preparación opcional, etiqueta de sección]
+// Escribe en el buscador ciudadano de Inicio (inicio_buscador.js).
+const BUSCAR = (texto) => `(() => { const i = document.getElementById('buscador-comunidad-input'); i.value = ${JSON.stringify(texto)}; i.dispatchEvent(new Event('input')); })()`;
 const RECORRIDO = [
     ['inicio', null, 'Inicio'],
+    // Buscador ciudadano: cada caso pinta un mensaje distinto.
+    ['inicio', BUSCAR('linda vista'), 'Inicio (buscador de comunidades)'],
+    ['inicio', BUSCAR('san'), 'Inicio (buscador de comunidades)'],
+    ['inicio', BUSCAR('tetela'), 'Inicio (buscador de comunidades)'],
+    ['inicio', BUSCAR('tepoztlan'), 'Inicio (buscador de comunidades)'],
     ['analisis', null, 'Análisis Demográfico (todos los polígonos)'],
     ['analisis', "selPoligono.value='1'; selPoligono.dispatchEvent(new Event('change'))", 'Análisis Demográfico (un polígono)'],
     ['analisis', "selectLocalidad(activeData().findIndex(r => r.fuente === 'ITER 2020'))", 'Análisis Demográfico (una localidad)'],
@@ -28,6 +35,13 @@ const RECORRIDO = [
     ['red', null, 'Red La tierra que nos une'],
     ['telecom', null, 'Infraestructura de Telecomunicaciones'],
     ['datos', null, 'Datos Abiertos'],
+];
+
+// Textos con lo que escribe la persona: {d} = texto buscado.
+const CLAVES_DINAMICAS = [
+    'No encontramos «{d}» entre las {n} comunidades del programa. Revisa cómo está escrito o busca por municipio.',
+    '{d} tiene {n} comunidad en el programa.',
+    'Y {n} comunidad más. Escribe más letras para afinar la búsqueda.',
 ];
 
 (async () => {
@@ -90,6 +104,8 @@ const RECORRIDO = [
         agregar(await page.evaluate(() => tpbvExtraerTextos(document.getElementById('main-content'))), seccion);
         agregar(await page.evaluate(() => tpbvExtraerTextos(document.getElementById('custom-poligonos-panel'))), seccion);
     }
+    // Mensajes que incluyen lo que escribe la persona (no es un dato del tablero).
+    agregar(CLAVES_DINAMICAS.map((clave) => ({ clave, tipo: 'texto' })), 'Inicio (buscador de comunidades)');
     agregar([{ clave: await page.evaluate(() => i18nClave(i18nTituloOriginal ?? document.title).clave), tipo: 'título de la página' }], 'Encabezado y menú');
 
     const salida = [...textos.entries()].map(([clave, v]) => ({ clave, ...v }));

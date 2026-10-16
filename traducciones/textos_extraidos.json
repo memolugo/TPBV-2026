@@ -240,6 +240,11 @@
   "seccion": "Pie de página"
  },
  {
+  "clave": "Datos actualizados al {n} de octubre de {n}.",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
   "clave": "Gobierno del Estado de Morelos · La tierra que nos une",
   "tipo": "texto",
   "seccion": "Inicio"
@@ -267,6 +272,31 @@
  {
   "clave": "Datos abiertos",
   "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Datos actualizados al {n} de octubre de {n} · Fuentes: INEGI (Censo {n}), CONAPO y ATDEM",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "¿Tu comunidad está en el programa?",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Escribe el nombre de tu localidad, colonia o municipio.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Nombre de tu localidad, colonia o municipio",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Por ejemplo: {d}",
+  "tipo": "atributo placeholder",
   "seccion": "Inicio"
  },
  {
@@ -938,6 +968,46 @@
   "clave": "Ocupada en Sector Primario",
   "tipo": "texto",
   "seccion": "Inicio"
+ },
+ {
+  "clave": "Sí, esta comunidad está en el programa.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "{d} · Polígono {d}",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Ver sus datos",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Encontramos {n} comunidades del programa con ese nombre.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Jojutla · Polígono Jojutla",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Y {n} comunidades más. Escribe más letras para afinar la búsqueda.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "{d} tiene {n} comunidades en el programa.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "{d} no tiene comunidades en la delimitación vigente del programa.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
  },
  {
   "clave": "Localidades en el Polígono",
@@ -1630,7 +1700,22 @@
   "seccion": "Datos Abiertos"
  },
  {
-  "clave": "TPBV {n} · Tablero Sociodemográfico",
+  "clave": "No encontramos «{d}» entre las {n} comunidades del programa. Revisa cómo está escrito o busca por municipio.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "{d} tiene {n} comunidad en el programa.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Y {n} comunidad más. Escribe más letras para afinar la búsqueda.",
+  "tipo": "texto",
+  "seccion": "Inicio (buscador de comunidades)"
+ },
+ {
+  "clave": "Territorios de Paz y Buen Vivir · Gobierno de Morelos",
   "tipo": "título de la página",
   "seccion": "Encabezado y menú"
  }

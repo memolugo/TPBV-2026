@@ -3,8 +3,31 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>TPBV 2026 · Tablero Sociodemográfico</title>
-<meta name="description" content="Tablero interactivo TPBV 2026 — análisis sociodemográfico territorial de Morelos.">
+<title>Territorios de Paz y Buen Vivir · Gobierno de Morelos</title>
+<meta name="description" content="Tablero del programa Territorios de Paz y Buen Vivir del Gobierno de Morelos: 132 comunidades, 26 polígonos, aulas tecnológicas, Wi-Fi gratuito y datos abiertos.">
+<meta name="author" content="Agencia de Transformación Digital del Estado de Morelos">
+<link rel="canonical" href="https://tpbv.morelos.gob.mx/">
+<meta name="theme-color" content="#2E3B2B">
+<!-- Iconos y vista previa al compartir (scripts/build_imagen_compartir.js). La imagen
+     va por GitHub Pages con URL absoluta: el proxy no sirve archivos nuevos de assets/. -->
+<link rel="icon" type="image/png" sizes="64x64" data-recurso="assets/compartir/favicon-64.png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="https://memolugo.github.io/TPBV-2026/dashboard/assets/compartir/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gobierno del Estado de Morelos">
+<meta property="og:locale" content="es_MX">
+<meta property="og:url" content="https://tpbv.morelos.gob.mx/">
+<meta property="og:title" content="Territorios de Paz y Buen Vivir · Gobierno de Morelos">
+<meta property="og:description" content="Tablero del programa Territorios de Paz y Buen Vivir del Gobierno de Morelos: 132 comunidades, 26 polígonos, aulas tecnológicas, Wi-Fi gratuito y datos abiertos.">
+<meta property="og:image" content="https://memolugo.github.io/TPBV-2026/dashboard/assets/compartir/tpbv-compartir.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Territorios de Paz y Buen Vivir: 132 comunidades, 26 polígonos, 22 municipios y 45 aulas tecnológicas en Morelos">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Territorios de Paz y Buen Vivir · Gobierno de Morelos">
+<meta name="twitter:description" content="Tablero del programa Territorios de Paz y Buen Vivir del Gobierno de Morelos: 132 comunidades, 26 polígonos, aulas tecnológicas, Wi-Fi gratuito y datos abiertos.">
+<meta name="twitter:image" content="https://memolugo.github.io/TPBV-2026/dashboard/assets/compartir/tpbv-compartir.jpg">
+<meta name="twitter:image:alt" content="Territorios de Paz y Buen Vivir: 132 comunidades, 26 polígonos, 22 municipios y 45 aulas tecnológicas en Morelos">
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
@@ -45,20 +68,23 @@
                 spacing: { "gutter-grid": "1.5rem", "margin-page": "3rem", "stack-sm": "0.5rem", "card-padding": "1.5rem", "stack-md": "1rem" },
                 fontFamily: {
                     "label-bold": ["Twogether Sans"], "body-md": ["Twogether Sans"], "body-lg": ["Twogether Sans"],
-                    "headline-md": ["Twogether Sans"], "headline-lg-mobile": ["Karol Sans"], "headline-xl": ["Karol Sans"],
-                    "headline-sm": ["Twogether Sans"], "data-display": ["Twogether Sans"], "headline-lg": ["Karol Sans"], "kpi-value": ["Karol Sans"]
+                    "headline-md": ["Twogether Sans"], "headline-lg-mobile": ["Twogether Sans"], "headline-xl": ["Twogether Sans"],
+                    "headline-sm": ["Twogether Sans"], "data-display": ["Twogether Sans"], "headline-lg": ["Twogether Sans"], "kpi-value": ["Karol Sans"]
                 },
+                // Escala de morelos.gob.mx (tokens morv3, medidos 2026-10-16): titulos y texto en
+                // Twogether Sans ligera (h1 400 48px, cuerpo 300 20/28); Karol Sans SemiBold solo
+                // para cifras ("display").
                 fontSize: {
                     "label-bold": ["13px", { lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "500" }],
                     "body-md": ["15px", { lineHeight: "22px", fontWeight: "400" }],
-                    "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                    "body-lg": ["20px", { lineHeight: "28px", fontWeight: "300" }],
                     "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "400" }],
-                    "headline-md": ["20px", { lineHeight: "26px", fontWeight: "500" }],
-                    "headline-lg-mobile": ["26px", { lineHeight: "32px", fontWeight: "700" }],
-                    "headline-xl": ["52px", { lineHeight: "58px", letterSpacing: "-0.01em", fontWeight: "700" }],
-                    "data-display": ["17px", { lineHeight: "22px", fontWeight: "700" }],
-                    "headline-lg": ["36px", { lineHeight: "42px", letterSpacing: "-0.005em", fontWeight: "700" }],
-                    "kpi-value": ["30px", { lineHeight: "34px", fontWeight: "700" }]
+                    "headline-md": ["22px", { lineHeight: "26.4px", fontWeight: "400" }],
+                    "headline-lg-mobile": ["30px", { lineHeight: "36px", fontWeight: "400" }],
+                    "headline-xl": ["48px", { lineHeight: "57.6px", fontWeight: "400" }],
+                    "data-display": ["17px", { lineHeight: "22px", fontWeight: "600" }],
+                    "headline-lg": ["36px", { lineHeight: "43.2px", fontWeight: "400" }],
+                    "kpi-value": ["30px", { lineHeight: "34px", fontWeight: "600" }]
                 }
             }
         }
@@ -188,7 +214,8 @@
     body{background:#fff;color:var(--dm-content-high)}
     main{max-width:none!important}
     h1,h2,h3{color:var(--dm-content-high)}
-    .font-headline-xl,.font-headline-lg,.font-kpi-value{font-family:'Karol Sans',system-ui,sans-serif}
+    .font-headline-xl,.font-headline-lg,.font-headline-lg-mobile{font-family:'Twogether Sans',system-ui,sans-serif}
+    .font-kpi-value{font-family:'Karol Sans',system-ui,sans-serif}
     /* Barra de utilidad (piedra, redondeada) */
     .util-bar{background:var(--dm-surface-md);border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem 1rem;flex-wrap:wrap}
     .util-bar a{color:var(--dm-content-high);text-decoration:underline;text-underline-offset:3px;font-weight:500;display:inline-flex;align-items:center;gap:.35rem}
@@ -201,9 +228,9 @@
     .brand-word{font-family:'Karol Sans',system-ui,sans-serif;line-height:1.05;white-space:nowrap}
     .brand-word .l1{color:var(--dm-verde-tierra);font-weight:700;font-size:19px}
     .brand-word .l2{color:var(--dm-oro);font-weight:600;font-size:15px}
-    .nav-pill{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-radius:16px;color:var(--dm-content-high);font-weight:500;font-size:16px;white-space:nowrap;transition:background-color .2s}
+    .nav-pill{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-radius:16px;color:var(--dm-content-high);font-weight:400;font-size:16px;white-space:nowrap;transition:background-color .2s}
     .nav-pill:hover{background:rgba(113,120,91,.10)}
-    .nav-pill-active{background:var(--dm-verde-low)!important;font-weight:600}
+    .nav-pill-active{background:var(--dm-verde-low)!important;font-weight:500}
     .nav-pill .material-symbols-outlined{font-size:22px}
     @media (min-width:1280px){.nav-pill .nav-ico{display:none}.nav-pill.nav-home .nav-ico{display:inline-block}.nav-pill{padding:.7rem .8rem;font-size:15.5px}}
     #sidebar-nav{background:#fff}
@@ -230,6 +257,9 @@
     #global-filters select,#global-filters input,#global-filters #btn-custom-poligonos,
     #banco-proyectos-view select,#banco-proyectos-view input[type=text],#aulas-view select,
     #propuesta-view input[type=text]{border-radius:999px!important;border:1px solid var(--dm-border-high)!important;min-height:46px;padding-left:1rem!important;background-color:#fff}
+    /* Buscador ciudadano de Inicio (inicio_buscador.js): misma pildora, con lupa a la izquierda */
+    #buscador-comunidad-input{border-radius:999px!important;border:1px solid var(--dm-border-high)!important;min-height:52px;background-color:#fff;padding-left:3rem!important}
+    #buscador-comunidad-input:focus{outline:none;border-color:var(--dm-verde-tierra)!important;box-shadow:0 0 0 3px rgba(113,120,91,.25)!important}
     /* CTA mora tipo pildora */
     .bg-primary-container{background-color:var(--dm-mora)!important;color:#fff!important}
     button.bg-primary-container,a.bg-primary-container{border-radius:999px!important}
@@ -493,7 +523,7 @@
 </div>
 </div>
 </div>
-<p class="ft-base">Territorios de Paz y Buen Vivir 2026 · Tablero de la Agencia de Transformación Digital. Fuente principal: INEGI, Censo de Población y Vivienda 2020 (ITER Morelos).</p>
+<p class="ft-base">Territorios de Paz y Buen Vivir 2026 · Tablero de la Agencia de Transformación Digital. Fuente principal: INEGI, Censo de Población y Vivienda 2020 (ITER Morelos). <span data-fecha-datos></span></p>
 </div>
 </footer>
 </main>
@@ -606,6 +636,8 @@ const TPBV_TRADUCCIONES_NA = {
  "Dashboard de TPBV": "Tlapoualli TPBV",
  "Datos Abiertos": "Tlapoualli tlapojtok",
  "Datos abiertos": "Tlapoualli tlapojtok",
+ "Datos actualizados al {n} de octubre de {n} · Fuentes: INEGI (Censo {n}), CONAPO y ATDEM": "Tlapoualli yankuik ipan {n} octubre, {n} xiuitl · Kanin eua: INEGI (Censo {n}), CONAPO uan ATDEM",
+ "Datos actualizados al {n} de octubre de {n}.": "Tlapoualli yankuik ipan {n} octubre, {n} xiuitl.",
  "Delimitación vigente": "Polígono tlen axan",
  "Demografía": "Tlatlaga iga tlapoualli",
  "Dependencias con red": "Teguichiualoyan iga matlatl",
@@ -641,12 +673,14 @@ const TPBV_TRADUCCIONES_NA = {
  "Elige los polígonos a comparar": "Xikpepena polígono tlen tikinneneuilis",
  "En Análisis Demográfico, usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.": "Ipan Tlapoualli iga tlatlaga, xiktekiuti tlapepenalli tlen kaninpa, o xiyau nimantsin ipan se polígono iga tlalamatl o iga itlapoual altepetsitsin.",
  "En Datos Abiertos encontrarás las bases de datos del tablero en CSV y KML.": "Ipan Tlapoualli tlapojtok tikajsis itlapoual nin tablero ipan CSV uan KML.",
+ "Encontramos {n} comunidades del programa con ese nombre.": "Otikajsike {n} altepetsitsin tlen nin tlapaleuilistle tlen kipiaj nin itoga.",
  "Energía Eléctrica": "Tlauille",
  "Enlaces de interés": "Ojmej tlen kipia ipatij",
  "Equidad y dignidad": "Sepan tiuejueyij uan tlakaitalistle",
  "Equipo de cómputo": "Tepostlapoualli",
  "Equipos": "Tepostlapoualmej",
  "Equipos por Municipio": "Tepostlapoualli iga altepetl",
+ "Escribe el nombre de tu localidad, colonia o municipio.": "Xiktlajkuilo itoga moaltepetsin, mocolonia o moaltepeu.",
  "Escribe el nombre de una localidad…": "Xiktlajkuilo itoga se altepetsin…",
  "Escudo Gobierno de Morelos": "Ichimal Kaltlayekana ipan Morelos",
  "Escuela": "Kaltlamachtiloyan",
@@ -733,7 +767,9 @@ const TPBV_TRADUCCIONES_NA = {
  "Municipios con sitios": "Altepemej iga sitios",
  "Navegación principal": "Achtopa ojmej",
  "Niñas/os {n}-{n} años sin asistir a la escuela": "Pipiltontij {n}-{n} xiuitl tlen amo yaj kaltlamachtiloyan",
+ "No encontramos «{d}» entre las {n} comunidades del programa. Revisa cómo está escrito o busca por municipio.": "Amo otikajsike «{d}» ipan {n} altepetsitsin tlen nin tlapaleuilistle. Xiktlachili kenin otiktlajkuilo o xiktemo iga altepetl.",
  "No se encontró una coincidencia confiable para {d} en el Censo INEGI {n} (ITER Morelos). Esto ocurre principalmente con colonias/barrios urbanos que no se registran como localidad censal independiente. El mapa muestra su ubicación (coordenada capturada manualmente) dentro de polígono {n}.": "Amo omonexti {d} ipan Censo INEGI {n} (ITER Morelos). Nin panoa ogachi iga colonias o barrios ipan ueyi altepetl tlen amo motlapouaj kemej altepetsin. Tlalamatl kinextia kanin katej (omojkuilo iga ma) ipan polígono {n}.",
+ "Nombre de tu localidad, colonia o municipio": "Itoga moaltepetsin, mocolonia o moaltepeu",
  "Nuestras redes": "Tlen tikpiaj ipan internet",
  "Ocupada": "Teguitij",
  "Ocupada en Sector Primario": "Teguitij ipan milpa uan tlale",
@@ -753,6 +789,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Polígonos": "Polígono",
  "Polígonos incluidos": "Polígono tlen kipia",
  "Polígonos · Propuesta Actual": "Polígono · Tlen axan",
+ "Por ejemplo: {d}": "Ken nin: {d}",
  "Por seguridad de la infraestructura, la información se presenta agregada por municipio y sector. No se publica la ubicación exacta ni el nombre de los sitios.": "Iga tlajpialistle, tlamachilistle monextia sepan iga altepetl uan teguitl. Amo monextia kanin melauak katej nin intogayo sitios.",
  "Prensa": "Tlatolnonotza",
  "Presentación del programa": "Teixpantilistle iga nin tlapaleuilistle",
@@ -794,11 +831,12 @@ const TPBV_TRADUCCIONES_NA = {
  "Sitios por sector": "Sitios iga teguitl",
  "Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.": "Sitios uan tepostlaketsalmej tlen imatlau Kaltlayekana, iga altepetl uan teguitl (kaltlayekana, temachtilistle, pajtilistle uan tlajpialistle). Iga tlajpialistle san monextiaj sepan.",
  "Sitios y torres de telecomunicaciones de la red estatal (sitios REEM) que dan servicio a dependencias del Gobierno del Estado, planteles educativos, unidades de salud e instalaciones de seguridad en Morelos.": "Sitios uan tepostlaketsalmej iga uejka tlanonotsalistle ipan imatlau Kaltlayekana (sitios REEM) tlen kinpaleuiaj teguichiualoyan iga Kaltlayekana, kaltlamachtiloyan, pajtiloyan uan kanin tlajpiaj ipan Morelos.",
- "TPBV {n} · Tablero Sociodemográfico": "TPBV {n} · Tlapoualli iga tlatlaga",
+ "Sí, esta comunidad está en el programa.": "Kema, nin altepetsin kalaktok ipan nin tlapaleuilistle.",
  "Tecnologías de Información (TIC)": "Tepostlapoualli uan tlanonotsalistle (TIC)",
  "Telecomunicaciones": "Uejka tlanonotsalistle",
  "Territorios de Paz y Buen Vivir {n} · Tablero de la Agencia de Transformación Digital. Fuente principal: INEGI, Censo de Población y Vivienda {n} (ITER Morelos).": "Territorios de Paz y Buen Vivir {n} · Itlapoual Agencia de Transformación Digital. Kanin eua tlapoualli: INEGI, Censo de Población y Vivienda {n} (ITER Morelos).",
  "Territorios de Paz y Buen Vivir · Educación digital": "Territorios de Paz y Buen Vivir · Temachtilistle iga tepostlapoualli",
+ "Territorios de Paz y Buen Vivir · Gobierno de Morelos": "Territorios de Paz y Buen Vivir · Kaltlayekana ipan Morelos",
  "Territorios de Paz y Buen Vivir · Transparencia": "Territorios de Paz y Buen Vivir · Tlen nochi ueli kitaskej",
  "Territorios de Paz y Buen Vivir — Inicio": "Territorios de Paz y Buen Vivir — Pehua",
  "Todas las Localidades": "Nochi altepetsitsin",
@@ -813,12 +851,18 @@ const TPBV_TRADUCCIONES_NA = {
  "Una tarjeta WiFi por equipo e internet dedicado para el aula.": "Se tarjeta WiFi iga nochi tepostlapoualli uan internet san iga tlamachtiloyan.",
  "Usa el botón \"Reporte Institucional\" para exportar un documento formal en PDF de lo que estés viendo.": "Xiktekiuti \"Tlapoualamatl iga Kaltlayekana\" iga tikixtis se amatl PDF iga tlen tikitta.",
  "Ver campos": "Xikita tlen kipia",
+ "Ver sus datos": "Xikita itlapoual",
  "Ver {d} en el mapa": "Xikita {d} ipan tlalamatl",
  "Vivienda": "Kalle",
  "Vivienda y Servicios": "Kalle uan tlen kipia",
  "Viviendas Totales": "Nochi kalmej",
+ "Y {n} comunidad más. Escribe más letras para afinar la búsqueda.": "Uan ogachi {n} altepetsin. Xiktlajkuilo ogachi tlajkuilolli iga tiktemos kuale.",
+ "Y {n} comunidades más. Escribe más letras para afinar la búsqueda.": "Uan ogachi {n} altepetsitsin. Xiktlajkuilo ogachi tlajkuilolli iga tiktemos kuale.",
  "Zoom in": "Xikueyichiua",
  "Zoom out": "Xiktepitonchiua",
+ "{d} no tiene comunidades en la delimitación vigente del programa.": "{d} amo kipia altepetsitsin ipan nin tlapaleuilistle axan.",
+ "{d} tiene {n} comunidad en el programa.": "{d} kipia {n} altepetsin ipan nin tlapaleuilistle.",
+ "{d} tiene {n} comunidades en el programa.": "{d} kipia {n} altepetsitsin ipan nin tlapaleuilistle.",
  "{n} años": "{n} xiuitl",
  "{n} computadoras con conexión a internet y software educativo.": "{n} tepostlapoualli iga internet uan programas iga temachtilistle.",
  "{n} conjuntos de datos": "{n} tlapoualamatl",
@@ -838,7 +882,8 @@ const TPBV_TRADUCCIONES_NA = {
  "¿Cómo funciona?": "¿Kenin teguiti?",
  "¿Dónde están las aulas?": "¿Kanin katej tlamachtiloyan?",
  "¿Qué encontrarás en este tablero?": "¿Tlen tikajsis ipan nin tlapoualli?",
- "¿Qué incluye cada aula?": "¿Tlen kipia nochi tlamachtiloyan?"
+ "¿Qué incluye cada aula?": "¿Tlen kipia nochi tlamachtiloyan?",
+ "¿Tu comunidad está en el programa?": "¿Moaltepetsin kalaktok ipan nin tlapaleuilistle?"
 };
 </script>
 
@@ -978,6 +1023,22 @@ function agregarBaseMorelos(leafletMap, { estilo = () => MUNICIPIO_BASE, onEachF
 // de app.js (esc, fmtInt, card...) solo al ejecutarse.
 // ---------------------------------------------------------------------------
 
+// Fecha de corte de los datos del tablero (AAAA-MM-DD). ACTUALIZAR cada vez
+// que se regeneren los datos (scripts/build_*.py). Se muestra en el héroe de
+// Inicio y en el pie de página ([data-fecha-datos]).
+const TPBV_FECHA_DATOS = '2026-10-16';
+
+function fechaDatosLarga() {
+    // UTC para que '2026-10-16' no se recorra al 15 por la zona horaria.
+    return new Date(`${TPBV_FECHA_DATOS}T12:00:00Z`)
+        .toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+// El pie de página es del shell (ya existe al cargar este bloque).
+document.querySelectorAll('[data-fecha-datos]').forEach((el) => {
+    el.textContent = `Datos actualizados al ${fechaDatosLarga()}.`;
+});
+
 const TPBV_BOLETIN_URL = 'https://www.morelos.gob.mx/ultimas-noticias/territorios-de-paz-y-buen-vivir-es-el-programa-social-mas-importante-del-sexenio-margarita-gonzalez-saravia';
 
 function inicioLogoTpbvSrc() {
@@ -1010,6 +1071,10 @@ function inicioHeroHtml() {
                     <span class="material-symbols-outlined" aria-hidden="true">database</span> Datos abiertos
                 </button>
             </div>
+            <p class="font-body-md text-body-md text-on-surface-variant inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-secondary" aria-hidden="true">update</span>
+                <span>Datos actualizados al ${fechaDatosLarga()} · Fuentes: INEGI (Censo 2020), CONAPO y ATDEM</span>
+            </p>
         </div>
         <div class="lg:col-span-2 flex justify-center">
             <div class="w-56 h-56 md:w-72 md:h-72 rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center p-8">
@@ -1023,7 +1088,7 @@ function inicioCitaHtml() {
     return `
     <figure class="rounded-3xl p-8 md:p-12 bg-secondary-container/50 border border-outline-variant flex flex-col gap-5">
         <span class="material-symbols-outlined text-[48px]" style="color:#BC9B73" aria-hidden="true">format_quote</span>
-        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22">
+        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300">
             Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo,
             quiero hacer una transformación en el estado, y los necesito a todos ustedes.
         </blockquote>
@@ -1098,6 +1163,122 @@ function inicioCifrasHtml(nLocalidades, nPoligonos, poblacion) {
             </div>`).join('')}
         </div>
     </div>`;
+}
+</script>
+<script>
+/* EMBEBIDO: inicio_buscador.js */
+// ---------------------------------------------------------------------------
+// Buscador ciudadano de Inicio: "¿Tu comunidad está en el programa?".
+// Pensado para quien no conoce el tablero: escribe su localidad (o su
+// municipio) y obtiene una respuesta directa, con acceso a los datos de la
+// comunidad en Análisis Demográfico.
+//   - Coincidencia por localidad: lista de comunidades con su polígono.
+//   - Coincidencia por municipio: cuántas comunidades tiene y cuáles.
+//   - Municipio de Morelos sin comunidades: lo dice explícitamente.
+// Se carga ANTES de app.js (Inicio se pinta al arrancar); usa helpers de
+// app.js (esc, normalizeSearch, poligonoLabel, selectLocalidad, showView)
+// solo al ejecutarse. renderInicioView() inserta el HTML y llama a
+// iniciarBuscadorComunidad().
+// ---------------------------------------------------------------------------
+
+const BUSCADOR_MIN_CARACTERES = 3;
+const BUSCADOR_MAX_RESULTADOS = 6;
+
+function buscadorComunidadHtml() {
+    return `
+    <section class="rounded-3xl p-6 md:p-10 border border-outline-variant bg-surface-container-lowest flex flex-col gap-5" aria-labelledby="buscador-comunidad-titulo">
+        <div class="flex flex-col gap-2 max-w-3xl">
+            <h2 id="buscador-comunidad-titulo" class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">¿Tu comunidad está en el programa?</h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">Escribe el nombre de tu localidad, colonia o municipio.</p>
+        </div>
+        <form id="buscador-comunidad" role="search" class="flex flex-col sm:flex-row gap-3 max-w-3xl" onsubmit="return false;">
+            <label for="buscador-comunidad-input" class="sr-only">Nombre de tu localidad, colonia o municipio</label>
+            <div class="relative flex-1">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" aria-hidden="true">search</span>
+                <input id="buscador-comunidad-input" type="search" autocomplete="off" placeholder="Por ejemplo: Tetela del Volcán"
+                    class="w-full rounded-full border border-outline bg-surface pl-12 pr-5 py-3 font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+            </div>
+        </form>
+        <div id="buscador-comunidad-resultado" aria-live="polite" class="max-w-3xl"></div>
+    </section>`;
+}
+
+function buscadorComunidadFila(r) {
+    return `
+    <li class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between py-3 border-b border-outline-variant last:border-b-0">
+        <div>
+            <p class="font-headline-md text-headline-md text-on-surface">${esc(r.localidad)}</p>
+            <p class="font-body-md text-body-md text-on-surface-variant">${esc(r.municipio)} · Polígono ${esc(poligonoLabel(r.poligono))}</p>
+        </div>
+        <button type="button" data-ver-comunidad="${r.idx}"
+            class="shrink-0 border border-outline text-on-surface px-5 py-2 rounded-full font-body-md text-body-md inline-flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+            Ver sus datos <span class="material-symbols-outlined text-[18px]" aria-hidden="true">arrow_forward</span>
+        </button>
+    </li>`;
+}
+
+function buscadorComunidadLista(registros) {
+    const visibles = registros.slice(0, BUSCADOR_MAX_RESULTADOS);
+    const resto = registros.length - visibles.length;
+    return `<ul class="mt-2">${visibles.map(buscadorComunidadFila).join('')}</ul>` +
+        (resto > 0 ? `<p class="font-body-md text-body-md text-on-surface-variant mt-2">Y ${resto} ${resto === 1 ? 'comunidad más' : 'comunidades más'}. Escribe más letras para afinar la búsqueda.</p>` : '');
+}
+
+function buscadorMensaje(icono, color, texto) {
+    return `<p class="font-headline-sm text-headline-sm text-on-surface inline-flex items-start gap-2">
+        <span class="material-symbols-outlined ${color} mt-0.5" aria-hidden="true">${icono}</span><span>${texto}</span></p>`;
+}
+
+function buscadorMunicipiosMorelos() {
+    if (typeof TPBV_LIMITES_MUNICIPALES === 'undefined') return [];
+    return [...new Set(TPBV_LIMITES_MUNICIPALES.features.map((f) => f.properties.NOMGEO))];
+}
+
+function buscadorComunidadResultado(texto) {
+    const q = normalizeSearch(texto);
+    if (q.length < BUSCADOR_MIN_CARACTERES) return '';
+    const datos = TPBV_DATA.map((r, idx) => ({ ...r, idx }));
+
+    const porLocalidad = datos.filter((r) => normalizeSearch(r.localidad).includes(q));
+    if (porLocalidad.length) {
+        const n = porLocalidad.length;
+        return buscadorMensaje('check_circle', 'text-primary',
+            n === 1 ? 'Sí, esta comunidad está en el programa.' : `Encontramos ${n} comunidades del programa con ese nombre.`) +
+            buscadorComunidadLista(porLocalidad);
+    }
+
+    const porMunicipio = datos.filter((r) => normalizeSearch(r.municipio).includes(q));
+    if (porMunicipio.length) {
+        const municipio = porMunicipio[0].municipio;
+        const n = porMunicipio.length;
+        return buscadorMensaje('check_circle', 'text-primary',
+            `${esc(municipio)} tiene ${n} ${n === 1 ? 'comunidad' : 'comunidades'} en el programa.`) +
+            buscadorComunidadLista(porMunicipio);
+    }
+
+    const municipioSinComunidades = buscadorMunicipiosMorelos().find((m) => normalizeSearch(m).includes(q));
+    if (municipioSinComunidades) {
+        return buscadorMensaje('info', 'text-secondary',
+            `${esc(municipioSinComunidades)} no tiene comunidades en la delimitación vigente del programa.`);
+    }
+    return buscadorMensaje('search_off', 'text-secondary',
+        `No encontramos «${esc(texto.trim())}» entre las ${TPBV_DATA.length} comunidades del programa. Revisa cómo está escrito o busca por municipio.`);
+}
+
+function verComunidad(idx) {
+    showView('analisis');
+    selectLocalidad(idx);
+}
+
+function iniciarBuscadorComunidad() {
+    const input = document.getElementById('buscador-comunidad-input');
+    const salida = document.getElementById('buscador-comunidad-resultado');
+    if (!input || !salida) return;
+    input.addEventListener('input', () => { salida.innerHTML = buscadorComunidadResultado(input.value); });
+    salida.addEventListener('click', (e) => {
+        const boton = e.target.closest('[data-ver-comunidad]');
+        if (boton) verComunidad(parseInt(boton.dataset.verComunidad, 10));
+    });
 }
 </script>
 <script>
@@ -2776,6 +2957,8 @@ function renderInicioView() {
     view.innerHTML = `
     ${inicioHeroHtml()}
 
+    ${buscadorComunidadHtml()}
+
     ${inicioCitaHtml()}
 
     ${inicioComoFuncionaHtml()}
@@ -2831,6 +3014,7 @@ function renderInicioView() {
             </ol>
         `, 'mt-3')}
     </div>`;
+    iniciarBuscadorComunidad();
     animateEntrances(view);
 }
 

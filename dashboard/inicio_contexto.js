@@ -12,6 +12,22 @@
 // de app.js (esc, fmtInt, card...) solo al ejecutarse.
 // ---------------------------------------------------------------------------
 
+// Fecha de corte de los datos del tablero (AAAA-MM-DD). ACTUALIZAR cada vez
+// que se regeneren los datos (scripts/build_*.py). Se muestra en el héroe de
+// Inicio y en el pie de página ([data-fecha-datos]).
+const TPBV_FECHA_DATOS = '2026-10-16';
+
+function fechaDatosLarga() {
+    // UTC para que '2026-10-16' no se recorra al 15 por la zona horaria.
+    return new Date(`${TPBV_FECHA_DATOS}T12:00:00Z`)
+        .toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+}
+
+// El pie de página es del shell (ya existe al cargar este bloque).
+document.querySelectorAll('[data-fecha-datos]').forEach((el) => {
+    el.textContent = `Datos actualizados al ${fechaDatosLarga()}.`;
+});
+
 const TPBV_BOLETIN_URL = 'https://www.morelos.gob.mx/ultimas-noticias/territorios-de-paz-y-buen-vivir-es-el-programa-social-mas-importante-del-sexenio-margarita-gonzalez-saravia';
 
 function inicioLogoTpbvSrc() {
@@ -44,6 +60,10 @@ function inicioHeroHtml() {
                     <span class="material-symbols-outlined" aria-hidden="true">database</span> Datos abiertos
                 </button>
             </div>
+            <p class="font-body-md text-body-md text-on-surface-variant inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px] text-secondary" aria-hidden="true">update</span>
+                <span>Datos actualizados al ${fechaDatosLarga()} · Fuentes: INEGI (Censo 2020), CONAPO y ATDEM</span>
+            </p>
         </div>
         <div class="lg:col-span-2 flex justify-center">
             <div class="w-56 h-56 md:w-72 md:h-72 rounded-full bg-surface-container-lowest border border-outline-variant flex items-center justify-center p-8">
@@ -57,7 +77,7 @@ function inicioCitaHtml() {
     return `
     <figure class="rounded-3xl p-8 md:p-12 bg-secondary-container/50 border border-outline-variant flex flex-col gap-5">
         <span class="material-symbols-outlined text-[48px]" style="color:#BC9B73" aria-hidden="true">format_quote</span>
-        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22">
+        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300">
             Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo,
             quiero hacer una transformación en el estado, y los necesito a todos ustedes.
         </blockquote>

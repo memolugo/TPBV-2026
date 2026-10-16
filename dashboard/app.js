@@ -1672,6 +1672,8 @@ function renderInicioView() {
     view.innerHTML = `
     ${inicioHeroHtml()}
 
+    ${buscadorComunidadHtml()}
+
     ${inicioCitaHtml()}
 
     ${inicioComoFuncionaHtml()}
@@ -1727,6 +1729,7 @@ function renderInicioView() {
             </ol>
         `, 'mt-3')}
     </div>`;
+    iniciarBuscadorComunidad();
     animateEntrances(view);
 }
 

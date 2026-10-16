@@ -59,7 +59,7 @@ tras publicar, el usuario debe recargar con Ctrl+F5.
 data.js · poligonos.js · limites_municipales.js · poligonos_actual_nombres.js
 aulas_tecnologicas.js · red_ltqnu.js · telecom.js        (datos)
 traducciones_na.js                                       (diccionario náhuatl)
-mapa_morelos.js · inicio_contexto.js                     (antes de app.js: app.js los usa al arrancar)
+mapa_morelos.js · inicio_contexto.js · inicio_buscador.js (antes de app.js: app.js los usa al arrancar)
 app.js
 aulas_mapa.js · aulas_contexto.js · aulas_view.js
 datos_abiertos.js · red_view.js · telecom_view.js
@@ -99,7 +99,7 @@ contenedor `<div id="X-view">` en el shell, `<li>` en `#sidebar-nav`, entrada en
 
 | Vista | `showView` | Código | Notas |
 |---|---|---|---|
-| Inicio (landing) | `inicio` | `renderInicioView` (app.js) + `inicio_contexto.js` | Presentación (boletín 01831), cita de la Gobernadora, cómo funciona, cifras, hitos, gráfica de marginación agrupada, tarjetas de secciones, cómo empezar. Vista inicial. |
+| Inicio (landing) | `inicio` | `renderInicioView` (app.js) + `inicio_contexto.js` + `inicio_buscador.js` | Presentación (boletín 01831) con fecha de corte de los datos, buscador ciudadano «¿Tu comunidad está en el programa?», cita de la Gobernadora, cómo funciona, cifras, hitos, gráfica de marginación agrupada, tarjetas de secciones, cómo empezar. Vista inicial. |
 | Análisis Demográfico | `analisis` | app.js (`render`, `renderMap`, `renderAggregate*`) | Arranca en "Todos los Polígonos". Mapa solo Morelos con los 26 polígonos siempre encendidos y las localidades. |
 | Aulas Tecnológicas | `aulas` | `aulas_contexto.js`, `aulas_view.js`, `aulas_mapa.js` | 45 escuelas ATDEM. Contexto del boletín 06206. |
 | Red La tierra que nos une | `red` | `red_view.js` | Wi-Fi pública ATDEM en dependencias. Mapa encuadrado en Cuernavaca. |
@@ -187,10 +187,11 @@ Todas las vistas con mapa la usan. Gotchas:
 Réplica del sistema de **digital.morelos.gob.mx** (mismo Figma) + paleta del
 Manual de Marca Morelos 2024-2030 / skill `skillatd`.
 
-- **Tipografías:** Karol Sans (títulos) y Twogether Sans (texto), copiadas del portal a `dashboard/assets/fonts/` e incrustadas en el HTML. Son del Gobierno; confirmar con Comunicación Social antes de otros usos.
+- **Tipografías:** igual que morelos.gob.mx (tokens morv3, medidos el 2026-10-16 en una nota de Prensa): **Twogether Sans en títulos y texto**, con pesos ligeros (h1 400 48/57.6 px, títulos de sección 400, texto destacado 300 20/28 px, menú 400); **Karol Sans SemiBold solo para cifras** (`kpi-value`) y el nombre del encabezado. Copiadas del portal a `dashboard/assets/fonts/` e incrustadas en el HTML. Son del Gobierno; confirmar con Comunicación Social antes de otros usos.
 - **Colores** (tokens Tailwind redefinidos en el shell): verde bosque `#2E3B2B` (texto/títulos), verde Morelos `#71785B`, oro `#BC9B73`, vino `#773357` (acción/CTA), piedra `#CBCABE`, superficies `#F5F4F2` / `#EBEADE` / `#E4E3D6`.
 - **Componentes:** encabezado blanco con barra de utilidad piedra, menú de píldoras (activa en `#DFE6C3`; drawer debajo de 1280 px, `NAV_BREAKPOINT`), tarjetas con borde fino y radio 24 px sin sombra, botones píldora vino, campos píldora, íconos en círculo rosa (`bg-primary-fixed`).
 - **Footer:** igual al de morelos.gob.mx (logo blanco `assets/logo-morelos-footer.svg` incrustado, atención ciudadana, Recursos / Actividad del gobierno / Enlaces de interés / redes) + línea con atribución del tablero y fuente INEGI.
+- **Compartir y buscadores:** `<head>` con título «Territorios de Paz y Buen Vivir · Gobierno de Morelos», descripción, canonical, Open Graph y Twitter Card. La imagen de vista previa (1200×630) y el ícono de iPhone se generan con `scripts/build_imagen_compartir.js` en `dashboard/assets/compartir/` y se referencian con **URL absoluta de GitHub Pages** (el proxy no sirve archivos nuevos de `assets/`); el favicon va incrustado como `data:` URI. Si cambian las cifras (132/26/22/45), regenerar la imagen y actualizar el texto de la descripción y `og:image:alt`.
 - **Encabezado a 7 píldoras:** el nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras. Al agregar otra píldora, medir que no se encime.
 
 ---
@@ -251,6 +252,8 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 
 ## 5. Decisiones de datos que hay que conocer
 
+- **Fecha de corte:** `TPBV_FECHA_DATOS` en `inicio_contexto.js` (héroe de Inicio y pie de página). **Actualizarla** cada vez que se regeneren datos. Al cambiar de mes, la clave de traducción «Datos actualizados al {n} de octubre de {n}» cambia: volver a extraer textos y traducir la nueva.
+
 - **Localidades (132):** 9 no estaban en `ITER_2020.xlsx`; sus coordenadas salen del CSV completo del censo (`iter_17_cpv2020/`) → `MANUAL_COORDS` en `build_dashboard_data.py`. Iztaccíhuatl es aproximada (OSM); "Tres de mayo" queda 0.4 km fuera del polígono 19.
 - **Grado de marginación:** 9 de las 10 localidades sin `GM_2020` en la lista se completaron con CONAPO 2020 (índice por colonia IMC, o por localidad IML para Loma Bonita) → `MARGINACION_COMPLEMENTO` + campo `fuenteMarginacion`; `imMarginacion` se deja vacío para no mezclar escalas. Colonia Las Rosas (Temixco, 6 hab.) sigue sin grado. Copia usada: github.com/IndiceMx/IM_2020 (los enlaces oficiales de CONAPO dan 404), validada contra la lista (92 coincidencias).
 - **Gráfica de Inicio:** Medio + Bajo + Muy bajo = "Comunidades prioritarias" (pedido del usuario); suma las 132 con barra "Sin grado de marginación".
@@ -275,5 +278,7 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `b95b9a0` | Sección Red La tierra que nos une; grados de marginación faltantes (CONAPO). |
 | 2026-10-16 | `b286188` | Sección Infraestructura de Telecomunicaciones (agregada por municipio); `Sitios REEM.kml` en `.gitignore`. |
 | 2026-10-16 | `b286188` | Infraestructura de traducción al náhuatl (`i18n.js`, botón «Náhuatl» en la barra superior) y plantilla para el traductor (299 textos); borrador de traducción con IA pendiente de revisión. |
+| 2026-10-16 | *(sin publicar)* | Vista previa para redes (Open Graph/Twitter), favicon, ícono de iPhone, título y descripción para buscadores. |
+| 2026-10-16 | *(sin publicar)* | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
 
 Mantener esta tabla al día al publicar cambios.

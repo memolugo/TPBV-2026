@@ -39,6 +39,7 @@ NUEVOS_BLOQUES = {
     "aulas_view.js": "aulas_contexto.js",
     "datos_abiertos.js": "aulas_view.js",
     "inicio_contexto.js": "mapa_morelos.js",
+    "inicio_buscador.js": "inicio_contexto.js",
     "red_ltqnu.js": "aulas_tecnologicas.js",
     "red_view.js": "datos_abiertos.js",
     "telecom.js": "red_ltqnu.js",
@@ -49,8 +50,8 @@ NUEVOS_BLOQUES = {
 
 # Bloques que deben cargarse ANTES que otro porque app.js los usa ya al
 # arrancar: mapa_morelos.js (crearMapaMorelos, mapa inicial de Analisis) e
-# inicio_contexto.js (renderInicioView, Inicio es la vista inicial).
-DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js"}
+# inicio_contexto.js / inicio_buscador.js (renderInicioView, Inicio es la vista inicial).
+DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js", "inicio_buscador.js": "app.js"}
 
 # Bloques que NO deben ir en el HTML publicado. La Nueva Propuesta Territorial
 # aun no es informacion oficial (2026-10-16): sus datos se retiran del HTML
