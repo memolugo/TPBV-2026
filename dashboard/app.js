@@ -22,6 +22,15 @@ let localidadActiveIndex = -1;
 // se usa en ningun lado del dashboard (decision del usuario 2026-08-13:
 // "olvida las 118 que teniamos, enfocate solo en las 68").
 let DATASET_MODE = 'actual';
+// La Nueva Propuesta Territorial aun no es informacion oficial: en
+// produccion sus datos (propuesta_nueva.js, propuesta_2026.js,
+// data_propuesta_2026.js) NO se incrustan en el HTML (BLOQUES_RETIRADOS en
+// scripts/embed_dashboard.py) y todo lo que depende de ellos se oculta:
+// interruptor de Analisis, vista Propuesta Territorial, bloques de Inicio y
+// conjuntos de Datos Abiertos. Para volver a mostrarla basta con incrustar
+// de nuevo esos datos. Respaldo completo: tag git
+// respaldo-2026-10-16-con-nueva-propuesta.
+const HAY_NUEVA_PROPUESTA = typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined';
 
 let map = null;
 let marker = null;
@@ -222,7 +231,10 @@ function card(innerHtml, extraClasses = '') {
 // durante el scroll largo del dashboard.
 function sectionLabel(title, icon, accentKey = 'primary') {
     const a = KPI_ACCENTS[accentKey] || KPI_ACCENTS.primary;
-    return `<div class="md:col-span-2 flex items-center gap-3 pt-2 ${a.chipText}">
+    // El acento 'primary' usa texto blanco (va sobre el chip mora de las
+    // KPI); como rotulo sobre fondo blanco se usa el verde bosque.
+    const color = accentKey === 'primary' ? 'text-primary' : a.chipText;
+    return `<div class="md:col-span-2 flex items-center gap-3 pt-2 ${color}">
         <span class="flex items-center gap-2 shrink-0">
             <span class="material-symbols-outlined text-[20px]">${icon}</span>
             <span class="font-label-bold text-label-bold uppercase tracking-wider whitespace-nowrap">${esc(title)}</span>
@@ -1636,19 +1648,7 @@ function renderInicioView() {
     const crecimientoLoc = nLocActual ? (nLocNueva / nLocActual * 100) : 0;
     const crecimientoPob = pobActual ? (pobNueva / pobActual * 100) : 0;
 
-    view.innerHTML = `
-    <div class="text-center w-full py-12 px-4 rounded-3xl bg-surface-container-low">
-        <span class="material-symbols-outlined text-primary" style="font-size:44px">waving_hand</span>
-        <h1 class="font-headline-xl text-headline-xl text-primary mt-2">Bienvenido al Dashboard de TPBV</h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl mx-auto">
-            Territorios de Paz y Buen Vivir 2026 — la herramienta de análisis sociodemográfico y planeación
-            territorial de la Agencia de Transformación Digital del Gobierno del Estado de Morelos.
-        </p>
-        <button onclick="showView('analisis')" class="mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-headline-md text-headline-md hover:opacity-90 transition-opacity inline-flex items-center gap-2">
-            <span class="material-symbols-outlined">analytics</span> Comenzar el análisis
-        </button>
-    </div>
-
+    const impactoHtml = !HAY_NUEVA_PROPUESTA ? '' : `
     <div class="rounded-3xl p-6 bg-secondary-container/50 border border-outline-variant flex flex-col md:flex-row items-center gap-5">
         <span class="shrink-0 w-14 h-14 rounded-2xl bg-primary text-on-primary flex items-center justify-center">
             <span class="material-symbols-outlined text-3xl">trending_up</span>
@@ -1663,40 +1663,72 @@ function renderInicioView() {
                 (<span class="text-primary font-bold">+${crecimientoPob.toFixed(0)}%</span>).
             </p>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 gap-gutter-grid">
-        ${sectionLabel('Propuesta Actual', 'map', 'primary')}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
-            ${kpiCount('groups', 'Localidades', nLocActual, 'primary')}
-            ${kpiCount('map', 'Polígonos', nPolActual, 'blue')}
-            ${kpiCount('groups', 'Población', pobActual, 'warning')}
-        </div>
+    </div>`;
+    const kpisNuevaHtml = !HAY_NUEVA_PROPUESTA ? '' : `
         ${sectionLabel('Nueva Propuesta Territorial', 'layers', 'teal')}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
             ${kpiCount('groups', 'Localidades', nLocNueva, 'primary')}
             ${kpiCount('layers', 'Polígonos', nPolNueva, 'blue')}
             ${kpiCount('groups', 'Población', pobNueva, 'warning')}
+        </div>`;
+    const tituloActual = HAY_NUEVA_PROPUESTA ? 'Propuesta Actual' : 'Polígonos vigentes';
+    const textoAnalisis = HAY_NUEVA_PROPUESTA
+        ? `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía por localidad o por polígono completo. Alterna entre la <b>Propuesta Actual</b> (${fmtInt(nLocActual)} localidades) y la <b>Nueva Propuesta Territorial</b> (${fmtInt(nLocNueva)} localidades) con un solo clic.`
+        : `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía de las <b>${fmtInt(nLocActual)} localidades</b> de los ${fmtInt(nPolActual)} polígonos vigentes, por localidad o por polígono completo.`;
+    const pasos = HAY_NUEVA_PROPUESTA ? [
+        ['Elige el conjunto de datos', 'En Análisis Demográfico, usa el interruptor "Propuesta Actual / Nueva Propuesta Territorial" para decidir qué delimitación quieres explorar.'],
+        ['Filtra por polígono o localidad', 'Usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.'],
+        ['Explora los indicadores', 'Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.'],
+        ['Compara ambas propuestas', 'Ve a "Propuesta Territorial" para ver la delimitación actual y la nueva superpuestas, con las localidades que se incorporarían.'],
+        ['Genera tu reporte', 'Usa el botón "Reporte Institucional" para exportar un documento formal en PDF de lo que estés viendo.']
+    ] : [
+        ['Filtra por polígono o localidad', 'En Análisis Demográfico, usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.'],
+        ['Explora los indicadores', 'Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.'],
+        ['Consulta proyectos y aulas', 'Revisa el Banco de Proyectos por municipio y localidad, y el mapa de Aulas Tecnológicas instaladas en los polígonos.'],
+        ['Descarga los datos', 'En Datos Abiertos encontrarás las bases de datos del tablero en CSV y KML.'],
+        ['Genera tu reporte', 'Usa el botón "Reporte Institucional" para exportar un documento formal en PDF de lo que estés viendo.']
+    ];
+
+    view.innerHTML = `
+    <div class="text-center w-full py-12 px-4 rounded-3xl bg-surface-container-low">
+        <span class="material-symbols-outlined text-primary" style="font-size:44px">waving_hand</span>
+        <h1 class="font-headline-xl text-headline-xl text-primary mt-2">Bienvenido al Dashboard de TPBV</h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl mx-auto">
+            Territorios de Paz y Buen Vivir 2026 — la herramienta de análisis sociodemográfico y planeación
+            territorial de la Agencia de Transformación Digital del Gobierno del Estado de Morelos.
+        </p>
+        <button onclick="showView('analisis')" class="mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-headline-md text-headline-md hover:opacity-90 transition-opacity inline-flex items-center gap-2">
+            <span class="material-symbols-outlined">analytics</span> Comenzar el análisis
+        </button>
+    </div>
+
+    ${impactoHtml}
+
+    <div class="grid grid-cols-1 gap-gutter-grid">
+        ${sectionLabel(tituloActual, 'map', 'primary')}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
+            ${kpiCount('groups', 'Localidades', nLocActual, 'primary')}
+            ${kpiCount('map', 'Polígonos', nPolActual, 'blue')}
+            ${kpiCount('groups', 'Población', pobActual, 'warning')}
         </div>
+        ${kpisNuevaHtml}
     </div>
 
     <div>
         ${sectionLabel('Grados de Marginación', 'signal_cellular_alt', 'warning')}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter-grid mt-3">
-            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Propuesta Actual</h3>${marginacionBarsHtml(TPBV_DATA)}`)}
-            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml((typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined') ? TPBV_DATA_PROPUESTA_2026 : [])}`)}
+        <div class="grid grid-cols-1 ${HAY_NUEVA_PROPUESTA ? 'md:grid-cols-2' : ''} gap-gutter-grid mt-3">
+            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">${tituloActual}</h3>${marginacionBarsHtml(TPBV_DATA)}`)}
+            ${HAY_NUEVA_PROPUESTA ? card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml(TPBV_DATA_PROPUESTA_2026)}`) : ''}
         </div>
     </div>
 
     <div>
         ${sectionLabel('¿Qué encontrarás en este tablero?', 'explore', 'primary')}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-grid mt-3">
-            ${homeSectionCard('analytics', 'Análisis Demográfico',
-                `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía por localidad o por polígono completo. Alterna entre la <b>Propuesta Actual</b> (${fmtInt(nLocActual)} localidades) y la <b>Nueva Propuesta Territorial</b> (${fmtInt(nLocNueva)} localidades) con un solo clic.`,
-                'Ir a Análisis Demográfico', 'analisis')}
-            ${homeSectionCard('layers', 'Propuesta Territorial',
+            ${homeSectionCard('analytics', 'Análisis Demográfico', textoAnalisis, 'Ir a Análisis Demográfico', 'analisis')}
+            ${HAY_NUEVA_PROPUESTA ? homeSectionCard('layers', 'Propuesta Territorial',
                 `Compara la delimitación vigente de los polígonos TPBV contra la nueva propuesta de ampliación: polígonos, límites municipales y localidades nuevas, todo superponible en un mismo mapa interactivo.`,
-                'Ir a Propuesta Territorial', 'propuesta')}
+                'Ir a Propuesta Territorial', 'propuesta') : ''}
             ${homeSectionCard('inventory_2', 'Banco de Proyectos',
                 `Consulta los ${fmtInt(typeof TPBV_BANCO_PROYECTOS !== 'undefined' ? TPBV_BANCO_PROYECTOS.length : 0)} proyectos y obras del Banco de Proyectos PP TPBV: filtra por municipio y localidad para ver descripción, categoría, estatus y prioridad de cada uno.`,
                 'Ir al Banco de Proyectos', 'banco')}
@@ -1704,7 +1736,7 @@ function renderInicioView() {
                 `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
             ${homeSectionCard('database', 'Datos Abiertos',
-                `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos de ambas propuestas, Banco de Proyectos, Aulas Tecnológicas y límites municipales.`,
+                `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos${HAY_NUEVA_PROPUESTA ? ' de ambas propuestas' : ' vigentes'}, Banco de Proyectos, Aulas Tecnológicas y límites municipales.`,
                 'Ir a Datos Abiertos', 'datos')}
             ${homeSectionCard('description', 'Reportes Institucionales',
                 `Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.`,
@@ -1716,11 +1748,7 @@ function renderInicioView() {
         ${sectionLabel('Cómo empezar', 'checklist', 'blue')}
         ${card(`
             <ol class="space-y-5">
-                ${homeStepItem(1, 'Elige el conjunto de datos', 'En Análisis Demográfico, usa el interruptor "Propuesta Actual / Nueva Propuesta Territorial" para decidir qué delimitación quieres explorar.')}
-                ${homeStepItem(2, 'Filtra por polígono o localidad', 'Usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.')}
-                ${homeStepItem(3, 'Explora los indicadores', 'Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.')}
-                ${homeStepItem(4, 'Compara ambas propuestas', 'Ve a "Propuesta Territorial" para ver la delimitación actual y la nueva superpuestas, con las localidades que se incorporarían.')}
-                ${homeStepItem(5, 'Genera tu reporte', 'Usa el botón "Reporte Institucional" para exportar un documento formal en PDF de lo que estés viendo.')}
+                ${pasos.map(([titulo, texto], i) => homeStepItem(i + 1, titulo, texto)).join('')}
             </ol>
         `, 'mt-3')}
     </div>`;
@@ -2585,6 +2613,8 @@ const VIEWS = {
 };
 
 function showView(view) {
+    // Sin datos de la Nueva Propuesta la vista Propuesta Territorial no existe.
+    if (view === 'propuesta' && !HAY_NUEVA_PROPUESTA) view = 'inicio';
     const target = VIEWS[view] || VIEWS.analisis;
 
     VIEW_CONTAINERS.forEach((sel) => {
@@ -2651,6 +2681,7 @@ function updateDatasetToggleUI() {
 
 function setDatasetMode(mode) {
     if (DATASET_MODE === mode) return;
+    if (mode === 'nueva' && !HAY_NUEVA_PROPUESTA) return;
     DATASET_MODE = mode;
     // Los numeros de poligono no son comparables entre datasets (ver
     // aggregateCustom / TPBV_POLIGONOS_NUEVA_NORM), asi que el filtro
@@ -2826,6 +2857,12 @@ document.addEventListener('click', (e) => {
 // ---------------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------------
+// Sin Nueva Propuesta (produccion): fuera el interruptor "Conjunto de datos"
+// de Analisis y la pildora "Propuesta Territorial" del menu.
+if (!HAY_NUEVA_PROPUESTA) {
+    $('#dataset-switch')?.parentElement?.remove();
+    $('#nav-propuesta')?.closest('li')?.remove();
+}
 updateDatasetToggleUI();
 buildPoligonoOptions();
 buildLocalidadOptions('all');

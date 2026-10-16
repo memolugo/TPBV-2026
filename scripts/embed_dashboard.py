@@ -40,6 +40,14 @@ NUEVOS_BLOQUES = {
     "datos_abiertos.js": "aulas_view.js",
 }
 
+# Bloques que NO deben ir en el HTML publicado. La Nueva Propuesta Territorial
+# aun no es informacion oficial (2026-10-16): sus datos se retiran del HTML
+# (no solo de la interfaz, para que no queden en el codigo fuente) y app.js
+# oculta lo que depende de ellos (HAY_NUEVA_PROPUESTA). El tablero completo
+# quedo en el tag git respaldo-2026-10-16-con-nueva-propuesta. Para volver a
+# publicarla: quitar estos nombres de aqui y agregarlos a NUEVOS_BLOQUES.
+BLOQUES_RETIRADOS = {"propuesta_nueva.js", "propuesta_2026.js", "data_propuesta_2026.js"}
+
 BLOQUE_RE = re.compile(r"(<script>\r\n/\* EMBEBIDO: ([\w.]+) \*/\r\n)(.*?)(\r\n</script>)", re.S)
 
 MIME = {".woff2": "font/woff2", ".svg": "image/svg+xml", ".png": "image/png"}
@@ -100,6 +108,16 @@ def main():
         return m.group(1) + nuevo + m.group(4)
 
     html = BLOQUE_RE.sub(reemplazar, html)
+
+    def retirar(m):
+        if m.group(2) not in BLOQUES_RETIRADOS:
+            return m.group(0)
+        cambios.append(f"retirado: {m.group(2)}")
+        return ""
+
+    # Mismo patron que BLOQUE_RE + el salto de linea previo, para no dejar
+    # lineas vacias donde estaba el bloque (grupos 1-4 iguales).
+    html = re.compile(r"(?:\r\n)?" + BLOQUE_RE.pattern, re.S).sub(retirar, html)
 
     embebidos = {m.group(2): m for m in BLOQUE_RE.finditer(html)}
     for nombre, despues_de in NUEVOS_BLOQUES.items():
