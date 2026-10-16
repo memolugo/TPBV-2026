@@ -286,6 +286,6 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `ba89b0e` | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
 | 2026-10-16 | `836bbae` | Sección Segundo Encuentro Estatal con carrusel de fotos; cita con barra dorada (el ícono de comillas se leía como «99»). |
 | 2026-10-16 | `0d01cd2` | Carrusel reutilizable (`carrusel.js`); sección de entrega en Temixco con fotos en Aulas Tecnológicas; cita de Aulas con barra dorada. |
-| 2026-10-16 | *(sin publicar)* | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
+| 2026-10-16 | `0a221b3` | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
 
 Mantener esta tabla al día al publicar cambios.
