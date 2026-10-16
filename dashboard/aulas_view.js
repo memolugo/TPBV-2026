@@ -164,6 +164,7 @@ function renderAulasView() {
     if (!aulasViewBuilt) {
         view.innerHTML = aulasVistaHtml();
         aulasViewBuilt = true;
+        iniciarCarrusel('carrusel-aulas');
     }
     if (!aulasMap) {
         aulasMap = crearAulasMapa('aulas-map');

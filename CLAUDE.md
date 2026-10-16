@@ -59,7 +59,7 @@ tras publicar, el usuario debe recargar con Ctrl+F5.
 data.js · poligonos.js · limites_municipales.js · poligonos_actual_nombres.js
 aulas_tecnologicas.js · red_ltqnu.js · telecom.js        (datos)
 traducciones_na.js                                       (diccionario náhuatl)
-mapa_morelos.js · inicio_contexto.js · inicio_buscador.js · inicio_encuentro.js (antes de app.js)
+mapa_morelos.js · inicio_contexto.js · carrusel.js · inicio_buscador.js · inicio_encuentro.js (antes de app.js)
 app.js
 aulas_mapa.js · aulas_contexto.js · aulas_view.js
 datos_abiertos.js · red_view.js · telecom_view.js
@@ -101,7 +101,7 @@ contenedor `<div id="X-view">` en el shell, `<li>` en `#sidebar-nav`, entrada en
 |---|---|---|---|
 | Inicio (landing) | `inicio` | `renderInicioView` (app.js) + `inicio_contexto.js` + `inicio_buscador.js` + `inicio_encuentro.js` | Presentación (boletín 01831) con fecha de corte de los datos, buscador ciudadano «¿Tu comunidad está en el programa?», cita de la Gobernadora, Segundo Encuentro Estatal (nota del 10/10/2026) con carrusel de 7 fotos, cómo funciona, cifras, hitos, gráfica de marginación agrupada, tarjetas de secciones, cómo empezar. Vista inicial. |
 | Análisis Demográfico | `analisis` | app.js (`render`, `renderMap`, `renderAggregate*`) | Arranca en "Todos los Polígonos". Mapa solo Morelos con los 26 polígonos siempre encendidos y las localidades. |
-| Aulas Tecnológicas | `aulas` | `aulas_contexto.js`, `aulas_view.js`, `aulas_mapa.js` | 45 escuelas ATDEM. Contexto del boletín 06206. |
+| Aulas Tecnológicas | `aulas` | `aulas_contexto.js`, `aulas_view.js`, `aulas_mapa.js` | 45 escuelas ATDEM. Contexto del boletín 06206; entrega en la Primaria Miguel Hidalgo de Temixco (nota del 12/04/2026) con carrusel de 4 fotos y botón al mapa (por CCT `AULAS_TEMIXCO_CCT`). |
 | Red La tierra que nos une | `red` | `red_view.js` | Wi-Fi pública ATDEM en dependencias. Mapa encuadrado en Cuernavaca. |
 | Telecomunicaciones | `telecom` | `telecom_view.js` | Sitios REEM **agregados** por municipio (coropleta). |
 | Datos Abiertos | `datos` | `datos_abiertos.js` | CSV/KML generados en el navegador desde los datos incrustados. Cada conjunto declara `disponible()`. |
@@ -192,7 +192,7 @@ Manual de Marca Morelos 2024-2030 / skill `skillatd`.
 - **Componentes:** encabezado blanco con barra de utilidad piedra, menú de píldoras (activa en `#DFE6C3`; drawer debajo de 1280 px, `NAV_BREAKPOINT`), tarjetas con borde fino y radio 24 px sin sombra, botones píldora vino, campos píldora, íconos en círculo rosa (`bg-primary-fixed`).
 - **Footer:** igual al de morelos.gob.mx (logo blanco `assets/logo-morelos-footer.svg` incrustado, atención ciudadana, Recursos / Actividad del gobierno / Enlaces de interés / redes) + línea con atribución del tablero y fuente INEGI.
 - **Compartir y buscadores:** `<head>` con título «Territorios de Paz y Buen Vivir · Gobierno de Morelos», descripción, canonical, Open Graph y Twitter Card. La imagen de vista previa (1200×630) y el ícono de iPhone se generan con `scripts/build_imagen_compartir.js` en `dashboard/assets/compartir/` y se referencian con **URL absoluta de GitHub Pages** (el proxy no sirve archivos nuevos de `assets/`); el favicon va incrustado como `data:` URI. Si cambian las cifras (132/26/22/45), regenerar la imagen y actualizar el texto de la descripción y `og:image:alt`.
-- **Fotos (carrusel de Inicio):** de la nota oficial de Prensa, copiadas a `dashboard/assets/encuentro/` (crédito «Fotos: Gobierno del Estado de Morelos»). Se cargan con URL absoluta de GitHub Pages salvo en local (`ENCUENTRO_FOTOS_BASE`). Para cambiarlas: reemplazar archivos y textos de `ENCUENTRO_FOTOS`, volver a extraer textos para la traducción.
+- **Carruseles de fotos:** módulo `carrusel.js` (`carruselHtml({id, etiqueta, carpeta, fotos})` + `iniciarCarrusel(id)`), estilos `.carrusel*` en el shell. Fotos de notas oficiales de Prensa (crédito «Fotos: Gobierno del Estado de Morelos») en `dashboard/assets/<carpeta>/`: `encuentro/` (Inicio, `ENCUENTRO_FOTOS`) y `aulas-temixco/` (Aulas, `AULAS_TEMIXCO_FOTOS`). Se cargan con URL absoluta de GitHub Pages salvo en local (`carruselBase`). Para agregar uno: copiar fotos a una carpeta nueva, llamar `carruselHtml` en la vista e `iniciarCarrusel` después de pintarla, y volver a extraer textos para la traducción.
 - **Encabezado a 7 píldoras:** el nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras. Al agregar otra píldora, medir que no se encime.
 
 ---
@@ -282,5 +282,6 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `ba89b0e` | Vista previa para redes (Open Graph/Twitter), favicon, ícono de iPhone, título y descripción para buscadores. |
 | 2026-10-16 | `ba89b0e` | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
 | 2026-10-16 | `836bbae` | Sección Segundo Encuentro Estatal con carrusel de fotos; cita con barra dorada (el ícono de comillas se leía como «99»). |
+| 2026-10-16 | *(sin publicar)* | Carrusel reutilizable (`carrusel.js`); sección de entrega en Temixco con fotos en Aulas Tecnológicas; cita de Aulas con barra dorada. |
 
 Mantener esta tabla al día al publicar cambios.

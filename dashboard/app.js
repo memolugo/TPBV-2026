@@ -1732,7 +1732,7 @@ function renderInicioView() {
         `, 'mt-3')}
     </div>`;
     iniciarBuscadorComunidad();
-    iniciarCarruselEncuentro();
+    iniciarCarrusel('carrusel-encuentro');
     animateEntrances(view);
 }
 

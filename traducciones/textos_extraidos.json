@@ -1265,6 +1265,71 @@
   "seccion": "Aulas Tecnológicas"
  },
  {
+  "clave": "{n} de abril de {n} · {d}",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Entrega en la Escuela {d}",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "La ATDEM instaló computadoras con software educativo y conexión a internet en la Escuela {d}, en la colonia {d} de {d}, una escuela en zona de atención prioritaria.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "computadoras en el aula",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "nivel educativo",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "“La transformación digital en Morelos tiene un propósito claro: que ninguna niña o niño se quede atrás.”",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Daniel Sotelo Salazar, director de Agenda Digital de la ATDEM",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Ver la escuela en el mapa",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Fotos de la entrega en {d}",
+  "tipo": "atributo aria-label",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Inauguración del aula de cómputo en la Escuela {d}, {d}.",
+  "tipo": "atributo alt",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Aula equipada con computadoras, software educativo y conexión a internet.",
+  "tipo": "atributo alt",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Entrega del aula a la comunidad escolar.",
+  "tipo": "atributo alt",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Ceremonia de entrega en la colonia {d}.",
+  "tipo": "atributo alt",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
   "clave": "Acercar tecnología a las escuelas es abrir oportunidades reales para las niñas y los niños, especialmente en zonas donde el acceso ha sido limitado.",
   "tipo": "texto",
   "seccion": "Aulas Tecnológicas"
