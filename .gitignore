@@ -1,2 +1,4 @@
 # Copias locales de respaldo: NO se publican (contienen informacion no oficial).
 respaldos/
+# Archivos temporales de bloqueo de Excel/Office
+~$*

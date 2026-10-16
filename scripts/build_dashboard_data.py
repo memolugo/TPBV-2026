@@ -346,6 +346,38 @@ faltantes = [k for k in MANUAL_COORDS if not any(r['municipio'] == k[0] and r['l
 if faltantes:
     print("AVISO: claves de MANUAL_COORDS sin localidad correspondiente:", faltantes)
 
+# ---------------------------------------------------------------------------
+# 7. Grado de marginacion para localidades que la lista trae sin GM_2020
+#    (2026-10-16). Fuente: CONAPO, Indices de marginacion 2020 (copia de
+#    github.com/IndiceMx/IM_2020, validada: coincide con la lista en las 92
+#    localidades comparables). Los barrios/colonias salen del indice urbano
+#    por COLONIA (IMC), cuya poblacion coincide exacto con POB_TOT de la
+#    lista; Loma Bonita sale del indice por LOCALIDAD (IML). Solo se asigna
+#    el grado: el IM de colonia usa otra escala (~145-150) que el de
+#    localidad (~17-25), asi que imMarginacion se deja vacio para no
+#    mezclarlas. Colonia Las Rosas (Temixco, 6 hab.) no aparece en el IML
+#    (CONAPO omite localidades muy pequenas) y se queda sin grado.
+# ---------------------------------------------------------------------------
+MARGINACION_COMPLEMENTO = {
+    ("Tepalcingo", "Barrio Palo Revuelto"): ("Alto", "CONAPO IMC 2020 (colonia Palo Revuelto)"),
+    ("Tetela del Volcán", "Barrio Santiago"): ("Alto", "CONAPO IMC 2020 (colonia Santiago)"),
+    ("Tlaquiltenango", "Miguel Hidalgo"): ("Medio", "CONAPO IMC 2020 (colonia Miguel Hidalgo)"),
+    ("Tlaquiltenango", "Gabriel Tepepa"): ("Medio", "CONAPO IMC 2020 (colonia Gabriel Tepepa)"),
+    ("Tlaquiltenango", "Centro"): ("Medio", "CONAPO IMC 2020 (colonia Centro)"),
+    ("Tlayacapan", "Colonia del Señor santiago"): ("Muy alto", "CONAPO IMC 2020 (colonia Del Señor Santiago)"),
+    ("Tlayacapan", "Barrio de Texcalpan"): ("Alto", "CONAPO IMC 2020 (colonia De Texcalpan)"),
+    ("Zacatepec", "Tetelpa"): ("Bajo", "CONAPO IMC 2020 (colonia Tetelpa)"),
+    ("Xochitepec", "Colonia Loma Bonita (Xochitepec)"): ("Muy bajo", "CONAPO IML 2020 (localidad 0085)"),
+}
+n_gm = 0
+for r in resultados:
+    key = (r["municipio"], r["localidad"])
+    if key in MARGINACION_COMPLEMENTO and not r["gmMarginacion"]:
+        r["gmMarginacion"], r["fuenteMarginacion"] = MARGINACION_COMPLEMENTO[key]
+        r["imMarginacion"] = None
+        n_gm += 1
+print(f"Grados de marginacion complementados: {n_gm}/{len(MARGINACION_COMPLEMENTO)}")
+
 n_iter = sum(1 for r in resultados if r["fuente"] == "ITER 2020")
 n_bd = sum(1 for r in resultados if r["sinBasicaCompleta"] is not None)
 print(f"Localidades: {len(resultados)} | con datos ITER 2020: {n_iter} | con EDU34/ECO13/VIV81 (BD JULIO): {n_bd}")

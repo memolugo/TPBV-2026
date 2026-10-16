@@ -192,6 +192,15 @@ const DA_CONJUNTOS = [
             { titulo: (p) => p.escuela })
     },
     {
+        id: 'red_la_tierra_que_nos_une', icono: 'wifi', titulo: 'Red La tierra que nos une',
+        descripcion: 'Dependencias estatales con la red Wi-Fi pública de la ATDEM: secretaría, sede, coordenadas y puntos de acceso.',
+        fuente: 'ATDEM, Agentes_dependencias La Tierra Que Nos Une', disponible: () => typeof TPBV_RED_LTQNU !== 'undefined',
+        filas: () => TPBV_RED_LTQNU.map(daAplanar),
+        kml: () => daKmlPuntos('Red La tierra que nos une', 'Fuente: ATDEM',
+            TPBV_RED_LTQNU.filter((r) => r.lat != null).map((r) => ({ props: daAplanar(r), lat: r.lat, lon: r.lon })),
+            { titulo: (p) => p.dependencia })
+    },
+    {
         id: 'banco_proyectos', icono: 'inventory_2', titulo: 'Banco de Proyectos',
         descripcion: 'Proyectos y obras del Banco de Proyectos PP TPBV por municipio y localidad, con categoría, tipo de obra, estatus y año.',
         fuente: 'BANCO DE PROYECTOS PP TPBV (08/07/2026)', disponible: () => typeof TPBV_BANCO_PROYECTOS !== 'undefined',
