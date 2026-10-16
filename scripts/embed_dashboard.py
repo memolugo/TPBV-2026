@@ -38,7 +38,13 @@ NUEVOS_BLOQUES = {
     "aulas_contexto.js": "aulas_mapa.js",
     "aulas_view.js": "aulas_contexto.js",
     "datos_abiertos.js": "aulas_view.js",
+    "inicio_contexto.js": "mapa_morelos.js",
 }
+
+# Bloques que deben cargarse ANTES que otro porque app.js los usa ya al
+# arrancar: mapa_morelos.js (crearMapaMorelos, mapa inicial de Analisis) e
+# inicio_contexto.js (renderInicioView, Inicio es la vista inicial).
+DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js"}
 
 # Bloques que NO deben ir en el HTML publicado. La Nueva Propuesta Territorial
 # aun no es informacion oficial (2026-10-16): sus datos se retiran del HTML
@@ -46,7 +52,8 @@ NUEVOS_BLOQUES = {
 # oculta lo que depende de ellos (HAY_NUEVA_PROPUESTA). El tablero completo
 # quedo en el tag git respaldo-2026-10-16-con-nueva-propuesta. Para volver a
 # publicarla: quitar estos nombres de aqui y agregarlos a NUEVOS_BLOQUES.
-BLOQUES_RETIRADOS = {"propuesta_nueva.js", "propuesta_2026.js", "data_propuesta_2026.js"}
+# Banco de Proyectos: retirado igual el 2026-10-16 (HAY_BANCO_PROYECTOS en app.js).
+BLOQUES_RETIRADOS = {"propuesta_nueva.js", "propuesta_2026.js", "data_propuesta_2026.js", "banco_proyectos.js"}
 
 BLOQUE_RE = re.compile(r"(<script>\r\n/\* EMBEBIDO: ([\w.]+) \*/\r\n)(.*?)(\r\n</script>)", re.S)
 
@@ -128,6 +135,19 @@ def main():
             raise SystemExit(f"No se encontro el bloque '{despues_de}' para insertar '{nombre}'")
         html = html[:ancla.end()] + "\r\n" + bloque(nombre) + html[ancla.end():]
         cambios.append(f"insertado: {nombre} (despues de {despues_de})")
+
+    # Orden de carga obligatorio: si un bloque quedo despues del que lo
+    # necesita al cargar, se mueve justo antes de el.
+    for nombre, antes_de in DEBE_IR_ANTES_DE.items():
+        bloques = {m.group(2): m for m in BLOQUE_RE.finditer(html)}
+        if nombre not in bloques or antes_de not in bloques or bloques[nombre].start() < bloques[antes_de].start():
+            continue
+        m = bloques[nombre]
+        texto = m.group(0)
+        html = html[:m.start()].rstrip("\r\n") + "\r\n" + html[m.end():].lstrip("\r\n")
+        ancla = next(x for x in BLOQUE_RE.finditer(html) if x.group(2) == antes_de)
+        html = html[:ancla.start()] + texto + "\r\n" + html[ancla.start():]
+        cambios.append(f"movido: {nombre} (antes de {antes_de})")
 
     print("\n".join(cambios) if cambios else "Sin cambios: el HTML ya esta al dia.")
     if not check and cambios:

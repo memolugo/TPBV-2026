@@ -31,13 +31,23 @@ let DATASET_MODE = 'actual';
 // de nuevo esos datos. Respaldo completo: tag git
 // respaldo-2026-10-16-con-nueva-propuesta.
 const HAY_NUEVA_PROPUESTA = typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined';
+// Banco de Proyectos: mismo esquema. Retirado de produccion el 2026-10-16
+// (banco_proyectos.js en BLOQUES_RETIRADOS de scripts/embed_dashboard.py);
+// sin sus datos se ocultan su pildora, su vista, su tarjeta de Inicio, su
+// cifra en la landing y su conjunto en Datos Abiertos.
+const HAY_BANCO_PROYECTOS = typeof TPBV_BANCO_PROYECTOS !== 'undefined';
 
 let map = null;
 let marker = null;
 let polygonLayer = null;
 let markersLayer = null;
-let municipiosLayer = null;
-let showMunicipios = true;
+// Base "solo Morelos" del mapa de Analisis (agregarBaseMorelos); se recrea
+// con cada mapa (el contenedor #map se regenera en cada render).
+let mapaBaseMorelos = null;
+// Poligonos TPBV en el mapa de Analisis: todos encendidos en verde Morelos
+// suave; la seleccion actual mas intensa y con borde verde oscuro.
+const POLIGONO_TPBV = { color: '#2E3B2B', weight: 1.1, opacity: 0.85, fillColor: '#71785B', fillOpacity: 0.62 };
+const POLIGONO_SELECCIONADO = { color: '#2E3B2B', weight: 2.5, opacity: 1, fillColor: '#5D6449', fillOpacity: 0.8 };
 // Filtro personalizado del "Analisis Demografico": conjunto de numeros de
 // poligono elegidos via la lista de checkboxes (#custom-poligonos-panel),
 // para agregar/comparar solo esos poligonos en vez de uno solo o todos (ver
@@ -207,15 +217,18 @@ const COLOR_PROPUESTA_NUEVA = '#7C4A36';
 const COLOR_PROPUESTA_2026 = '#773357';
 
 function mapCardHeader() {
+    // Mapa "solo Morelos" (ver renderMap): municipios siempre visibles, asi
+    // que en lugar del checkbox de limites va una leyenda breve.
+    const punto = (color, size) => `<span class="inline-block rounded-full shrink-0" style="width:${size}px;height:${size}px;background:${color};border:2px solid #fff;box-shadow:0 0 0 1px ${color}"></span>`;
     return `<div class="flex items-center justify-between gap-2 mb-stack-md pb-3 border-b-2 border-secondary-container flex-wrap">
         <div class="flex items-center gap-2.5">
             ${iconChip('map')}
             <h2 class="font-headline-md text-headline-md text-on-surface">Ubicación Geográfica</h2>
         </div>
-        <label class="flex items-center gap-1.5 font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
-            <input type="checkbox" id="chk-municipios" ${showMunicipios ? 'checked' : ''} class="rounded border-outline-variant text-primary focus:ring-primary" />
-            Límites municipales
-        </label>
+        <div class="flex items-center gap-4 flex-wrap font-body-md text-body-md text-on-surface-variant">
+            <span class="flex items-center gap-1.5">${punto('#773357', 11)}Localidad</span>
+            <span class="flex items-center gap-1.5"><span class="inline-block w-4 h-3 rounded-sm" style="background:#C8CCB6;border:1.5px solid #71785B"></span>Polígono TPBV</span>
+        </div>
     </div>`;
 }
 
@@ -668,69 +681,19 @@ function findPoligonoFeature(polNum) {
     return fc.features.find((f) => f.properties.Pol === Number(polNum)) || null;
 }
 
-const REGION_COLORS = {
-    'Altos': '#1b9e77',
-    'Centro': '#d95f02',
-    'Oriente': '#7570b3',
-    'Sur': '#e7298a',
-    'Tlaquiltenango': '#66a61e',
-    // Regiones de la Nueva Propuesta Territorial (TPBV_DATA_PROPUESTA_2026 / TPBV_PROPUESTA_NUEVA)
-    'Oeste': '#e6ab02',
-    'Suroeste': '#a6761d',
-    'Este': '#666666',
-    'Norte': '#1f78b4',
-    'Noreste': '#984ea3'
-};
-const REGION_COLOR_DEFAULT = '#575f67';
-
-// Estilo de la capa "Limites municipales" del mapa de Analisis Demografico
-// (Propuesta Territorial y Aulas usan la base "solo Morelos" de
-// mapa_morelos.js, con su propia instancia de L.geoJSON por mapa).
-const MUNICIPIOS_STYLE = { color: '#575f67', weight: 1.5, dashArray: '5,4', fill: false, interactive: true };
-
 // Agrega/quita una capa opcional de un mapa Leaflet segun el estado de su
 // checkbox, sin tocar nada mas (no reconstruye la capa ni mueve el
 // zoom/paneo). Centraliza el patron "if (show && !hasLayer) add; else if
-// (!show && hasLayer) remove" repetido en renderMap (chk-municipios) y
-// renderPropuestaView/su listener de checkboxes (4 capas de comparacion).
+// (!show && hasLayer) remove" de renderPropuestaView/su listener de
+// checkboxes (capas de comparacion).
 function syncLayerVisibility(layer, show, targetMap) {
     if (!layer || !targetMap) return;
     if (show && !targetMap.hasLayer(layer)) layer.addTo(targetMap);
     else if (!show && targetMap.hasLayer(layer)) targetMap.removeLayer(layer);
 }
 
-// Agrega las capas base (Calles/Satelite + su selector) a un mapa Leaflet.
-// Se usa tanto para el mapa de Analisis Demografico como para el de
-// Propuesta Territorial: mismas fuentes de tiles, mismo control, sin
-// duplicar la configuracion en los dos sitios.
-function addBaseLayers(leafletMap) {
-    const calles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(leafletMap);
-    const satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 19,
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
-    });
-    // Etiquetas (calles, poblados) sobre la vista satelital: sin esto la
-    // capa de imagenes queda muda (sin nombres de localidades/calles).
-    const etiquetasSatelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
-    const satConLabels = L.layerGroup([satelite, etiquetasSatelite]);
-    L.control.layers({ 'Calles': calles, 'Satélite': satConLabels }, null, { position: 'topright', collapsed: true }).addTo(leafletMap);
-}
-
-function ensureMunicipiosLayer() {
-    if (municipiosLayer || typeof TPBV_LIMITES_MUNICIPALES === 'undefined') return;
-    municipiosLayer = L.geoJSON(TPBV_LIMITES_MUNICIPALES, {
-        style: MUNICIPIOS_STYLE,
-        onEachFeature: (f, layer) => {
-            layer.bindTooltip(esc(f.properties.NOMGEO), { sticky: true });
-        }
-    });
-}
-
-// Capas de comparacion territorial (checkboxes en mapCardHeader): se
-// construyen una sola vez (igual que municipiosLayer) y se agregan/quitan
+// Capas de comparacion territorial (checkboxes de Propuesta Territorial): se
+// construyen una sola vez y se agregan/quitan
 // del mapa sin re-renderizar nada mas, para poder superponerlas sobre
 // cualquier vista (localidad, poligono o "Todos los Poligonos"). El color
 // discontinuo (dashArray) en la nueva propuesta ademas de su color propio
@@ -1684,38 +1647,31 @@ function renderInicioView() {
     ] : [
         ['Filtra por polígono o localidad', 'En Análisis Demográfico, usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.'],
         ['Explora los indicadores', 'Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.'],
-        ['Consulta proyectos y aulas', 'Revisa el Banco de Proyectos por municipio y localidad, y el mapa de Aulas Tecnológicas instaladas en los polígonos.'],
+        HAY_BANCO_PROYECTOS
+            ? ['Consulta proyectos y aulas', 'Revisa el Banco de Proyectos por municipio y localidad, y el mapa de Aulas Tecnológicas instaladas en los polígonos.']
+            : ['Consulta las aulas', 'Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.'],
         ['Descarga los datos', 'En Datos Abiertos encontrarás las bases de datos del tablero en CSV y KML.'],
         ['Genera tu reporte', 'Usa el botón "Reporte Institucional" para exportar un documento formal en PDF de lo que estés viendo.']
     ];
 
+    // Landing: presentacion, cita, como funciona, cifras e hitos viven en
+    // inicio_contexto.js (textos de los boletines oficiales).
     view.innerHTML = `
-    <div class="text-center w-full py-12 px-4 rounded-3xl bg-surface-container-low">
-        <span class="material-symbols-outlined text-primary" style="font-size:44px">waving_hand</span>
-        <h1 class="font-headline-xl text-headline-xl text-primary mt-2">Bienvenido al Dashboard de TPBV</h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl mx-auto">
-            Territorios de Paz y Buen Vivir 2026 — la herramienta de análisis sociodemográfico y planeación
-            territorial de la Agencia de Transformación Digital del Gobierno del Estado de Morelos.
-        </p>
-        <button onclick="showView('analisis')" class="mt-6 bg-primary-container text-on-primary-container px-6 py-2.5 rounded-lg font-headline-md text-headline-md hover:opacity-90 transition-opacity inline-flex items-center gap-2">
-            <span class="material-symbols-outlined">analytics</span> Comenzar el análisis
-        </button>
-    </div>
+    ${inicioHeroHtml()}
+
+    ${inicioCitaHtml()}
+
+    ${inicioComoFuncionaHtml()}
+
+    ${inicioCifrasHtml(nLocActual, nPolActual, pobActual)}
 
     ${impactoHtml}
+    ${HAY_NUEVA_PROPUESTA ? `<div class="grid grid-cols-1 gap-gutter-grid">${kpisNuevaHtml}</div>` : ''}
 
-    <div class="grid grid-cols-1 gap-gutter-grid">
-        ${sectionLabel(tituloActual, 'map', 'primary')}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-gutter-grid">
-            ${kpiCount('groups', 'Localidades', nLocActual, 'primary')}
-            ${kpiCount('map', 'Polígonos', nPolActual, 'blue')}
-            ${kpiCount('groups', 'Población', pobActual, 'warning')}
-        </div>
-        ${kpisNuevaHtml}
-    </div>
+    ${inicioHitosHtml(nLocActual, nPolActual)}
 
     <div>
-        ${sectionLabel('Grados de Marginación', 'signal_cellular_alt', 'warning')}
+        <h2 class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">Grados de marginación</h2>
         <div class="grid grid-cols-1 ${HAY_NUEVA_PROPUESTA ? 'md:grid-cols-2' : ''} gap-gutter-grid mt-3">
             ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">${tituloActual}</h3>${marginacionBarsHtml(TPBV_DATA)}`)}
             ${HAY_NUEVA_PROPUESTA ? card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml(TPBV_DATA_PROPUESTA_2026)}`) : ''}
@@ -1723,20 +1679,20 @@ function renderInicioView() {
     </div>
 
     <div>
-        ${sectionLabel('¿Qué encontrarás en este tablero?', 'explore', 'primary')}
+        <h2 class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">¿Qué encontrarás en este tablero?</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-grid mt-3">
             ${homeSectionCard('analytics', 'Análisis Demográfico', textoAnalisis, 'Ir a Análisis Demográfico', 'analisis')}
             ${HAY_NUEVA_PROPUESTA ? homeSectionCard('layers', 'Propuesta Territorial',
                 `Compara la delimitación vigente de los polígonos TPBV contra la nueva propuesta de ampliación: polígonos, límites municipales y localidades nuevas, todo superponible en un mismo mapa interactivo.`,
                 'Ir a Propuesta Territorial', 'propuesta') : ''}
-            ${homeSectionCard('inventory_2', 'Banco de Proyectos',
+            ${!HAY_BANCO_PROYECTOS ? '' : homeSectionCard('inventory_2', 'Banco de Proyectos',
                 `Consulta los ${fmtInt(typeof TPBV_BANCO_PROYECTOS !== 'undefined' ? TPBV_BANCO_PROYECTOS.length : 0)} proyectos y obras del Banco de Proyectos PP TPBV: filtra por municipio y localidad para ver descripción, categoría, estatus y prioridad de cada uno.`,
                 'Ir al Banco de Proyectos', 'banco')}
             ${homeSectionCard('computer', 'Aulas Tecnológicas',
                 `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
             ${homeSectionCard('database', 'Datos Abiertos',
-                `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos${HAY_NUEVA_PROPUESTA ? ' de ambas propuestas' : ' vigentes'}, Banco de Proyectos, Aulas Tecnológicas y límites municipales.`,
+                `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos${HAY_NUEVA_PROPUESTA ? ' de ambas propuestas' : ' vigentes'},${HAY_BANCO_PROYECTOS ? ' Banco de Proyectos,' : ''} Aulas Tecnológicas y límites municipales.`,
                 'Ir a Datos Abiertos', 'datos')}
             ${homeSectionCard('description', 'Reportes Institucionales',
                 `Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.`,
@@ -1745,7 +1701,7 @@ function renderInicioView() {
     </div>
 
     <div>
-        ${sectionLabel('Cómo empezar', 'checklist', 'blue')}
+        <h2 class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">Cómo empezar</h2>
         ${card(`
             <ol class="space-y-5">
                 ${pasos.map(([titulo, texto], i) => homeStepItem(i + 1, titulo, texto)).join('')}
@@ -1760,21 +1716,41 @@ function renderInicioView() {
 // resaltada, ver activeRec) como en el filtro personalizado (activeRec null,
 // ninguna localidad resaltada sobre las demas). Comparte la logica de estilo
 // para que ambos modos se vean consistentes en el mapa.
-function drawLocalidadMarkers(records, activeRec, boundsOut) {
+// Ficha de una localidad en el mapa (mismo estilo .atd-popup que Aulas).
+function localidadPopupHtml(r, conEnlace) {
+    const nota = r.coordManual ? '<div class="dato"><span class="material-symbols-outlined">edit_location_alt</span><span>Coordenada capturada manualmente</span></div>' : '';
+    const enlace = conEnlace
+        ? `<a class="cta" href="#" onclick="selectLocalidad(${r.idx}); return false;">Ver detalle <span class="material-symbols-outlined" style="font-size:16px">arrow_forward</span></a>` : '';
+    return `<div class="cab"><div class="nom">${esc(r.localidad)}</div><div class="sub">${esc(r.municipio)}, Morelos</div></div>
+        <div class="cuerpo">
+            <div class="dato"><span class="material-symbols-outlined">map</span><span>Polígono ${esc(r.poligono)} · ${esc(poligonoLabel(r.poligono))}</span></div>
+            ${r.gmMarginacion ? `<div class="dato"><span class="material-symbols-outlined">signal_cellular_alt</span><span>Marginación: ${esc(r.gmMarginacion)}</span></div>` : ''}
+            ${nota}${enlace}
+        </div>`;
+}
+
+const LOCALIDAD_MARCADOR = { radius: 6, color: '#ffffff', weight: 1.5, fillColor: '#773357', fillOpacity: 0.9 };
+const LOCALIDAD_MARCADOR_ACTIVO = { radius: 10, color: '#BC9B73', weight: 3.5, fillColor: '#773357', fillOpacity: 1 };
+// Vista de todo el estado: punto mas chico para que las 100+ localidades no
+// se encimen a escala estatal.
+const LOCALIDAD_MARCADOR_ESTADO = { radius: 3.6, color: '#ffffff', weight: 1, fillColor: '#773357', fillOpacity: 0.95 };
+
+// Dibuja un circleMarker por localidad (con ficha + "Ver detalle") en
+// markersLayer, usado tanto en el modo overview (una localidad activa
+// resaltada, ver activeRec) como en el filtro personalizado (activeRec null).
+function drawLocalidadMarkers(records, activeRec, boundsOut, estiloBase = LOCALIDAD_MARCADOR) {
     const data = activeData();
-    markersLayer = L.layerGroup().addTo(map);
+    markersLayer = L.featureGroup().addTo(map);
     records.forEach((r) => {
         const isActive = !!activeRec && r.idx === data.indexOf(activeRec);
-        const m = L.circleMarker([r.latitud, r.longitud], {
-            radius: isActive ? 9 : 6,
-            color: '#154212',
-            weight: isActive ? 3 : 1.5,
-            fillColor: isActive ? '#a1d494' : '#3b6934',
-            fillOpacity: isActive ? 1 : 0.7
-        }).addTo(markersLayer);
-        const nota = r.coordManual ? '<br><span class="text-warning">Coordenada capturada manualmente</span>' : '';
-        m.bindPopup(`<b>${esc(r.localidad)}</b><br>${esc(r.municipio)}, Morelos${nota}
-            <br><a href="#" onclick="selectLocalidad(${r.idx}); return false;" class="text-primary font-semibold">Ver detalle &rarr;</a>`);
+        const estilo = isActive ? LOCALIDAD_MARCADOR_ACTIVO : estiloBase;
+        const m = L.circleMarker([r.latitud, r.longitud], estilo).addTo(markersLayer);
+        m.bindPopup(localidadPopupHtml(r, true), { className: 'atd-popup', maxWidth: 300 });
+        m.bindTooltip(esc(r.localidad), { direction: 'top', offset: [0, -estilo.radius], className: 'atd-tooltip' });
+        if (!isActive) {
+            m.on('mouseover', () => m.setStyle({ color: '#BC9B73', weight: 3, radius: estiloBase.radius + 2.5 }));
+            m.on('mouseout', () => m.setStyle(estiloBase));
+        }
         boundsOut.push(L.latLngBounds([[r.latitud, r.longitud]]));
     });
 }
@@ -1806,113 +1782,112 @@ function renderMap(rec, mapMode) {
         container.innerHTML = '<div id="map"></div>';
         map = null;
     }
+    // Mapa "solo Morelos" (crearMapaMorelos/agregarBaseMorelos en
+    // mapa_morelos.js): sin mosaicos, municipios siempre visibles. El
+    // contenedor se recrea en cada render, asi que la base va con el mapa.
     if (!map) {
-        map = L.map('map', { attributionControl: true });
-        addBaseLayers(map);
+        map = crearMapaMorelos('map');
+        mapaBaseMorelos = agregarBaseMorelos(map);
     }
-
-    ensureMunicipiosLayer();
-    syncLayerVisibility(municipiosLayer, showMunicipios, map);
 
     if (marker) { marker.remove(); marker = null; }
     if (polygonLayer) { polygonLayer.remove(); polygonLayer = null; }
     if (markersLayer) { markersLayer.remove(); markersLayer = null; }
 
+    // Todos los poligonos TPBV siempre encendidos; los de la seleccion actual
+    // (poligono de la localidad/agregado o los del filtro personalizado) van
+    // resaltados. polygonLayer se reutiliza para encuadrar la seleccion.
+    const seleccion = rec.customPoligonos
+        ? rec.customPoligonos.map(Number)
+        : (rec.poligono !== null && rec.poligono !== undefined && !showAll ? [Number(rec.poligono)] : []);
+    const fcTodos = activePoligonosGeoJSON();
+    if (fcTodos) {
+        polygonLayer = L.geoJSON(fcTodos, {
+            style: (f) => (seleccion.includes(Number(f.properties.Pol)) ? POLIGONO_SELECCIONADO : POLIGONO_TPBV),
+            onEachFeature: (f, layer) => {
+                layer.bindTooltip(`Polígono ${esc(f.properties.Pol)} — ${esc(poligonoLabel(f.properties.Pol))}`, { sticky: true, className: 'atd-tooltip' });
+                if (seleccion.includes(Number(f.properties.Pol))) return;
+                layer.on('mouseover', () => layer.setStyle({ fillOpacity: 0.55 }));
+                layer.on('mouseout', () => layer.setStyle(POLIGONO_TPBV));
+            }
+        }).addTo(map);
+    }
+    const capasSeleccion = polygonLayer
+        ? polygonLayer.getLayers().filter((l) => seleccion.includes(Number(l.feature.properties.Pol))) : [];
+    capasSeleccion.forEach((l) => l.bringToFront());
+    const boundsSeleccion = capasSeleccion.length ? L.featureGroup(capasSeleccion).getBounds() : null;
+
     const bounds = [];
 
     if (rec.customPoligonos) {
-        // Filtro personalizado (ver aggregateCustom): resalta el contorno de
-        // cada poligono elegido (si el dataset activo tiene geometria, ver
-        // activePoligonosGeoJSON) y dibuja las localidades de todos ellos
-        // juntas, sin distinguir "localidad activa" (no hay una sola).
-        const fc = activePoligonosGeoJSON();
-        if (fc) {
-            const selectedFeatures = fc.features.filter((f) => rec.customPoligonos.includes(f.properties.Pol));
-            if (selectedFeatures.length) {
-                polygonLayer = L.geoJSON({ type: 'FeatureCollection', features: selectedFeatures }, {
-                    style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.2 },
-                    onEachFeature: (f, layer) => {
-                        layer.bindTooltip(`Polígono ${f.properties.Pol} — ${esc(f.properties.Nom_pol)}`, { sticky: true });
-                    }
-                }).addTo(map);
-                bounds.push(polygonLayer.getBounds());
-            }
-        }
-
+        // Filtro personalizado (ver aggregateCustom): poligonos elegidos
+        // resaltados + las localidades de todos ellos, sin "localidad activa".
+        if (boundsSeleccion) bounds.push(boundsSeleccion);
         const hermanas = indexedActiveData()
             .filter((r) => rec.customPoligonos.includes(r.poligono) && r.latitud !== null && r.longitud !== null);
         drawLocalidadMarkers(hermanas, null, bounds);
     } else if (overview) {
-        // Vista del poligono/grupo seleccionado con TODAS sus localidades
-        // marcadas; solo se hace zoom a una localidad especifica cuando el
-        // usuario la selecciona explicitamente (ver mapMode 'zoom'). El
-        // contorno del poligono es opcional (feature puede ser null si el
-        // dataset activo no tiene geometria de poligono, ver
-        // activePoligonosGeoJSON) -- las localidades hermanas siempre se
-        // dibujan, con o sin contorno.
-        if (feature) {
-            polygonLayer = L.geoJSON(feature, {
-                style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.18 }
-            }).addTo(map);
-            polygonLayer.bindTooltip(`Polígono ${feature.properties.Pol} — ${esc(feature.properties.Nom_pol)}`, { sticky: true });
-            bounds.push(polygonLayer.getBounds());
-        }
-
+        // Poligono/grupo seleccionado con TODAS sus localidades marcadas.
+        if (boundsSeleccion) bounds.push(boundsSeleccion);
         const hermanas = indexedActiveData()
             .filter((r) => r.poligono === rec.poligono && r.latitud !== null && r.longitud !== null);
         drawLocalidadMarkers(hermanas, rec, bounds);
-    } else if (showAll && activePoligonosGeoJSON()) {
-        // Vista de conjunto: todos los poligonos del dataset activo,
-        // coloreados por region, con el de la localidad actual resaltado en
-        // verde primario.
-        polygonLayer = L.geoJSON(activePoligonosGeoJSON(), {
-            style: (f) => {
-                const isActive = f.properties.Pol === Number(rec.poligono);
-                const base = REGION_COLORS[f.properties.Region] || REGION_COLOR_DEFAULT;
-                return isActive
-                    ? { color: '#154212', weight: 4, fillColor: '#3b6934', fillOpacity: 0.35 }
-                    : { color: base, weight: 1.5, fillColor: base, fillOpacity: 0.12 };
-            },
-            onEachFeature: (f, layer) => {
-                layer.bindTooltip(`Polígono ${f.properties.Pol} — ${esc(f.properties.Nom_pol)} (${esc(f.properties.Region)})`, { sticky: true });
-            }
-        }).addTo(map);
-        bounds.push(polygonLayer.getBounds());
-    } else if (feature) {
-        // Modo zoom: se dibuja el poligono solo como contexto visual, pero el
-        // encuadre (bounds) se basa unicamente en la localidad seleccionada,
-        // no en la extension completa del poligono (que puede ser mucho mas
-        // grande que la localidad).
-        polygonLayer = L.geoJSON(feature, {
-            style: { color: '#154212', weight: 3, fillColor: '#3b6934', fillOpacity: 0.22 }
-        }).addTo(map);
-        polygonLayer.bindTooltip(`Polígono ${feature.properties.Pol} — ${esc(feature.properties.Nom_pol)}`, { sticky: true });
-        if (!hasPoint) bounds.push(polygonLayer.getBounds());
+    } else if (showAll) {
+        // "Todos los Poligonos": todo el estado con todas las localidades
+        // (el encuadre es el contorno de Morelos, ver abajo).
+        const todas = indexedActiveData().filter((r) => r.latitud !== null && r.longitud !== null);
+        drawLocalidadMarkers(todas, null, [], LOCALIDAD_MARCADOR_ESTADO);
+    } else if (boundsSeleccion && !hasPoint) {
+        bounds.push(boundsSeleccion);
     }
 
     if (hasPoint && !overview) {
-        marker = L.marker([rec.latitud, rec.longitud]).addTo(map);
-        const nota = rec.coordManual ? '<br><span class="text-warning">Coordenada capturada manualmente (sin match censal)</span>' : '';
-        marker.bindPopup(`<b>${esc(rec.localidad)}</b><br>${esc(rec.municipio)}, Morelos${nota}`).openPopup();
+        // Localidad elegida: sus vecinas del mismo poligono en pequeno y ella
+        // resaltada con su ficha abierta.
+        const data = activeData();
+        const vecinas = indexedActiveData()
+            .filter((r) => r.poligono === rec.poligono && r.latitud !== null && r.longitud !== null);
+        drawLocalidadMarkers(vecinas, rec, []);
+        const recIdx = data.indexOf(rec);
+        marker = markersLayer.getLayers().find((m) => {
+            const ll = m.getLatLng();
+            return ll.lat === rec.latitud && ll.lng === rec.longitud;
+        }) || L.circleMarker([rec.latitud, rec.longitud], LOCALIDAD_MARCADOR_ACTIVO).addTo(markersLayer);
+        marker.bindPopup(localidadPopupHtml({ ...rec, idx: recIdx }, false), { className: 'atd-popup', maxWidth: 300 });
+        marker.bringToFront();
         bounds.push(L.latLngBounds([[rec.latitud, rec.longitud]]));
     }
 
     // invalidateSize primero: el contenedor #map recien insertado puede no
     // tener aun sus dimensiones finales de layout (flex) en este mismo tick,
     // lo que hace que fitBounds calcule un zoom incorrecto si se llama antes.
-    setTimeout(() => {
-        if (!map) return;
-        map.invalidateSize();
+    const encuadrar = () => {
         if (bounds.length) {
             let combined = bounds[0];
             bounds.slice(1).forEach((b) => { combined = combined.extend(b); });
-            map.fitBounds(combined, { padding: [20, 20], maxZoom: hasPoint ? 15 : 14 });
+            map.fitBounds(combined, { padding: [28, 28], maxZoom: hasPoint && !overview ? 12 : 13 });
+        } else if (mapaBaseMorelos && mapaBaseMorelos.contorno) {
+            // "Todos los Poligonos" (o nada que encuadrar): todo el estado.
+            map.fitBounds(mapaBaseMorelos.contorno.getBounds(), { padding: [20, 20] });
         } else {
-            // Sin nada que encuadrar (p.ej. "Todos los Poligonos" en un
-            // dataset sin geometria de poligono, ver activePoligonosGeoJSON):
-            // vista general de Morelos en vez de dejar el mapa en el zoom
-            // por defecto de Leaflet (centro [0,0]).
             map.setView([18.75, -99.15], 9);
+        }
+        if (marker && hasPoint && !overview) marker.openPopup();
+    };
+    setTimeout(() => {
+        if (!map) return;
+        map.invalidateSize();
+        // Si #canvas esta oculto (carga inicial detras de Inicio) el mapa
+        // mide 0x0 y fitBounds daria el zoom maximo: el encuadre queda
+        // pendiente y lo aplica showView('analisis') al mostrarse.
+        // La vista provisional "carga" el mapa: Leaflet ignora
+        // invalidateSize() en un mapa sin vista y se quedaria con 0x0.
+        if (map.getSize().x === 0) {
+            map.setView([18.75, -99.15], 9);
+            map._encuadrePendiente = encuadrar;
+        } else {
+            map._encuadrePendiente = null;
+            encuadrar();
         }
     }, 150);
 }
@@ -1928,7 +1903,7 @@ function render(idx, mapMode) {
             `<div class="flex flex-col gap-gutter-grid">` + renderInfoCard(rec) + renderLocalidadesCard(rec) + `</div>` +
             `<div id="map-card" class="map-sticky bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col min-h-[400px]">
                 ${mapCardHeader()}
-                <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="map-container"></div>
+                <div class="relative w-full overflow-hidden" id="map-container" style="aspect-ratio:1/0.9;min-height:320px;max-height:calc(100vh - var(--header-h, 180px) - 8rem);border-radius:16px;border:1px solid #CBCABE"></div>
             </div>` +
             `</div>` +
             `<div class="col-span-1 md:col-span-2 xl:col-span-12">` + card(`
@@ -1956,7 +1931,7 @@ function render(idx, mapMode) {
     parts.push(`<div class="flex flex-col gap-gutter-grid">` + renderInfoCard(rec) + renderLocalidadesCard(rec) + `</div>`);
     parts.push(`<div id="map-card" class="map-sticky bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col min-h-[400px]">
         ${mapCardHeader()}
-        <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="map-container"></div>
+        <div class="relative w-full overflow-hidden" id="map-container" style="aspect-ratio:1/0.9;min-height:320px;max-height:calc(100vh - var(--header-h, 180px) - 8rem);border-radius:16px;border:1px solid #CBCABE"></div>
     </div>`);
     parts.push(`</div>`);
 
@@ -2315,7 +2290,7 @@ function renderAggregateView(agg) {
     parts.push(`<div class="flex flex-col gap-gutter-grid">` + renderAggregateInfoCard(agg) + renderLocalidadesCard(agg) + `</div>`);
     parts.push(`<div id="map-card" class="map-sticky bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col min-h-[400px]">
         ${mapCardHeader()}
-        <div class="flex-1 rounded-lg overflow-hidden border border-outline-variant bg-surface-container-low relative" id="map-container"></div>
+        <div class="relative w-full overflow-hidden" id="map-container" style="aspect-ratio:1/0.9;min-height:320px;max-height:calc(100vh - var(--header-h, 180px) - 8rem);border-radius:16px;border:1px solid #CBCABE"></div>
     </div>`);
     parts.push(`</div>`);
 
@@ -2615,6 +2590,7 @@ const VIEWS = {
 function showView(view) {
     // Sin datos de la Nueva Propuesta la vista Propuesta Territorial no existe.
     if (view === 'propuesta' && !HAY_NUEVA_PROPUESTA) view = 'inicio';
+    if (view === 'banco' && !HAY_BANCO_PROYECTOS) view = 'inicio';
     const target = VIEWS[view] || VIEWS.analisis;
 
     VIEW_CONTAINERS.forEach((sel) => {
@@ -2645,8 +2621,17 @@ function showView(view) {
     if (view === 'datos' && typeof renderDatosAbiertosView === 'function') renderDatosAbiertosView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
-        // #canvas estaba oculto (display:none no tiene layout).
-        setTimeout(() => map.invalidateSize(), 50);
+        // #canvas estaba oculto (display:none no tiene layout); si su encuadre
+        // quedo pendiente por eso (ver renderMap), se aplica ahora.
+        setTimeout(() => {
+            if (!map) return;
+            map.invalidateSize();
+            if (map._encuadrePendiente) {
+                const encuadrar = map._encuadrePendiente;
+                map._encuadrePendiente = null;
+                encuadrar();
+            }
+        }, 50);
     }
     // Solo si el drawer esta abierto: closeNav() enfoca el boton de menu, lo
     // que en la carga inicial (showView('inicio')) dejaba ese boton marcado.
@@ -2713,16 +2698,7 @@ window.addEventListener('resize', () => {
     $('#nav-toggle-btn')?.setAttribute('aria-expanded', 'false');
 });
 
-// Toggle de la capa "Limites municipales": se aplica directo sobre el mapa
-// actual (sin re-render completo) para no perder el zoom/paneo del usuario.
-canvas.addEventListener('change', (e) => {
-    if (e.target && e.target.id === 'chk-municipios') {
-        showMunicipios = e.target.checked;
-        syncLayerVisibility(municipiosLayer, showMunicipios, map);
-    }
-});
-
-// Checkboxes de la vista "Propuesta Territorial": igual que chk-municipios,
+// Checkboxes de la vista "Propuesta Territorial":
 // se aplican directo sobre propuestaMap sin re-renderizar la vista completa.
 $('#propuesta-view').addEventListener('change', (e) => {
     if (e.target && e.target.id === 'chk-propuesta-actual') showPropuestaActual = e.target.checked;
@@ -2863,14 +2839,16 @@ if (!HAY_NUEVA_PROPUESTA) {
     $('#dataset-switch')?.parentElement?.remove();
     $('#nav-propuesta')?.closest('li')?.remove();
 }
+if (!HAY_BANCO_PROYECTOS) $('#nav-banco')?.closest('li')?.remove();
 updateDatasetToggleUI();
 buildPoligonoOptions();
 buildLocalidadOptions('all');
-// Se precarga una localidad en #canvas (aunque arranque oculto detras de
-// Inicio, ver showView mas abajo) para que Analisis Demografico no aparezca
-// vacio la primera vez que el usuario entra a esa vista.
-const initialIdx = activeData().findIndex((r) => r.localidad.includes('Tlaltetelco'));
-selectLocalidad(initialIdx >= 0 ? initialIdx : 0);
+// Analisis Demografico arranca en "Todos los Poligonos": el mapa muestra
+// Morelos completo con los 26 poligonos y todas las localidades, y las
+// tarjetas el agregado estatal (se precarga aunque #canvas arranque oculto
+// detras de Inicio, ver showView mas abajo).
+selPoligono.value = 'all';
+renderAggregate(null);
 // La primera pantalla que ve el usuario es "Inicio" (bienvenida + guia),
 // no el analisis de una localidad al azar.
 showView('inicio');
