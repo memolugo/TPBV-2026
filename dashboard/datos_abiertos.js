@@ -201,6 +201,15 @@ const DA_CONJUNTOS = [
             { titulo: (p) => p.dependencia })
     },
     {
+        id: 'red_la_tierra_que_nos_une_comunidades', icono: 'location_on', titulo: 'Red La tierra que nos une · Comunidades',
+        descripcion: 'Comunidades con WiFi gratuito de la ATDEM instalado o en proceso: localidad, municipio, coordenadas, estatus y polígono TPBV.',
+        fuente: 'ATDEM, registro de instalaciones en comunidades', disponible: () => typeof TPBV_RED_COMUNIDADES !== 'undefined',
+        filas: () => TPBV_RED_COMUNIDADES.map(daAplanar),
+        kml: () => daKmlPuntos('Red La tierra que nos une · Comunidades', 'Fuente: ATDEM',
+            TPBV_RED_COMUNIDADES.map((r) => ({ props: daAplanar(r), lat: r.lat, lon: r.lon })),
+            { titulo: (p) => `${p.localidad} (${p.estatus})` })
+    },
+    {
         id: 'banco_proyectos', icono: 'inventory_2', titulo: 'Banco de Proyectos',
         descripcion: 'Proyectos y obras del Banco de Proyectos PP TPBV por municipio y localidad, con categoría, tipo de obra, estatus y año.',
         fuente: 'BANCO DE PROYECTOS PP TPBV (08/07/2026)', disponible: () => typeof TPBV_BANCO_PROYECTOS !== 'undefined',

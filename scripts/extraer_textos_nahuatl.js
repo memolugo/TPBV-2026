@@ -33,6 +33,9 @@ const RECORRIDO = [
     ['analisis', "toggleCustomPoligonosPanel()", 'Análisis Demográfico (filtro personalizado)'],
     ['aulas', null, 'Aulas Tecnológicas'],
     ['red', null, 'Red La tierra que nos une'],
+    // Ventanas de comunidades: una instalada con ubicación aproximada y una en proceso.
+    ['red', "enfocarSedeRed(String(TPBV_RED_COMUNIDADES.findIndex((c) => c.coordenadaAproximada)), true)", 'Red La tierra que nos une'],
+    ['red', "enfocarSedeRed(String(TPBV_RED_COMUNIDADES.findIndex((c) => c.estatus === 'En proceso' && c.poligono)), true)", 'Red La tierra que nos une'],
     ['telecom', null, 'Infraestructura de Telecomunicaciones'],
     ['datos', null, 'Datos Abiertos'],
 ];
@@ -57,6 +60,7 @@ const CLAVES_DINAMICAS = [
             typeof TPBV_DATA !== 'undefined' ? TPBV_DATA : [],
             typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS : [],
             typeof TPBV_RED_LTQNU !== 'undefined' ? TPBV_RED_LTQNU : [],
+            typeof TPBV_RED_COMUNIDADES !== 'undefined' ? TPBV_RED_COMUNIDADES : [],
             typeof TPBV_TELECOM !== 'undefined' ? TPBV_TELECOM.municipios : [],
         ];
         fuentes.forEach((lista) => lista.forEach((r) => Object.values(r).forEach(agregar)));
@@ -70,7 +74,8 @@ const CLAVES_DINAMICAS = [
     // (prosa): no se convierten en {d}.
     const NO_ES_DATO = new Set(['Morelos', 'Agencia de Transformación Digital', 'ITER {n}', 'Cuernavaca',
         'Emiliano Zapata', 'Guanajuato', 'Secretaría de Educación', 'Gobierno del Estado',
-        'Jefatura de la Oficina de la Gubernatura', 'Servicios de Salud', 'Jojutla', 'Centro', 'Xochitepec']);
+        'Jefatura de la Oficina de la Gubernatura', 'Servicios de Salud', 'Jojutla', 'Centro', 'Xochitepec',
+        'Instalado', 'En proceso']);   // estatus de la red en comunidades: se traducen
     const datosClave = [...new Set(datos.map((d) => d.replace(/\d[\d,.]*\d|\d/g, '{n}')))]
         .filter((d) => d.replace(/\{n\}/g, '').length > 3 && !NO_ES_DATO.has(d)).sort((a, b) => b.length - a.length);
     const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

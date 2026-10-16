@@ -8,3 +8,5 @@ Sitios REEM.kml
 # Diccionario de referencia (obra con derechos; no se publica)
 diccionario_nahuatl_hueyapan_*.pdf
 __pycache__/
+# Registro de instalaciones de la red en comunidades (trae numeros de ticket internos)
+la tierra que nos une memo.xlsx

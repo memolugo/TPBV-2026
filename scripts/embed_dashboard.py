@@ -43,6 +43,7 @@ NUEVOS_BLOQUES = {
     "inicio_buscador.js": "carrusel.js",
     "inicio_encuentro.js": "inicio_buscador.js",
     "red_ltqnu.js": "aulas_tecnologicas.js",
+    "red_comunidades.js": "red_ltqnu.js",
     "red_view.js": "datos_abiertos.js",
     "telecom.js": "red_ltqnu.js",
     "telecom_view.js": "red_view.js",

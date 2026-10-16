@@ -585,7 +585,7 @@
   "seccion": "Inicio"
  },
  {
-  "clave": "Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.",
+  "clave": "Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.",
   "tipo": "texto",
   "seccion": "Inicio"
  },
@@ -1490,6 +1490,66 @@
   "seccion": "Red La tierra que nos une"
  },
  {
+  "clave": "{n} de agosto de {n} · Comunidades prioritarias",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Internet gratuito en comunidades prioritarias",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "La ATDEM amplía la red «La tierra que nos une» a zonas históricamente vulnerables. El servicio opera al cien por ciento en El Zapote ({d}) y en Villa Nicolás Zapata ({d}), con puntos Wi-Fi en plazas principales, centros comunitarios y planteles educativos, y personal técnico realiza estudios de factibilidad en {d} y otras localidades de Territorios de Paz y Buen Vivir.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "comunidades con red instalada",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "comunidades en proceso de instalación",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "“El internet no puede seguir siendo un privilegio de pocos; es una herramienta de equidad social.”",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Samuel Rivera Muciño, titular de la ATDEM",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Fotos de la red en comunidades prioritarias",
+  "tipo": "atributo aria-label",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Personal técnico de la ATDEM durante un recorrido de campo.",
+  "tipo": "atributo alt",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Visita de la ATDEM a un centro comunitario.",
+  "tipo": "atributo alt",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Infraestructura de telecomunicaciones para llevar la red a las comunidades.",
+  "tipo": "atributo alt",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Estudios de factibilidad tecnológica en zonas prioritarias del estado.",
+  "tipo": "atributo alt",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
   "clave": "Dependencias con red",
   "tipo": "texto",
   "seccion": "Red La tierra que nos une"
@@ -1510,17 +1570,67 @@
   "seccion": "Red La tierra que nos une"
  },
  {
+  "clave": "WiFi gratuito en comunidades",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Comunidades",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Con red instalada",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "En proceso de instalación",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "En comunidades TPBV",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
   "clave": "Mapa de la red",
   "tipo": "texto",
   "seccion": "Red La tierra que nos une"
  },
  {
-  "clave": "Sede con red (el tamaño indica cuántas dependencias)",
+  "clave": "Oficina de gobierno (el tamaño indica cuántas dependencias)",
   "tipo": "texto",
   "seccion": "Red La tierra que nos une"
  },
  {
-  "clave": "Dependencias por secretaría",
+  "clave": "Comunidad: instalado",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Comunidad: en proceso",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Instalado",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "{d} · Comunidad TPBV",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "En proceso",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Disponibilidad de WiFi gratuito en oficinas de gobierno",
   "tipo": "texto",
   "seccion": "Red La tierra que nos une"
  },
@@ -1560,7 +1670,27 @@
   "seccion": "Red La tierra que nos une"
  },
  {
-  "clave": "Fuente: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (dependencias con red La tierra que nos une). Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.",
+  "clave": "Fuente: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (dependencias con red La tierra que nos une) y registro de instalaciones en comunidades. Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "WiFi gratuito: instalado",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Comunidad de Territorios de Paz y Buen Vivir · Polígono {d}",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Ubicación aproximada de la localidad",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "WiFi gratuito: en proceso",
   "tipo": "texto",
   "seccion": "Red La tierra que nos une"
  },
@@ -1836,6 +1966,36 @@
  },
  {
   "clave": "Descargar Red La tierra que nos une en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Red La tierra que nos une · Comunidades",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Comunidades con WiFi gratuito de la ATDEM instalado o en proceso: localidad, municipio, coordenadas, estatus y polígono TPBV.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: ATDEM, registro de instalaciones en comunidades",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "localidad, municipio, lat, lon, estatus, coordenadaAproximada, poligono, nombrePoligono",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Red La tierra que nos une · Comunidades en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Red La tierra que nos une · Comunidades en KML",
   "tipo": "atributo aria-label",
   "seccion": "Datos Abiertos"
  },

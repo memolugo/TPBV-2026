@@ -57,7 +57,7 @@ tras publicar, el usuario debe recargar con Ctrl+F5.
 
 ```
 data.js · poligonos.js · limites_municipales.js · poligonos_actual_nombres.js
-aulas_tecnologicas.js · red_ltqnu.js · telecom.js        (datos)
+aulas_tecnologicas.js · red_ltqnu.js · red_comunidades.js · telecom.js (datos)
 traducciones_na.js                                       (diccionario náhuatl)
 mapa_morelos.js · inicio_contexto.js · carrusel.js · inicio_buscador.js · inicio_encuentro.js (antes de app.js)
 app.js
@@ -81,6 +81,7 @@ Cada `scripts/build_*.py` lee una fuente (Excel/CSV/GeoJSON/KML) y escribe un
 | `TPBV_LIMITES_MUNICIPALES` (36 municipios) | `limites_municipales.js` | `build_limites_municipales.py` | límites INE |
 | `TPBV_AULAS_TECNOLOGICAS`, `TPBV_AULAS_MOBILIARIO` (45 escuelas) | `aulas_tecnologicas.js` | `build_aulas_tecnologicas.py` | `Proyecto Escuelas entrega Computadoras.xlsx` (hoja Concentrado) |
 | `TPBV_RED_LTQNU` (25 registros, 24 dependencias) | `red_ltqnu.js` | `build_red_ltqnu.py` | `Agentes_dependencias La Tierra Que Nos Une.xlsx` (no está en el repo) |
+| `TPBV_RED_COMUNIDADES` (11 puntos en comunidades) | `red_comunidades.js` | `build_red_comunidades.py` | `la tierra que nos une memo.xlsx` (no está en el repo: trae números de ticket) |
 | `TPBV_TELECOM` (agregado) | `telecom.js` | `build_telecom.py` | `Sitios REEM.kml` (no está en el repo, ver §5) |
 | `TPBV_TRADUCCIONES_NA` (español → náhuatl) | `traducciones_na.js` | `build_traducciones_na.py` | `traducciones/Traduccion_nahuatl_tablero.xlsx` (§2 bis) |
 | *(retirados de producción)* `TPBV_DATA_PROPUESTA_2026`, `TPBV_PROPUESTA_NUEVA`, `TPBV_PROPUESTA_2026`, `TPBV_BANCO_PROYECTOS` | `data_propuesta_2026.js`, `propuesta_nueva.js`, `propuesta_2026.js`, `banco_proyectos.js` | varios | ver §4 |
@@ -102,8 +103,8 @@ contenedor `<div id="X-view">` en el shell, `<li>` en `#sidebar-nav`, entrada en
 | Inicio (landing) | `inicio` | `renderInicioView` (app.js) + `inicio_contexto.js` + `inicio_buscador.js` + `inicio_encuentro.js` | Presentación (boletín 01831) con fecha de corte de los datos, buscador ciudadano «¿Tu comunidad está en el programa?», cita de la Gobernadora, Segundo Encuentro Estatal (nota del 10/10/2026) con carrusel de 7 fotos, cómo funciona, cifras, hitos, gráfica de marginación agrupada, tarjetas de secciones, cómo empezar. Vista inicial. |
 | Análisis Demográfico | `analisis` | app.js (`render`, `renderMap`, `renderAggregate*`) | Arranca en "Todos los Polígonos". Mapa solo Morelos con los 26 polígonos siempre encendidos y las localidades. |
 | Aulas Tecnológicas | `aulas` | `aulas_contexto.js`, `aulas_view.js`, `aulas_mapa.js` | 45 escuelas ATDEM. Contexto del boletín 06206; entrega en la Primaria Miguel Hidalgo de Temixco (nota del 12/04/2026) con carrusel de 4 fotos y botón al mapa (por CCT `AULAS_TEMIXCO_CCT`). |
-| Red La tierra que nos une | `red` | `red_view.js` | Wi-Fi pública ATDEM en dependencias. Mapa encuadrado en Cuernavaca. |
-| Telecomunicaciones | `telecom` | `telecom_view.js` | Sitios REEM **agregados** por municipio (coropleta). |
+| Red La tierra que nos une | `red` | `red_view.js` | Wi-Fi pública ATDEM en oficinas de gobierno (mora, Cuernavaca resaltado) y en comunidades (verde = instalado, aro oro = en proceso). Sección «Internet gratuito en comunidades prioritarias» (nota del 07/08/2026) con carrusel de 4 fotos. Mapa encuadrado a Morelos. Lista «Disponibilidad de WiFi gratuito en oficinas de gobierno» (antes «Dependencias por secretaría»). |
+| Telecomunicaciones | `telecom` | `telecom_view.js` | Sitios REEM **agregados** por municipio (coropleta). **Oculta desde 2026-10-16** (`MOSTRAR_TELECOM = false` en app.js): sin píldora, sin tarjeta en Inicio y `showView('telecom')` lleva a Inicio. Los datos agregados siguen incrustados. |
 | Datos Abiertos | `datos` | `datos_abiertos.js` | CSV/KML generados en el navegador desde los datos incrustados. Cada conjunto declara `disponible()`. |
 | Reportes | `printReport()` | app.js | Documento formal para imprimir/PDF. |
 | *(retiradas)* Propuesta Territorial, Banco de Proyectos | `propuesta`, `banco` | app.js | Redirigen a Inicio cuando no hay datos (§4). |
@@ -192,7 +193,7 @@ Manual de Marca Morelos 2024-2030 / skill `skillatd`.
 - **Componentes:** encabezado blanco con barra de utilidad piedra, menú de píldoras (activa en `#DFE6C3`; drawer debajo de 1280 px, `NAV_BREAKPOINT`), tarjetas con borde fino y radio 24 px sin sombra, botones píldora vino, campos píldora, íconos en círculo rosa (`bg-primary-fixed`).
 - **Footer:** igual al de morelos.gob.mx (logo blanco `assets/logo-morelos-footer.svg` incrustado, atención ciudadana, Recursos / Actividad del gobierno / Enlaces de interés / redes) + línea con atribución del tablero y fuente INEGI.
 - **Compartir y buscadores:** `<head>` con título «Territorios de Paz y Buen Vivir · Gobierno de Morelos», descripción, canonical, Open Graph y Twitter Card. La imagen de vista previa (1200×630) y el ícono de iPhone se generan con `scripts/build_imagen_compartir.js` en `dashboard/assets/compartir/` y se referencian con **URL absoluta de GitHub Pages** (el proxy no sirve archivos nuevos de `assets/`); el favicon va incrustado como `data:` URI. Si cambian las cifras (132/26/22/45), regenerar la imagen y actualizar el texto de la descripción y `og:image:alt`.
-- **Carruseles de fotos:** módulo `carrusel.js` (`carruselHtml({id, etiqueta, carpeta, fotos})` + `iniciarCarrusel(id)`), estilos `.carrusel*` en el shell. Fotos de notas oficiales de Prensa (crédito «Fotos: Gobierno del Estado de Morelos») en `dashboard/assets/<carpeta>/`: `encuentro/` (Inicio, `ENCUENTRO_FOTOS`) y `aulas-temixco/` (Aulas, `AULAS_TEMIXCO_FOTOS`). Se cargan con URL absoluta de GitHub Pages salvo en local (`carruselBase`). Para agregar uno: copiar fotos a una carpeta nueva, llamar `carruselHtml` en la vista e `iniciarCarrusel` después de pintarla, y volver a extraer textos para la traducción.
+- **Carruseles de fotos:** módulo `carrusel.js` (`carruselHtml({id, etiqueta, carpeta, fotos})` + `iniciarCarrusel(id)`), estilos `.carrusel*` en el shell. Fotos de notas oficiales de Prensa (crédito «Fotos: Gobierno del Estado de Morelos») en `dashboard/assets/<carpeta>/`: `encuentro/` (Inicio, `ENCUENTRO_FOTOS`), `aulas-temixco/` (Aulas, `AULAS_TEMIXCO_FOTOS`) y `red-comunidades/` (Red, `RED_FOTOS`). Se cargan con URL absoluta de GitHub Pages salvo en local (`carruselBase`). Para agregar uno: copiar fotos a una carpeta nueva, llamar `carruselHtml` en la vista e `iniciarCarrusel` después de pintarla, y volver a extraer textos para la traducción.
 - **Encabezado a 7 píldoras:** el nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras. Al agregar otra píldora, medir que no se encime.
 
 ---
@@ -205,6 +206,7 @@ Manual de Marca Morelos 2024-2030 / skill `skillatd`.
 |---|---|---|
 | Nueva Propuesta Territorial | 2026-10-16 | `BLOQUES_RETIRADOS` quita `propuesta_nueva.js`, `propuesta_2026.js`, `data_propuesta_2026.js`; `HAY_NUEVA_PROPUESTA` (app.js) oculta interruptor de Análisis, vista Propuesta Territorial, bloques de Inicio y conjuntos de Datos Abiertos. |
 | Banco de Proyectos | 2026-10-16 | Igual con `banco_proyectos.js` y `HAY_BANCO_PROYECTOS`. |
+| Infraestructura de Telecomunicaciones | 2026-10-16 | Solo oculta (no retirada): `MOSTRAR_TELECOM = false` en app.js. Para mostrarla, ponerlo en `true`. |
 
 Los datos se retiran **del HTML**, no solo de la interfaz. Para volver a
 publicar: quitar el archivo de `BLOQUES_RETIRADOS` y agregarlo a
@@ -260,6 +262,7 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 - **Gráfica de Inicio:** Medio + Bajo + Muy bajo = "Comunidades prioritarias" (pedido del usuario); suma las 132 con barra "Sin grado de marginación".
 - **Aulas (45):** coordenadas resueltas de los links de Google Maps y cacheadas en `scripts/aulas_tecnologicas_coords.json`; `COORDENADAS_CORREGIDAS` por CCT (Mártir de Chinameca). El boletín decía 42; la hoja tiene 45 (3 "Conflicto de turno"). La fase no se muestra (pedido del usuario). KPI "Escuelas dentro de un polígono" = 33 (no son polígonos).
 - **Red LTQNU:** solo `Red_la_tierra_que_nos_une = SI`, más el Instituto de Servicios Registrales (columna vacía, confirmado por el usuario). Coordenadas del Excel vienen sin punto decimal (se reinserta tras 2 dígitos). Ubicadas por dirección en OSM: Servicios de Salud, Instituto de Crédito, Movilidad, ISRyC. Pendientes de revisar en el Excel: coordenada de ICATMOR, PROPAEM duplicada (SI/NO), "Secretaría de Administración" vs "… y Finanzas".
+- **Red en comunidades:** se publican localidad, municipio, coordenada y estatus; **no** ticket ni fecha (hay fechas de programación que no cuadran con el estatus). Nombre/municipio del tablero cuando la localidad es TPBV (Amialtenco → Hueyapan). Francisco Javier Mina venía con lon −99.535 (fuera de Morelos): se usa la coordenada de la localidad TPBV marcada como aproximada; **corregir en el Excel**. El Vergel y Amilcingo caen del otro lado del límite municipal (avisos del script, no se corrigen).
 - **Telecom:** 47 sitios, 13 municipios, 4 sectores (carpetas del KML). Pendiente de decidir si el sector Seguridad se desglosa por municipio.
 
 ---
@@ -283,5 +286,6 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `ba89b0e` | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
 | 2026-10-16 | `836bbae` | Sección Segundo Encuentro Estatal con carrusel de fotos; cita con barra dorada (el ícono de comillas se leía como «99»). |
 | 2026-10-16 | `0d01cd2` | Carrusel reutilizable (`carrusel.js`); sección de entrega en Temixco con fotos en Aulas Tecnológicas; cita de Aulas con barra dorada. |
+| 2026-10-16 | *(sin publicar)* | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
 
 Mantener esta tabla al día al publicar cambios.

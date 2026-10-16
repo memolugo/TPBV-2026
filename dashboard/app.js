@@ -36,6 +36,11 @@ const HAY_NUEVA_PROPUESTA = typeof TPBV_DATA_PROPUESTA_2026 !== 'undefined';
 // sin sus datos se ocultan su pildora, su vista, su tarjeta de Inicio, su
 // cifra en la landing y su conjunto en Datos Abiertos.
 const HAY_BANCO_PROYECTOS = typeof TPBV_BANCO_PROYECTOS !== 'undefined';
+// Infraestructura de Telecomunicaciones: OCULTA por el momento (pedido del
+// usuario, 2026-10-16). Sus datos siguen incrustados (solo agregados); con
+// MOSTRAR_TELECOM = true vuelven la pildora, la vista y la tarjeta de Inicio.
+const MOSTRAR_TELECOM = false;
+const HAY_TELECOM = MOSTRAR_TELECOM && typeof TPBV_TELECOM !== 'undefined';
 
 let map = null;
 let marker = null;
@@ -1709,9 +1714,9 @@ function renderInicioView() {
                 `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
             ${typeof TPBV_RED_LTQNU === 'undefined' ? '' : homeSectionCard('wifi', 'Red La tierra que nos une',
-                `Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.`,
+                `Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.`,
                 'Ir a Red La tierra que nos une', 'red')}
-            ${typeof TPBV_TELECOM === 'undefined' ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
+            ${!HAY_TELECOM ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
                 `Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.`,
                 'Ir a Telecomunicaciones', 'telecom')}
             ${homeSectionCard('database', 'Datos Abiertos',
@@ -2618,6 +2623,7 @@ function showView(view) {
     // Sin datos de la Nueva Propuesta la vista Propuesta Territorial no existe.
     if (view === 'propuesta' && !HAY_NUEVA_PROPUESTA) view = 'inicio';
     if (view === 'banco' && !HAY_BANCO_PROYECTOS) view = 'inicio';
+    if (view === 'telecom' && !HAY_TELECOM) view = 'inicio';
     const target = VIEWS[view] || VIEWS.analisis;
 
     VIEW_CONTAINERS.forEach((sel) => {
@@ -2871,6 +2877,7 @@ if (!HAY_NUEVA_PROPUESTA) {
     $('#nav-propuesta')?.closest('li')?.remove();
 }
 if (!HAY_BANCO_PROYECTOS) $('#nav-banco')?.closest('li')?.remove();
+if (!HAY_TELECOM) $('#nav-telecom')?.closest('li')?.remove();
 updateDatasetToggleUI();
 buildPoligonoOptions();
 buildLocalidadOptions('all');
