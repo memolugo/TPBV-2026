@@ -278,7 +278,7 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `b95b9a0` | Sección Red La tierra que nos une; grados de marginación faltantes (CONAPO). |
 | 2026-10-16 | `b286188` | Sección Infraestructura de Telecomunicaciones (agregada por municipio); `Sitios REEM.kml` en `.gitignore`. |
 | 2026-10-16 | `b286188` | Infraestructura de traducción al náhuatl (`i18n.js`, botón «Náhuatl» en la barra superior) y plantilla para el traductor (299 textos); borrador de traducción con IA pendiente de revisión. |
-| 2026-10-16 | *(sin publicar)* | Vista previa para redes (Open Graph/Twitter), favicon, ícono de iPhone, título y descripción para buscadores. |
-| 2026-10-16 | *(sin publicar)* | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
+| 2026-10-16 | `ba89b0e` | Vista previa para redes (Open Graph/Twitter), favicon, ícono de iPhone, título y descripción para buscadores. |
+| 2026-10-16 | `ba89b0e` | Tipografía alineada a morelos.gob.mx (Twogether ligera; Karol solo en cifras); fecha de corte de datos; buscador «¿Tu comunidad está en el programa?». |
 
 Mantener esta tabla al día al publicar cambios.
