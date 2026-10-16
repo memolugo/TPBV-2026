@@ -41,7 +41,7 @@ function aulasKpisHtml(lista) {
         ${kpiCount('school', 'Escuelas equipadas', lista.length, 'primary')}
         ${kpiCount('computer', 'Computadoras', computadoras, 'blue')}
         ${kpiCount('location_city', 'Municipios', municipios, 'teal')}
-        ${kpiCount('map', 'En polígono TPBV', dentro, 'warning')}
+        ${kpiCount('map', 'Escuelas dentro de un polígono', dentro, 'warning')}
     </div>`;
 }
 

@@ -291,24 +291,37 @@ const MARGINACION_ACCENT = {
 const ORDEN_MARGINACION = ['Muy alto', 'Alto', 'Medio', 'Bajo', 'Muy bajo', 'ZAP Urbana'];
 const MARGINACION_BAR_COLOR = {
     'Muy alto': 'bg-error', 'Alto': 'bg-warning', 'Medio': 'bg-secondary',
-    'Bajo': 'bg-primary', 'Muy bajo': 'bg-accent-teal', 'ZAP Urbana': 'bg-accent-blue'
+    'Bajo': 'bg-primary', 'Muy bajo': 'bg-accent-teal', 'ZAP Urbana': 'bg-accent-blue',
+    'Comunidades prioritarias': 'bg-primary', 'Sin grado de marginación': 'bg-outline'
 };
+
+// Agrupacion de la grafica de Inicio (pedida 2026-10-16): Medio, Bajo y Muy
+// bajo se suman en una sola barra "Comunidades prioritarias".
+const MARGINACION_AGRUPADA = { 'Medio': 'Comunidades prioritarias', 'Bajo': 'Comunidades prioritarias', 'Muy bajo': 'Comunidades prioritarias' };
+// Las localidades sin grado en la lista (GM_2020 vacio) se cuentan aparte
+// para que la grafica sume todas las localidades del programa.
+const ORDEN_MARGINACION_AGRUPADA = ['Muy alto', 'Alto', 'Comunidades prioritarias', 'ZAP Urbana', 'Sin grado de marginación'];
 
 // Cuenta localidades por grado de marginacion (solo las que tienen match
 // censal, ver renderAggregateInfoCard para el mismo criterio) y devuelve la
 // distribucion ordenada de peor a mejor, con porcentaje sobre el total con
 // dato disponible.
-function marginacionBreakdown(data) {
+function marginacionBreakdown(data, { agrupar = false } = {}) {
     const counts = {};
-    data.forEach((r) => { if (r.gmMarginacion) counts[r.gmMarginacion] = (counts[r.gmMarginacion] || 0) + 1; });
+    data.forEach((r) => {
+        if (!r.gmMarginacion && !agrupar) return;
+        const grado = !r.gmMarginacion ? 'Sin grado de marginación'
+            : agrupar ? (MARGINACION_AGRUPADA[r.gmMarginacion] || r.gmMarginacion) : r.gmMarginacion;
+        counts[grado] = (counts[grado] || 0) + 1;
+    });
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    return ORDEN_MARGINACION
+    return (agrupar ? ORDEN_MARGINACION_AGRUPADA : ORDEN_MARGINACION)
         .filter((g) => counts[g])
         .map((g) => ({ grado: g, n: counts[g], pct: total ? (counts[g] / total * 100) : 0 }));
 }
 
-function marginacionBarsHtml(data) {
-    const rows = marginacionBreakdown(data);
+function marginacionBarsHtml(data, opciones = {}) {
+    const rows = marginacionBreakdown(data, opciones);
     if (!rows.length) {
         return `<p class="font-body-md text-body-md text-on-surface-variant flex items-start gap-2">
             <span class="material-symbols-outlined text-lg shrink-0">info</span>
@@ -317,7 +330,7 @@ function marginacionBarsHtml(data) {
     }
     return `<div class="space-y-2.5">` + rows.map((r) => `
         <div class="flex items-center gap-3">
-            <span class="w-[5.5rem] shrink-0 font-label-bold text-label-bold text-on-surface-variant">${esc(r.grado)}</span>
+            <span class="w-28 sm:w-44 shrink-0 font-label-bold text-label-bold text-on-surface-variant">${esc(r.grado)}</span>
             <div class="flex-1 h-2.5 rounded-full bg-surface-container-high overflow-hidden">
                 <div class="h-full rounded-full ${MARGINACION_BAR_COLOR[r.grado] || 'bg-secondary'}" style="width:${r.pct.toFixed(1)}%"></div>
             </div>
@@ -1634,7 +1647,7 @@ function renderInicioView() {
             ${kpiCount('layers', 'Polígonos', nPolNueva, 'blue')}
             ${kpiCount('groups', 'Población', pobNueva, 'warning')}
         </div>`;
-    const tituloActual = HAY_NUEVA_PROPUESTA ? 'Propuesta Actual' : 'Polígonos vigentes';
+    const tituloActual = `${HAY_NUEVA_PROPUESTA ? 'Propuesta Actual' : 'Localidades'} (${fmtInt(nLocActual)})`;
     const textoAnalisis = HAY_NUEVA_PROPUESTA
         ? `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía por localidad o por polígono completo. Alterna entre la <b>Propuesta Actual</b> (${fmtInt(nLocActual)} localidades) y la <b>Nueva Propuesta Territorial</b> (${fmtInt(nLocNueva)} localidades) con un solo clic.`
         : `Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía de las <b>${fmtInt(nLocActual)} localidades</b> de los ${fmtInt(nPolActual)} polígonos vigentes, por localidad o por polígono completo.`;
@@ -1673,8 +1686,8 @@ function renderInicioView() {
     <div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">Grados de marginación</h2>
         <div class="grid grid-cols-1 ${HAY_NUEVA_PROPUESTA ? 'md:grid-cols-2' : ''} gap-gutter-grid mt-3">
-            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">${tituloActual}</h3>${marginacionBarsHtml(TPBV_DATA)}`)}
-            ${HAY_NUEVA_PROPUESTA ? card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml(TPBV_DATA_PROPUESTA_2026)}`) : ''}
+            ${card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">${tituloActual}</h3>${marginacionBarsHtml(TPBV_DATA, { agrupar: true })}`)}
+            ${HAY_NUEVA_PROPUESTA ? card(`<h3 class="font-headline-md text-headline-md text-on-surface mb-4">Nueva Propuesta Territorial</h3>${marginacionBarsHtml(TPBV_DATA_PROPUESTA_2026, { agrupar: true })}`) : ''}
         </div>
     </div>
 
