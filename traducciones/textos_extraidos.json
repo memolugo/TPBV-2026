@@ -1,0 +1,1637 @@
+[
+ {
+  "clave": "Territorios de Paz y Buen Vivir — Inicio",
+  "tipo": "atributo aria-label",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Gobierno del Estado de Morelos",
+  "tipo": "atributo alt",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Territorios de Paz",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "y Buen Vivir {n}",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Abrir menú de navegación",
+  "tipo": "atributo aria-label",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Navegación principal",
+  "tipo": "atributo aria-label",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Cerrar menú de navegación",
+  "tipo": "atributo aria-label",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Inicio",
+  "tipo": "atributo aria-label",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Análisis Demográfico",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Aulas Tecnológicas",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Red La tierra que nos une",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Telecomunicaciones",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Datos Abiertos",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Reportes",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Dashboard de TPBV",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Análisis Sociodemográfico Interactivo — Territorios de Paz y Buen Vivir {n}",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Filtrar por Polígono",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Todos los Polígonos",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Emiliano Zapata",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Jojutla",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Buscar Localidad",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Escribe el nombre de una localidad…",
+  "tipo": "atributo placeholder",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Filtro Personalizado",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Comparar polígonos…",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Reporte Institucional",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Gobierno",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Digital.morelos",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Agencia de Transformación Digital",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
+  "clave": "Escudo Gobierno de Morelos",
+  "tipo": "atributo alt",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Servicio de atención ciudadana",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Horario: lunes a viernes de {n}:{n} AM a {n}:{n} PM",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "atencionciudadana@morelos.gob.mx",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Recursos",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Bienestar",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Economía",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Administración y finanzas",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Actividad del gobierno",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Prensa",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Trámites y servicios",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Enlaces de interés",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Código de ética",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Aviso de privacidad",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Convocatoria a beneficiarios",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Nuestras redes",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Facebook",
+  "tipo": "atributo aria-label",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Instagram",
+  "tipo": "atributo aria-label",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "YouTube",
+  "tipo": "atributo aria-label",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Territorios de Paz y Buen Vivir {n} · Tablero de la Agencia de Transformación Digital. Fuente principal: INEGI, Censo de Población y Vivienda {n} (ITER Morelos).",
+  "tipo": "texto",
+  "seccion": "Pie de página"
+ },
+ {
+  "clave": "Gobierno del Estado de Morelos · La tierra que nos une",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Territorios de Paz y Buen Vivir",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "El programa social más importante del sexenio. Su propósito es terminar con el rezago social y garantizar que todas las personas cuenten con oportunidades reales para su desarrollo, llevando la acción coordinada del Gobierno de Morelos a las comunidades que más lo necesitan.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Este tablero, de la Agencia de Transformación Digital, reúne la información sociodemográfica y territorial del programa para apoyar su planeación y seguimiento.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Explorar el análisis",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Datos abiertos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo, quiero hacer una transformación en el estado, y los necesito a todos ustedes.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Margarita González Saravia",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": ", Gobernadora del Estado de Morelos, durante la presentación del programa.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Boletín {n}",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "¿Cómo funciona?",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Diagnóstico territorial",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Las comunidades se identifican mediante un diagnóstico realizado por la Jefatura de la Oficina de la Gubernatura, que define los polígonos de atención.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Promotores comunitarios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Promotores capacitados visitan a la población para escuchar y conocer a detalle sus necesidades básicas.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Acción coordinada",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Cada secretaría y organismo del Poder Ejecutivo lleva a cabo acciones coordinadas para fortalecer proyectos de mejora en las localidades.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Equidad y dignidad",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "El objetivo es construir una sociedad más equitativa y justa, donde todas las personas puedan vivir con dignidad.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "El programa en cifras",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidades",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Polígonos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Municipios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Habitantes",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Escuelas con aula",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Hitos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} de abril de {n}",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Presentación del programa",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Arranca la primera etapa con {n} comunidades y {n} promotores comunitarios capacitados.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Diciembre {n} – enero {n}",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "La ATDEM instala aulas de cómputo en {n} escuelas de los polígonos.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Delimitación vigente",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} localidades en {n} polígonos de atención, que se analizan en este tablero.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Grados de marginación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidades ({n})",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Comunidades prioritarias",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Sin grado de marginación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "¿Qué encontrarás en este tablero?",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía de las {n} localidades de los {n} polígonos vigentes, por localidad o por polígono completo.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a Análisis Demográfico",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Mapa de las {n} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a Aulas Tecnológicas",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a Red La tierra que nos une",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Infraestructura de Telecomunicaciones",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a Telecomunicaciones",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos vigentes, Aulas Tecnológicas y límites municipales.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a Datos Abiertos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Reportes Institucionales",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ir a generar un reporte",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Cómo empezar",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Filtra por polígono o localidad",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "En Análisis Demográfico, usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Explora los indicadores",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Consulta las aulas",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Descarga los datos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "En Datos Abiertos encontrarás las bases de datos del tablero en CSV y KML.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Genera tu reporte",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Usa el botón \"Reporte Institucional\" para exportar un documento formal en PDF de lo que estés viendo.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Población Total",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Viviendas Totales",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Afiliación a Salud",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidades Totales",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Información General",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Municipio",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} municipios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Región",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Polígono",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Polígonos incluidos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidades incluidas",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} de {n}",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Grados de Marginación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Todas las Localidades",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "— Emiliano Zapata",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "— Jojutla",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Morelos",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ubicación Geográfica",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidad",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Polígono TPBV",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Zoom in",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Zoom out",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} de {n} localidades no tienen coincidencia en el Censo INEGI {n} (suelen ser colonias/barrios dentro de una cabecera urbana). Su población sí está incluida en el total (vía la Lista TPBV {n}), pero vivienda, salud, educación y economía no — esos indicadores solo suman las localidades con coincidencia censal. Revísalas en la lista de localidades.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Demografía",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Población",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Mujeres",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Hombres",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Población Indígena y Afromexicana",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Habla Lengua Indígena",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Monolingüe (no habla español)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Hogares Censales Indígenas",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Pob. Afromexicana",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Estructura de Población por Edad y Sexo",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n}+ años · Mujeres: {n} · Hombres: {n}",
+  "tipo": "atributo title",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n}-{n} años · Mujeres: {n} · Hombres: {n}",
+  "tipo": "atributo title",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Razón de dependencia demográfica",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Personas dependientes ({n}-{n} y {n}+) por cada {n} en edad de trabajar ({n}-{n}: {n})",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Vivienda y Servicios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Vivienda",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Total Viviendas",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Piso de Tierra",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Un Solo Cuarto",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Hacinamiento",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Tecnologías de Información (TIC)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Celular",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Computadora",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Internet",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Bienes y Servicios en la Vivienda",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Refrigerador",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Lavadora",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Automóvil",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Agua Entubada",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Drenaje",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Energía Eléctrica",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Salud y Bienestar",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Servicios de Salud",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Total Afiliados",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Sin Afiliación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Afiliados al IMSS",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Afiliados al ISSSTE",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Otros Servicios de Salud",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Discapacidad y Condiciones de Salud",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Discapacidad",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Limitación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Con Problema o Condición Mental",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Educación y Economía",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Educación",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Grado Promedio de Escolaridad",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} años",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Analfabetas ({n}+)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Sin Educación Básica Completa ({n}+)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Niñas/os {n}-{n} años sin asistir a la escuela",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Adolescentes {n}-{n} años sin asistir a la escuela",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Económicamente Activa (PEA)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ocupada",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Desocupada",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ocupada en Sector Primario",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Localidades en el Polígono",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (un polígono)"
+ },
+ {
+  "clave": "Localidades en este Polígono",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (un polígono)"
+ },
+ {
+  "clave": "Grado de Marginación",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (una localidad)"
+ },
+ {
+  "clave": "{d}, Morelos",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (una localidad)"
+ },
+ {
+  "clave": "Polígono {n} · {d}",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (una localidad)"
+ },
+ {
+  "clave": "Marginación: {d}",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (una localidad)"
+ },
+ {
+  "clave": "Close popup",
+  "tipo": "atributo aria-label",
+  "seccion": "Análisis Demográfico (una localidad)"
+ },
+ {
+  "clave": "Coordenada capturada manualmente",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (localidad sin datos censales)"
+ },
+ {
+  "clave": "Sin Datos Censales Disponibles",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (localidad sin datos censales)"
+ },
+ {
+  "clave": "No se encontró una coincidencia confiable para {d} en el Censo INEGI {n} (ITER Morelos). Esto ocurre principalmente con colonias/barrios urbanos que no se registran como localidad censal independiente. El mapa muestra su ubicación (coordenada capturada manualmente) dentro de polígono {n}.",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (localidad sin datos censales)"
+ },
+ {
+  "clave": "Población reportada (Lista TPBV {n})",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (localidad sin datos censales)"
+ },
+ {
+  "clave": "Elige los polígonos a comparar",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (filtro personalizado)"
+ },
+ {
+  "clave": "Limpiar",
+  "tipo": "texto",
+  "seccion": "Análisis Demográfico (filtro personalizado)"
+ },
+ {
+  "clave": "Territorios de Paz y Buen Vivir · Educación digital",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Para reducir la brecha digital desde edades tempranas, la Agencia de Transformación Digital del Estado de Morelos (ATDEM), en coordinación con la Secretaría de Educación y el Instituto de Educación Básica del Estado de Morelos (IEBEM), equipó aulas de cómputo en {n} escuelas de {n} municipios ubicadas en los polígonos de Territorios de Paz y Buen Vivir.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Con computadoras conectadas a internet y software educativo, niñas, niños y jóvenes fortalecen sus procesos de aprendizaje, desarrollan habilidades digitales y amplían sus oportunidades en entornos con mayor infraestructura tecnológica.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "ATDEM",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Secretaría de Educación",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "IEBEM",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Instalación: diciembre {n} a enero {n}",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "¿Qué incluye cada aula?",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Equipo de cómputo",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "{n} computadoras con conexión a internet y software educativo.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Mobiliario",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "{n} sillas y {n} mesas para las aulas que no contaban con mobiliario suficiente.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Conectividad",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Una tarjeta WiFi por equipo e internet dedicado para el aula.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Acompañamiento",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Un promotor capacitado en cada escuela para el uso del aula.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Acercar tecnología a las escuelas es abrir oportunidades reales para las niñas y los niños, especialmente en zonas donde el acceso ha sido limitado.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Daniel Sotelo Salazar",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": ", director de Agenda Digital de la ATDEM, durante una entrega en Jojutla.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Escuelas por nivel educativo",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "¿Dónde están las aulas?",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Todos los municipios",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Escuelas equipadas",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Computadoras",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Escuelas dentro de un polígono",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Mapa de Aulas",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "El tamaño del círculo indica el número de computadoras. Haz clic en una escuela para ver su detalle.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Computadoras por aula",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Municipio con aula",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Otros municipios",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Equipos por Municipio",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "{n} eq. · {n} esc.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Escuelas",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Escuela",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Equipos",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Ver Emiliano Zapata en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Ver {d} en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Fuente: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Ubicación según el enlace de Google Maps capturado por escuela.",
+  "tipo": "texto",
+  "seccion": "Aulas Tecnológicas"
+ },
+ {
+  "clave": "Conectividad pública · Agencia de Transformación Digital",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Red de Wi-Fi pública, gratuita y abierta impulsada por la Agencia de Transformación Digital del Gobierno del Estado de Morelos (ATDEM). Busca reducir la brecha digital y que la ciudadanía pueda comunicarse sin costo, consultar la programación cultural, realizar trámites y acceder a las plataformas digitales institucionales.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Internet gratuito y abierto",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Conexión Wi-Fi sin costo para la ciudadanía en espacios públicos y oficinas de gobierno.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Reducir la brecha digital",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Comunicarse sin costo, consultar programación cultural y realizar trámites en plataformas digitales institucionales.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Puntos de conexión",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Plazas públicas y espacios de alta concurrencia, como la Plaza de Armas Emiliano Zapata (Zócalo de Cuernavaca).",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Eventos especiales, como el Festival Internacional Cervantino en Cuernavaca.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Dependencias estatales, ayudantías municipales y escuelas.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Dependencias con red",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Secretarías y órganos",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Sedes conectadas",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Puntos de acceso",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Mapa de la red",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Sede con red (el tamaño indica cuántas dependencias)",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Dependencias por secretaría",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "{n} puntos de acceso",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Jefatura de la Oficina de la Gubernatura",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Ver Jefatura de la Oficina de la Gubernatura en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Ver Agencia de Transformación Digital en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "{n} punto de acceso",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Ver Secretaría de Educación en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Ver Servicios de Salud en el mapa",
+  "tipo": "atributo aria-label",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Fuente: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (dependencias con red La tierra que nos une). Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.",
+  "tipo": "texto",
+  "seccion": "Red La tierra que nos une"
+ },
+ {
+  "clave": "Conectividad · Agencia de Transformación Digital",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sitios y torres de telecomunicaciones de la red estatal (sitios REEM) que dan servicio a dependencias del Gobierno del Estado, planteles educativos, unidades de salud e instalaciones de seguridad en Morelos.",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Por seguridad de la infraestructura, la información se presenta agregada por municipio y sector. No se publica la ubicación exacta ni el nombre de los sitios.",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sitios de telecomunicaciones",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Municipios con sitios",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sectores atendidos",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Mayor concentración ({n} sitios)",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Cuernavaca",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sitios por municipio",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Pasa el cursor sobre un municipio para ver el desglose por sector.",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "{n} o más",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sin sitios",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sitios por sector",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Gobierno del Estado",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Salud",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Seguridad y Protección Ciudadana",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Municipios con infraestructura",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sectores",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Sitios",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Gobierno del Estado · {n}",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Salud · {n}",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Educación · {n}",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Seguridad y Protección Ciudadana · {n}",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Fuente: ATDEM, registro de sitios REEM. Municipio asignado con los límites municipales del INE.",
+  "tipo": "texto",
+  "seccion": "Infraestructura de Telecomunicaciones"
+ },
+ {
+  "clave": "Territorios de Paz y Buen Vivir · Transparencia",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descarga las bases de datos que alimentan este tablero. Cada conjunto está disponible en CSV, para abrirlo en Excel o cualquier herramienta de análisis, y en KML, para verlo en Google Earth o Google My Maps.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "{n} conjuntos de datos",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "CSV · UTF-{n}, separado por comas",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "KML · una sola capa",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Localidades · Propuesta Actual",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "{n} registros · {n} campos",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Las localidades de los {n} polígonos vigentes con sus indicadores de población, vivienda, salud, educación, economía y marginación.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: INEGI, Censo {n} (ITER Morelos) y Lista de Comunidades TPBV {n}",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Ver campos",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "region, municipio, poligono, localidad, imMarginacion, gmMarginacion, pobTotLista, fuente, matchMetodo, matchScore, coordManual, pobTotal, pobMujeres, pobHombres, analfabetas, pea, desocupada, ocupada, afromexicana, conDiscapacidad, conLimitacion, conProblemaMental, afiliada, sinAfiliacion, imss, issste, otrosSalud, totalViviendas, pisoTierra, unSoloCuarto, aguaEntubada, drenaje, electricidad, refrigerador, lavadora, automovil, computadora, internet, celular, hablaLenguaIndigena, indigenaMonolingue, hogaresIndigenas, gradoEscolaridad, ninos{n}a{n}NoAsisten, ninos{n}a{n}NoAsisten, pob{n}a{n}, pob{n}a{n}, pob{n}mas, latitud, longitud, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}-{n}_mujeres, piramide_{n}-{n}_hombres, piramide_{n}+_mujeres, piramide_{n}+_hombres, sinBasicaCompleta, ocupadaPrimario, hacinamiento, piramide, fuenteMarginacion",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Localidades · Propuesta Actual en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "CSV",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Localidades · Propuesta Actual en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "KML",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Polígonos · Propuesta Actual",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Contorno de los {n} polígonos vigentes de Territorios de Paz y Buen Vivir, con número de localidades y población.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: TPBV {n}.geojson",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "poligono, nombre, region, num_localidades, poblacion_total, localidades",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Polígonos · Propuesta Actual en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Polígonos · Propuesta Actual en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Escuelas donde ATDEM instaló aulas de cómputo: CCT, nivel, computadoras, fecha de instalación y polígono TPBV.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: ATDEM, Proyecto Escuelas entrega Computadoras",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "n, municipio, localidad, escuela, cct, nivel, region, computadoras, fase, fechaEntregaIebem, fechaInstalacion, lat, lon, mapsUrl, poligono, nombrePoligono, dentroPoligono, kmPoligono",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Aulas Tecnológicas en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Aulas Tecnológicas en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Dependencias estatales con la red Wi-Fi pública de la ATDEM: secretaría, sede, coordenadas y puntos de acceso.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: ATDEM, Agentes_dependencias La Tierra Que Nos Une",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "secretaria, dependencia, direccion, lat, lon, puntosAcceso, fuenteCoordenada",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Red La tierra que nos une en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Red La tierra que nos une en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Límites municipales de Morelos",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Contorno de los {n} municipios del estado, con clave geoestadística (CVEGEO) y nombre.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Fuente: INE, límites municipales",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "CVEGEO, CVE_MUN, NOMGEO",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Límites municipales de Morelos en CSV",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Descargar Límites municipales de Morelos en KML",
+  "tipo": "atributo aria-label",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "Los archivos se generan en tu navegador con la misma información que muestra el tablero. Para Google My Maps importa el KML en una capa nueva y usa \"Aplicar estilo por columna de datos\" para colorear por municipio, polígono u otro campo.",
+  "tipo": "texto",
+  "seccion": "Datos Abiertos"
+ },
+ {
+  "clave": "TPBV {n} · Tablero Sociodemográfico",
+  "tipo": "título de la página",
+  "seccion": "Encabezado y menú"
+ }
+]

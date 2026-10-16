@@ -41,6 +41,10 @@ NUEVOS_BLOQUES = {
     "inicio_contexto.js": "mapa_morelos.js",
     "red_ltqnu.js": "aulas_tecnologicas.js",
     "red_view.js": "datos_abiertos.js",
+    "telecom.js": "red_ltqnu.js",
+    "telecom_view.js": "red_view.js",
+    "traducciones_na.js": "telecom.js",
+    "i18n.js": "telecom_view.js",
 }
 
 # Bloques que deben cargarse ANTES que otro porque app.js los usa ya al

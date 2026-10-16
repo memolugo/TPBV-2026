@@ -1707,6 +1707,9 @@ function renderInicioView() {
             ${typeof TPBV_RED_LTQNU === 'undefined' ? '' : homeSectionCard('wifi', 'Red La tierra que nos une',
                 `Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.`,
                 'Ir a Red La tierra que nos une', 'red')}
+            ${typeof TPBV_TELECOM === 'undefined' ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
+                `Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.`,
+                'Ir a Telecomunicaciones', 'telecom')}
             ${homeSectionCard('database', 'Datos Abiertos',
                 `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos${HAY_NUEVA_PROPUESTA ? ' de ambas propuestas' : ' vigentes'},${HAY_BANCO_PROYECTOS ? ' Banco de Proyectos,' : ''} Aulas Tecnológicas y límites municipales.`,
                 'Ir a Datos Abiertos', 'datos')}
@@ -2593,7 +2596,7 @@ const NAV_LINK_INACTIVE = 'nav-pill';
 // que enlace del nav queda activo. La carga inicial de la pagina sigue
 // aterrizando en 'analisis' (ver Init al final del archivo); 'inicio' solo
 // se muestra si el usuario hace clic en el nav.
-const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view', '#datos-view', '#red-view'];
+const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view', '#datos-view', '#red-view', '#telecom-view'];
 const VIEWS = {
     inicio: { shown: ['#inicio-view'], navId: 'nav-inicio' },
     analisis: { shown: ['#hero-analisis', '#global-filters', '#canvas'], navId: 'nav-analisis' },
@@ -2601,7 +2604,8 @@ const VIEWS = {
     banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' },
     aulas: { shown: ['#aulas-view'], navId: 'nav-aulas' },
     datos: { shown: ['#datos-view'], navId: 'nav-datos' },
-    red: { shown: ['#red-view'], navId: 'nav-red' }
+    red: { shown: ['#red-view'], navId: 'nav-red' },
+    telecom: { shown: ['#telecom-view'], navId: 'nav-telecom' }
 };
 
 function showView(view) {
@@ -2638,6 +2642,8 @@ function showView(view) {
     if (view === 'datos' && typeof renderDatosAbiertosView === 'function') renderDatosAbiertosView();
     // renderRedView vive en red_view.js.
     if (view === 'red' && typeof renderRedView === 'function') renderRedView();
+    // renderTelecomView vive en telecom_view.js.
+    if (view === 'telecom' && typeof renderTelecomView === 'function') renderTelecomView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
         // #canvas estaba oculto (display:none no tiene layout); si su encuadre

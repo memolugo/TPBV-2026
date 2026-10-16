@@ -2,3 +2,8 @@
 respaldos/
 # Archivos temporales de bloqueo de Excel/Office
 ~$*
+# Ubicaciones exactas de infraestructura de telecomunicaciones: NO se publican (seguridad).
+Sitios REEM.kml
+
+# Diccionario de referencia (obra con derechos; no se publica)
+diccionario_nahuatl_hueyapan_*.pdf

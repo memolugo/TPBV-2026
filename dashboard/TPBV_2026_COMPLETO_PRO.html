@@ -193,6 +193,9 @@
     .util-bar{background:var(--dm-surface-md);border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem 1rem;flex-wrap:wrap}
     .util-bar a{color:var(--dm-content-high);text-decoration:underline;text-underline-offset:3px;font-weight:500;display:inline-flex;align-items:center;gap:.35rem}
     .util-bar a:hover{color:var(--dm-mora)}
+    .util-bar #btn-idioma{text-decoration:none}
+    .util-bar #btn-idioma:hover [data-etiqueta-idioma]{text-decoration:underline}
+    @media (max-width:639px){.util-bar{gap:.5rem;padding:.6rem .8rem}.util-bar>div{gap:1rem!important}}
     /* Encabezado blanco + menu de pildoras */
     header{background:#fff!important;border-bottom:1px solid var(--dm-border-low)!important;box-shadow:none!important}
     .brand-word{font-family:'Karol Sans',system-ui,sans-serif;line-height:1.05;white-space:nowrap}
@@ -211,6 +214,9 @@
     /* 7 pildoras: entre 1280 y 1439px no caben junto a los dos logos; se
        oculta el de TPBV y se compactan las pildoras. */
     @media (min-width:1280px) and (max-width:1439px){.brand-tpbv{display:none!important}.nav-pill{padding:.65rem .6rem;font-size:15px}}
+    /* Nahuatl: etiquetas mas largas -> pildoras a dos lineas (ver dashboard/i18n.js) */
+    @media (min-width:1280px){html[lang=nah] .nav-pill:not(.nav-home){white-space:normal;max-width:10rem;line-height:1.15;font-size:14px;padding:.5rem .65rem}}
+    @media (min-width:1280px) and (max-width:1599px){html[lang=nah] .brand-tpbv{display:none!important}}
     /* Tarjetas: borde fino, radio 24px, sin sombra (como "Tramites destacados") */
     .card-shadow{box-shadow:none!important;border:1px solid var(--dm-border-low);border-radius:24px!important}
     /* Las KPI traian franja superior de color (border-t-4): el portal usa
@@ -298,7 +304,11 @@
 <a href="https://www.morelos.gob.mx" target="_blank" rel="noopener">Gobierno <span class="material-symbols-outlined text-[16px]" aria-hidden="true">north_east</span></a>
 <a href="https://digital.morelos.gob.mx" target="_blank" rel="noopener">Digital.morelos <span class="material-symbols-outlined text-[16px]" aria-hidden="true">north_east</span></a>
 </div>
+<div class="flex items-center gap-6">
 <span class="hidden sm:flex items-center gap-2 text-on-surface"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">computer</span>Agencia de Transformación Digital</span>
+<!-- Selector de idioma, como en morelos.gob.mx (ver dashboard/i18n.js) -->
+<span data-selector-idioma class="flex"><a href="#" id="btn-idioma" data-no-traducir class="flex items-center gap-2 text-on-surface hover:underline"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">translate</span><span data-etiqueta-idioma lang="nah">Náhuatl</span></a></span>
+</div>
 </div>
 </div>
 <header class="bg-surface top-0 flex flex-col items-center w-full px-4 md:px-margin-page py-stack-md gap-stack-md max-w-full z-10 sticky">
@@ -324,6 +334,7 @@
 <li><a id="nav-banco" class="nav-pill" href="#" onclick="showView('banco'); return false;"><span class="material-symbols-outlined nav-ico">inventory_2</span>Banco de Proyectos</a></li>
 <li><a id="nav-aulas" class="nav-pill" href="#" onclick="showView('aulas'); return false;"><span class="material-symbols-outlined nav-ico">computer</span>Aulas Tecnológicas</a></li>
 <li><a id="nav-red" class="nav-pill" href="#" onclick="showView('red'); return false;"><span class="material-symbols-outlined nav-ico">wifi</span>Red La tierra que nos une</a></li>
+<li><a id="nav-telecom" class="nav-pill" href="#" onclick="showView('telecom'); return false;"><span class="material-symbols-outlined nav-ico">cell_tower</span>Telecomunicaciones</a></li>
 <li><a id="nav-datos" class="nav-pill" href="#" onclick="showView('datos'); return false;"><span class="material-symbols-outlined nav-ico">database</span>Datos Abiertos</a></li>
 <li><a class="nav-pill" href="#" onclick="printReport(); return false;"><span class="material-symbols-outlined nav-ico">description</span>Reportes</a></li>
 </ul>
@@ -425,6 +436,11 @@
      de la ATDEM (ver dashboard/red_view.js y scripts/build_red_ltqnu.py). -->
 <div id="red-view" class="hidden p-margin-page flex-1 flex flex-col gap-gutter-grid"></div>
 
+<!-- Vista "Infraestructura de Telecomunicaciones": sitios REEM agregados por
+     municipio y sector, sin ubicaciones exactas (ver dashboard/telecom_view.js
+     y scripts/build_telecom.py). -->
+<div id="telecom-view" class="hidden p-margin-page flex-1 flex flex-col gap-gutter-grid"></div>
+
 <!-- Vista de reporte institucional: documento formal (portada + secciones en
      tablas), independiente del dashboard interactivo. Se genera al vuelo al
      imprimir/exportar y solo es visible en ese momento (ver #report-view en
@@ -524,6 +540,306 @@ const TPBV_AULAS_MOBILIARIO = {"sillas": 372, "mesas": 294, "tarjetasWifi": 664}
 // Generado automaticamente por scripts/build_red_ltqnu.py
 // Fuente: 'Agentes_dependencias La Tierra Que Nos Une.xlsx' (dependencias con Red_la_tierra_que_nos_une = SI)
 const TPBV_RED_LTQNU = [{"secretaria": "Consejería Jurídica", "dependencia": "Consejería Jurídica", "direccion": "Cuautla 118, Miraval, 62270 Cuernavaca, Mor.", "lat": 18.932191, "lon": -99.235886, "puntosAcceso": 6, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Jefatura de la Oficina de la Gubernatura", "dependencia": "Jefatura de la Oficina de la Gubernatura", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Jefatura de la Oficina de la Gubernatura", "dependencia": "Agencia de Transformación Digital", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": 5, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Jefatura de la Oficina de la Gubernatura", "dependencia": "Comunicación Social", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Jefatura de la Oficina de la Gubernatura", "dependencia": "Dirección de Atención a Migrantes", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Administración", "dependencia": "Secretaría de Administración", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Desarrollo Económico y del Trabajo", "dependencia": "Comisión Estatal de Mejora Regulatoria (CEMER)", "direccion": "", "lat": 18.922909, "lon": -99.23503, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Desarrollo Económico y del Trabajo", "dependencia": "Instituto de Capacitación para el Trabajo del Estado de Morelos (ICATMOR)", "direccion": "Av. Morelos 174, Cuernavaca Centro, Centro, 62000 Cuernavaca, Mor.", "lat": 18.94603, "lon": -99.243616, "puntosAcceso": 8, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Educación", "dependencia": "Secretaría de Educación", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Gobierno", "dependencia": "Secretaría de Gobierno", "direccion": "", "lat": 18.92449, "lon": -99.218493, "puntosAcceso": 4, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Hacienda", "dependencia": "Secretaría de Hacienda", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Infraestructura", "dependencia": "Secretaría de Infraestructura", "direccion": "Palacio de Gobierno, Cuernavaca", "lat": 18.921984, "lon": -99.234977, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de la Contraloría", "dependencia": "Secretaría de la Contraloría", "direccion": "", "lat": 18.918713, "lon": -99.23706, "puntosAcceso": 3, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Turismo", "dependencia": "Secretaría de Turismo", "direccion": "", "lat": 18.921858, "lon": -99.234638, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Turismo", "dependencia": "Secretaría de Turismo", "direccion": "", "lat": 18.909636, "lon": -99.233919, "puntosAcceso": 2, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Educación", "dependencia": "Instituto del Deporte y Cultura Física del Estado de Morelos", "direccion": "Calle s/n, Oriente, Margarita Maza de Juárez, 62017 Cuernavaca, Mor.", "lat": 18.915807, "lon": -99.243628, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Administración", "dependencia": "Dirección de Contratación de Bienes y Servicios", "direccion": "", "lat": 18.918693, "lon": -99.237071, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Desarrollo Agropecuario", "dependencia": "Secretaría de Desarrollo Agropecuario", "direccion": "Av Atlacomulco 136, Cantarranas, 62448 Cuernavaca, Mor.", "lat": 18.916971, "lon": -99.221657, "puntosAcceso": 1, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Gobierno", "dependencia": "Instituto de Servicios Registrales y Catastrales del Estado de Morelos", "direccion": "Zapote 2, Miguel Hidalgo, Cuernavaca", "lat": 18.912175, "lon": -99.234527, "puntosAcceso": 8, "fuenteCoordenada": "Zapote 2, Miguel Hidalgo, Cuernavaca (OpenStreetMap: aproximada a nivel de calle)"}, {"secretaria": "Secretaría de Desarrollo Sustentable", "dependencia": "Secretaría de Desarrollo Sustentable", "direccion": "Av. Palmira 10, Miguel Hidalgo, 62040 Cuernavaca, Mor.", "lat": 18.909649, "lon": -99.228363, "puntosAcceso": 6, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Cultura", "dependencia": "Instituto Morelense de Radio y Televisión (IMRyT)", "direccion": "Av. Miguel Hidalgo 109, Ocotepec, 62220 Cuernavaca, Mor.", "lat": 18.969997, "lon": -99.230315, "puntosAcceso": 13, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Salud", "dependencia": "Servicios de Salud", "direccion": "Borda 3, Centro, Cuernavaca", "lat": 18.919844, "lon": -99.237184, "puntosAcceso": 29, "fuenteCoordenada": "Borda 3, Centro, Cuernavaca (OpenStreetMap: Servicios de Salud de Morelos)"}, {"secretaria": "Secretaría de Gobierno", "dependencia": "Coordinación General de Movilidad y Transporte (Macro-Modulo)", "direccion": "Calle Cuauhtemotzin 01, Club de Golf, Cuernavaca", "lat": 18.915824, "lon": -99.234091, "puntosAcceso": 7, "fuenteCoordenada": "Calle Cuauhtemotzin 01, Club de Golf, Cuernavaca (OpenStreetMap: aproximada a nivel de calle)"}, {"secretaria": "Secretaría de Desarrollo Sustentable", "dependencia": "Procuraduría de Protección al Ambiente del Estado de Morelos (PROPAEM)", "direccion": "", "lat": 18.919627, "lon": -99.209614, "puntosAcceso": null, "fuenteCoordenada": "Hoja de dependencias"}, {"secretaria": "Secretaría de Administración y Finanzas", "dependencia": "Instituto de Crédito para los Trabajadores al Servicio del Gobierno del Estado de Morelos, Oficinas Centrales", "direccion": "Dwight W. Morrow 20, Centro, Cuernavaca", "lat": 18.923237, "lon": -99.236891, "puntosAcceso": 1, "fuenteCoordenada": "Dwight W. Morrow 20, Centro, Cuernavaca (OpenStreetMap: aproximada a nivel de calle)"}];
+</script>
+<script>
+/* EMBEBIDO: telecom.js */
+// Generado automaticamente por scripts/build_telecom.py a partir de 'Sitios REEM.kml'.
+// SEGURIDAD: solo conteos por municipio y sector; sin coordenadas ni nombres de sitio.
+const TPBV_TELECOM = {"total": 47, "porSector": {"Gobierno del Estado": 21, "Educación": 12, "Salud": 10, "Seguridad y Protección Ciudadana": 4}, "municipios": [{"municipio": "Cuernavaca", "cvegeo": "17007", "total": 24, "porSector": {"Gobierno del Estado": 18, "Salud": 4, "Educación": 1, "Seguridad y Protección Ciudadana": 1}}, {"municipio": "Ayala", "cvegeo": "17004", "total": 3, "porSector": {"Educación": 2, "Salud": 1}}, {"municipio": "Jiutepec", "cvegeo": "17011", "total": 3, "porSector": {"Gobierno del Estado": 2, "Salud": 1}}, {"municipio": "Tlaltizapán de Zapata", "cvegeo": "17024", "total": 3, "porSector": {"Educación": 2, "Salud": 1}}, {"municipio": "Xochitepec", "cvegeo": "17028", "total": 3, "porSector": {"Gobierno del Estado": 1, "Educación": 1, "Seguridad y Protección Ciudadana": 1}}, {"municipio": "Cuautla", "cvegeo": "17006", "total": 2, "porSector": {"Seguridad y Protección Ciudadana": 1, "Salud": 1}}, {"municipio": "Ocuituco", "cvegeo": "17016", "total": 2, "porSector": {"Educación": 2}}, {"municipio": "Tlayacapan", "cvegeo": "17026", "total": 2, "porSector": {"Educación": 1, "Salud": 1}}, {"municipio": "Emiliano Zapata", "cvegeo": "17008", "total": 1, "porSector": {"Educación": 1}}, {"municipio": "Puente de Ixtla", "cvegeo": "17017", "total": 1, "porSector": {"Educación": 1}}, {"municipio": "Temixco", "cvegeo": "17018", "total": 1, "porSector": {"Seguridad y Protección Ciudadana": 1}}, {"municipio": "Temoac", "cvegeo": "17033", "total": 1, "porSector": {"Educación": 1}}, {"municipio": "Tepoztlán", "cvegeo": "17020", "total": 1, "porSector": {"Salud": 1}}]};
+</script>
+<script>
+/* EMBEBIDO: traducciones_na.js */
+// Diccionario espanol -> nahuatl del tablero. Generado por scripts/build_traducciones_na.py
+// desde traducciones/Traduccion_nahuatl_tablero.xlsx: no editar a mano.
+const TPBV_TRADUCCIONES_NA = {
+ ", Gobernadora del Estado de Morelos, durante la presentación del programa.": ", Soatlayekanki ipan Morelos, kuak kiteixpantij nin tlapaleuilistle.",
+ ", director de Agenda Digital de la ATDEM, durante una entrega en Jojutla.": ", tlayekanki ipan Agenda Digital ATDEM, kuak kitemakak ipan Jojutla.",
+ "Abrir menú de navegación": "Xiktlapo menú",
+ "Acción coordinada": "Teguitl tlen sepan mochiua",
+ "Acercar tecnología a las escuelas es abrir oportunidades reales para las niñas y los niños, especialmente en zonas donde el acceso ha sido limitado.": "Tikitkiliskej tepostlapoualli ipan kaltlamachtiloyan kiijtosneki tiktlapoaj melauak ojmej iga pipiltontij, ogachi kanin amo asiaya.",
+ "Acompañamiento": "Akin kinpaleuia",
+ "Actividad del gobierno": "Iteguiu Kaltlayekana",
+ "Administración y finanzas": "Tlayekanalistle uan tomin",
+ "Adolescentes {n}-{n} años sin asistir a la escuela": "Telpogamej {n}-{n} xiuitl tlen amo yaj kaltlamachtiloyan",
+ "Afiliación a Salud": "Tlen kipiaj pajtilistle",
+ "Afiliados al IMSS": "Kipiaj IMSS",
+ "Afiliados al ISSSTE": "Kipiaj ISSSTE",
+ "Agua Entubada": "Atl ipan kalle",
+ "Analfabetas ({n}+)": "Amo kimatij tlajkuiloj ({n}+)",
+ "Análisis Demográfico": "Tlapoualli iga tlatlaga",
+ "Análisis Sociodemográfico Interactivo — Territorios de Paz y Buen Vivir {n}": "Tlapoualli iga tlatlaga, tlen ueli tikpatlas — Territorios de Paz y Buen Vivir {n}",
+ "Arranca la primera etapa con {n} comunidades y {n} promotores comunitarios capacitados.": "Peua achtopa tlachiualistle iga {n} altepetsitsin uan {n} tlapaleuianij tlen momachtijkej.",
+ "Aulas Tecnológicas": "Tlamachtiloyan iga tepostlapoualli",
+ "Aviso de privacidad": "Tlanonotsalli iga tlen motlatia",
+ "Bienes y Servicios en la Vivienda": "Tlen kipiaj ipan kalle",
+ "Bienestar": "Kuale nemilistle",
+ "Boletín {n}": "Tlanonotsalli {n}",
+ "Buscar Localidad": "Xiktemo altepetsin",
+ "CSV · UTF-{n}, separado por comas": "CSV · UTF-{n}, xeloltok iga comas",
+ "Cada secretaría y organismo del Poder Ejecutivo lleva a cabo acciones coordinadas para fortalecer proyectos de mejora en las localidades.": "Nochi secretaría uan teguichiualoyan iga Kaltlayekana sepan teguitij iga kichikauaskej tlachiualmej tlen kikualtlaliaj altepetsitsin.",
+ "Cerrar menú de navegación": "Xiktsagua menú",
+ "Close popup": "Xiktsagua",
+ "Comparar polígonos…": "Xikinneneuili polígono…",
+ "Computadoras": "Tepostlapoualmej",
+ "Computadoras por aula": "Tepostlapoualli ipan nochi tlamachtiloyan",
+ "Comunicarse sin costo, consultar programación cultural y realizar trámites en plataformas digitales institucionales.": "Monotsaskej amo iga tomin, kitaskej iljuimej uan kichiuaskej trámites ipan plataformas digitales iga Kaltlayekana.",
+ "Comunidades prioritarias": "Altepetsitsin tlen achtopa",
+ "Con Celular": "Kipiaj celular",
+ "Con Computadora": "Kipiaj tepostlapoualli",
+ "Con Discapacidad": "Kipiaj amo uelilistle",
+ "Con Hacinamiento": "Miak chantij ipan se kalle",
+ "Con Internet": "Kipiaj internet",
+ "Con Limitación": "Kipiaj tlen kintsakua",
+ "Con Problema o Condición Mental": "Kipiaj kogolistle ipan intsontekon",
+ "Con computadoras conectadas a internet y software educativo, niñas, niños y jóvenes fortalecen sus procesos de aprendizaje, desarrollan habilidades digitales y amplían sus oportunidades en entornos con mayor infraestructura tecnológica.": "Iga tepostlapoualli tlen kipiaj internet uan programas iga temachtilistle, pipiltontij uan telpogamej ogachi kualtsin momachtiaj, kimachtiaj tepostlapoualli uan ogachi ojmej kipiaj.",
+ "Conectividad": "Mosaloua iga internet",
+ "Conectividad pública · Agencia de Transformación Digital": "Matlatl tlapojtok · Agencia de Transformación Digital",
+ "Conectividad · Agencia de Transformación Digital": "Mosaloua · Agencia de Transformación Digital",
+ "Conexión Wi-Fi sin costo para la ciudadanía en espacios públicos y oficinas de gobierno.": "Matlatl Wi-Fi amo iga tomin iga tlatlaga kanin nochi monechikouaj uan ipan teguichiualoyan iga Kaltlayekana.",
+ "Consulta las aulas": "Xiktlachili tlamachtiloyan",
+ "Contorno de los {n} municipios del estado, con clave geoestadística (CVEGEO) y nombre.": "Itlalxelol {n} altepemej, iga iclave geoestadística (CVEGEO) uan itoga.",
+ "Contorno de los {n} polígonos vigentes de Territorios de Paz y Buen Vivir, con número de localidades y población.": "Itlalxelol {n} polígono tlen axan ipan Territorios de Paz y Buen Vivir, iga keski altepetsitsin uan tlatlaga.",
+ "Convocatoria a beneficiarios": "Notsalistle iga akin kiselis tlapaleuilistle",
+ "Coordenada capturada manualmente": "Kanin katej, omojkuilo iga ma",
+ "Código de ética": "Amatl iga kuale tlachiualistle",
+ "Cómo empezar": "Kenin tipeuas",
+ "Dashboard de TPBV": "Tlapoualli TPBV",
+ "Datos Abiertos": "Tlapoualli tlapojtok",
+ "Datos abiertos": "Tlapoualli tlapojtok",
+ "Delimitación vigente": "Polígono tlen axan",
+ "Demografía": "Tlatlaga iga tlapoualli",
+ "Dependencias con red": "Teguichiualoyan iga matlatl",
+ "Dependencias estatales con la red Wi-Fi pública de la ATDEM: secretaría, sede, coordenadas y puntos de acceso.": "Teguichiualoyan iga Kaltlayekana tlen kipiaj matlatl Wi-Fi tlen ATDEM: secretaría, kalle, kanin katej uan kanin mosaloua.",
+ "Dependencias estatales, ayudantías municipales y escuelas.": "Teguichiualoyan iga Kaltlayekana, ayudantías ipan altepemej uan kaltlamachtiloyan.",
+ "Dependencias por secretaría": "Teguichiualoyan iga secretaría",
+ "Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos vigentes, Aulas Tecnológicas y límites municipales.": "Xikuiga ipan CSV uan KML itlapoual nin tablero: altepetsitsin uan polígono tlen axan, Tlamachtiloyan iga tepostlapoualli uan itlalxelol altepemej.",
+ "Descarga las bases de datos que alimentan este tablero. Cada conjunto está disponible en CSV, para abrirlo en Excel o cualquier herramienta de análisis, y en KML, para verlo en Google Earth o Google My Maps.": "Xikuiga tlapoualli tlen kitekiutia nin tablero. Nochi kipia CSV, iga tiktlapos ipan Excel o siguin programa, uan KML, iga tikitas ipan Google Earth o Google My Maps.",
+ "Descarga los datos": "Xikuiga tlapoualli",
+ "Descargar Aulas Tecnológicas en CSV": "Xikuiga Tlamachtiloyan iga tepostlapoualli ipan CSV",
+ "Descargar Aulas Tecnológicas en KML": "Xikuiga Tlamachtiloyan iga tepostlapoualli ipan KML",
+ "Descargar Localidades · Propuesta Actual en CSV": "Xikuiga Altepetsitsin · Tlen axan ipan CSV",
+ "Descargar Localidades · Propuesta Actual en KML": "Xikuiga Altepetsitsin · Tlen axan ipan KML",
+ "Descargar Límites municipales de Morelos en CSV": "Xikuiga Itlalxelol altepemej ipan Morelos ipan CSV",
+ "Descargar Límites municipales de Morelos en KML": "Xikuiga Itlalxelol altepemej ipan Morelos ipan KML",
+ "Descargar Polígonos · Propuesta Actual en CSV": "Xikuiga Polígono · Tlen axan ipan CSV",
+ "Descargar Polígonos · Propuesta Actual en KML": "Xikuiga Polígono · Tlen axan ipan KML",
+ "Descargar Red La tierra que nos une en CSV": "Xikuiga Matlatl Nin tlale tech sepaneloa ipan CSV",
+ "Descargar Red La tierra que nos une en KML": "Xikuiga Matlatl Nin tlale tech sepaneloa ipan KML",
+ "Desocupada": "Amo kipiaj teguitl",
+ "Diagnóstico territorial": "Tlatemolistle ipan tlale",
+ "Discapacidad y Condiciones de Salud": "Amo uelilistle uan kogolistle",
+ "Drenaje": "Apantle (drenaje)",
+ "Economía": "Tomin uan teguitl",
+ "Económicamente Activa (PEA)": "Tlen ueli teguitij (PEA)",
+ "Educación": "Temachtilistle",
+ "Educación y Economía": "Temachtilistle uan tomin",
+ "Educación · {n}": "Temachtilistle · {n}",
+ "El objetivo es construir una sociedad más equitativa y justa, donde todas las personas puedan vivir con dignidad.": "Tlen tiknegui: tikchiuaskej se altepetl kanin nochi sepan katej uan melauak, kanin nochi tlatlaga ueliskej nemiskej iga tlakaitalistle.",
+ "El programa en cifras": "Nin tlapaleuilistle iga tlapoualli",
+ "El programa social más importante del sexenio. Su propósito es terminar con el rezago social y garantizar que todas las personas cuenten con oportunidades reales para su desarrollo, llevando la acción coordinada del Gobierno de Morelos a las comunidades que más lo necesitan.": "Nin tlapaleuilistle tlen ogachi ueyi ipan nin chikuasen xiuitl. Guinegui kitlamiltis iknoyotl uan kichiuas ma nochi tlatlaga kipiakaj melauak ojmej iga ueyiyaskej, iga iteguiu Kaltlayekana ipan Morelos tlen asi ipan altepetsitsin tlen ogachi guineguij.",
+ "El tamaño del círculo indica el número de computadoras. Haz clic en una escuela para ver su detalle.": "Kenin ueyi yaualtik kinextia keski tepostlapoualli kipia. Xikpacho se kaltlamachtiloyan iga tikitas nochi.",
+ "Elige los polígonos a comparar": "Xikpepena polígono tlen tikinneneuilis",
+ "En Análisis Demográfico, usa los selectores de la parte superior, o entra directo a un polígono desde el mapa o la lista de localidades.": "Ipan Tlapoualli iga tlatlaga, xiktekiuti tlapepenalli tlen kaninpa, o xiyau nimantsin ipan se polígono iga tlalamatl o iga itlapoual altepetsitsin.",
+ "En Datos Abiertos encontrarás las bases de datos del tablero en CSV y KML.": "Ipan Tlapoualli tlapojtok tikajsis itlapoual nin tablero ipan CSV uan KML.",
+ "Energía Eléctrica": "Tlauille",
+ "Enlaces de interés": "Ojmej tlen kipia ipatij",
+ "Equidad y dignidad": "Sepan tiuejueyij uan tlakaitalistle",
+ "Equipo de cómputo": "Tepostlapoualli",
+ "Equipos": "Tepostlapoualmej",
+ "Equipos por Municipio": "Tepostlapoualli iga altepetl",
+ "Escribe el nombre de una localidad…": "Xiktlajkuilo itoga se altepetsin…",
+ "Escudo Gobierno de Morelos": "Ichimal Kaltlayekana ipan Morelos",
+ "Escuela": "Kaltlamachtiloyan",
+ "Escuelas": "Kaltlamachtiloyan",
+ "Escuelas con aula": "Kaltlamachtiloyan iga tepostlapoualli",
+ "Escuelas dentro de un polígono": "Kaltlamachtiloyan ipan se polígono",
+ "Escuelas donde ATDEM instaló aulas de cómputo: CCT, nivel, computadoras, fecha de instalación y polígono TPBV.": "Kaltlamachtiloyan kanin ATDEM kitlalij tepostlapoualli: CCT, temachtilistle, tepostlapoualmej, kemanian motlalij uan polígono TPBV.",
+ "Escuelas equipadas": "Kaltlamachtiloyan tlen kipiaj tepostlapoualli",
+ "Escuelas por nivel educativo": "Kaltlamachtiloyan iga temachtilistle",
+ "Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo, quiero hacer una transformación en el estado, y los necesito a todos ustedes.": "Nin tlapaleuilistle tlen ogachi ueyi iga tojuantij ipan nin chikuasen xiuitl. Na, ken akin tlayekana, niknegui nikpatlas nin altepetl ueyi, uan nochi namejuantij nimechmonekiltia.",
+ "Este tablero, de la Agencia de Transformación Digital, reúne la información sociodemográfica y territorial del programa para apoyar su planeación y seguimiento.": "Nin tlapoualli, tlen kichiua Agencia de Transformación Digital, kisentlalia tlamachilistle iga tlatlaga uan tlale tlen nin tlapaleuilistle, iga ma kipaleui kuak motlalia uan motlachilia.",
+ "Estructura de Población por Edad y Sexo": "Tlatlaga iga ixiuiu, soamej uan tlagamej",
+ "Eventos especiales, como el Festival Internacional Cervantino en Cuernavaca.": "Iljuimej, ken Festival Internacional Cervantino ipan Cuernavaca.",
+ "Explora los indicadores": "Xiktlachili tlapoualli",
+ "Explorar el análisis": "Xiktlachili tlapoualli",
+ "Filtra por polígono o localidad": "Xikpepena polígono o altepetsin",
+ "Filtrar por Polígono": "Xikpepena polígono",
+ "Filtro Personalizado": "Tlapepenalli tlen ta tiknegui",
+ "Fuente: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (dependencias con red La tierra que nos une). Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.": "Kanin eua: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (teguichiualoyan iga matlatl Nin tlale tech sepaneloa). Kanin mosaloua ken kijkuiloj ATDEM; siguin teguichiualoyan amo kipiaj nin tlapoualli.",
+ "Fuente: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Ubicación según el enlace de Google Maps capturado por escuela.": "Kanin eua: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Kanin katej iga ojtle Google Maps tlen motlalij iga nochi kaltlamachtiloyan.",
+ "Fuente: ATDEM, Agentes_dependencias La Tierra Que Nos Une": "Kanin eua: ATDEM, Agentes_dependencias La Tierra Que Nos Une",
+ "Fuente: ATDEM, Proyecto Escuelas entrega Computadoras": "Kanin eua: ATDEM, Proyecto Escuelas entrega Computadoras",
+ "Fuente: ATDEM, registro de sitios REEM. Municipio asignado con los límites municipales del INE.": "Kanin eua: ATDEM, sitios REEM. Altepetl motlalij iga itlalxelol altepemej tlen INE.",
+ "Fuente: INE, límites municipales": "Kanin eua: INE, itlalxelol altepemej",
+ "Fuente: INEGI, Censo {n} (ITER Morelos) y Lista de Comunidades TPBV {n}": "Kanin eua: INEGI, Censo {n} (ITER Morelos) uan Lista de Comunidades TPBV {n}",
+ "Fuente: TPBV {n}.geojson": "Kanin eua: TPBV {n}.geojson",
+ "Genera tu reporte": "Xikchiua motlapoualamau",
+ "Genera, para la localidad o el polígono que estés viendo, un documento formal con portada y todas las tablas de indicadores, listo para imprimir o exportar a PDF.": "Xikchiua, iga altepetsin o polígono tlen tikitta, se amatl iga ixko uan nochi tlapoualli, iga tiktlalis ipan amatl o ipan PDF.",
+ "Gobierno": "Kaltlayekana",
+ "Gobierno del Estado": "Kaltlayekana",
+ "Gobierno del Estado de Morelos": "Kaltlayekana ipan Morelos",
+ "Gobierno del Estado de Morelos · La tierra que nos une": "Kaltlayekana ipan Morelos · Nin tlale tech sepaneloa",
+ "Gobierno del Estado · {n}": "Kaltlayekana · {n}",
+ "Grado Promedio de Escolaridad": "Keski xiuitl momachtijkej",
+ "Grado de Marginación": "Tlapoual iknoyotl",
+ "Grados de Marginación": "Tlapoual iknoyotl",
+ "Grados de marginación": "Tlapoual iknoyotl",
+ "Habitantes": "Tlatlaga",
+ "Habla Lengua Indígena": "Kitlajtouaj maseualtlajtolli",
+ "Hitos": "Tlen ueyi omochiu",
+ "Hogares Censales Indígenas": "Kalmej kanin chantij maseualmej",
+ "Hombres": "Tlagamej",
+ "Horario: lunes a viernes de {n}:{n} AM a {n}:{n} PM": "Kemanian: peua lunes uan tlami viernes, ka {n}:{n} AM ixkichi {n}:{n} PM",
+ "Indicadores de población, vivienda, tecnologías de la información, salud, educación y economía de las {n} localidades de los {n} polígonos vigentes, por localidad o por polígono completo.": "Tlapoualli iga tlatlaga, kalmej, tepostlapoualli uan internet, pajtilistle, temachtilistle uan tomin ipan {n} altepetsitsin tlen {n} polígono tlen axan, iga se altepetsin o iga se polígono nochi.",
+ "Información General": "Tlamachilistle",
+ "Infraestructura de Telecomunicaciones": "Tepostlaketsalmej iga uejka tlanonotsalistle",
+ "Inicio": "Pehua",
+ "Instalación: diciembre {n} a enero {n}": "Motlalij: peuak diciembre {n}, tlamik enero {n}",
+ "Internet gratuito y abierto": "Internet amo iga tomin uan tlapojtok",
+ "Ir a Análisis Demográfico": "Xiyau ipan Tlapoualli iga tlatlaga",
+ "Ir a Aulas Tecnológicas": "Xiyau ipan Tlamachtiloyan iga tepostlapoualli",
+ "Ir a Datos Abiertos": "Xiyau ipan Tlapoualli tlapojtok",
+ "Ir a Red La tierra que nos une": "Xiyau ipan Matlatl Nin tlale tech sepaneloa",
+ "Ir a Telecomunicaciones": "Xiyau ipan Uejka tlanonotsalistle",
+ "Ir a generar un reporte": "Xikchiua se tlapoualamatl",
+ "KML · una sola capa": "KML · san se tlapachtli",
+ "La ATDEM instala aulas de cómputo en {n} escuelas de los polígonos.": "ATDEM kitlalia tepostlapoualli ipan {n} kaltlamachtiloyan tlen polígono.",
+ "Las comunidades se identifican mediante un diagnóstico realizado por la Jefatura de la Oficina de la Gubernatura, que define los polígonos de atención.": "Altepetsitsin moixmatij iga se tlatemolistle tlen kichiua Jefatura de la Oficina de la Gubernatura, uan yejua kitlalia polígono kanin motekipanos.",
+ "Las localidades de los {n} polígonos vigentes con sus indicadores de población, vivienda, salud, educación, economía y marginación.": "Altepetsitsin tlen {n} polígono tlen axan iga itlapoual tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan iknoyotl.",
+ "Limpiar": "Xikpojpoa",
+ "Localidad": "Altepetsin",
+ "Localidades": "Altepetsitsin",
+ "Localidades ({n})": "Altepetsitsin ({n})",
+ "Localidades Totales": "Nochi altepetsitsin",
+ "Localidades en el Polígono": "Altepetsitsin ipan polígono",
+ "Localidades en este Polígono": "Altepetsitsin ipan nin polígono",
+ "Localidades incluidas": "Altepetsitsin tlen kipia",
+ "Localidades · Propuesta Actual": "Altepetsitsin · Tlen axan",
+ "Los archivos se generan en tu navegador con la misma información que muestra el tablero. Para Google My Maps importa el KML en una capa nueva y usa \"Aplicar estilo por columna de datos\" para colorear por municipio, polígono u otro campo.": "Nin amatl mochiua ipan motepostlapoual iga nochi tlamachilistle tlen kinextia nin tablero. Iga Google My Maps, xikalaki KML ipan se yankuik tlapachtli uan xiktekiuti \"Aplicar estilo por columna de datos\" iga tiktlapaluis iga altepetl, polígono o siguin.",
+ "Límites municipales de Morelos": "Itlalxelol altepemej ipan Morelos",
+ "Mapa de Aulas": "Tlalamatl iga tlamachtiloyan",
+ "Mapa de la red": "Tlalamatl iga matlatl",
+ "Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.": "Tlalamatl iga teguichiualoyan iga Kaltlayekana tlen ya kipiaj matlatl Wi-Fi tlapojtok uan amo iga tomin tlen ATDEM: kalmej, secretarías uan kanin mosaloua.",
+ "Mapa de las {n} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.": "Tlalamatl iga {n} kaltlamachtiloyan kanin ATDEM kitlalij tepostlapoualli ipan polígono TPBV: tepostlapoualmej, temachtilistle uan kanin katej.",
+ "Marginación: {d}": "Iknoyotl: {d}",
+ "Mayor concentración ({n} sitios)": "Kanin ogachi miak ({n} sitios)",
+ "Mobiliario": "Ikpalmej uan tlapechmej",
+ "Monolingüe (no habla español)": "San se tlajtolli (amo kitlajtouaj kaxtilan tlajtolli)",
+ "Mujeres": "Soamej",
+ "Municipio": "Altepetl",
+ "Municipio con aula": "Altepetl iga tlamachtiloyan",
+ "Municipios": "Altepemej",
+ "Municipios con infraestructura": "Altepemej iga tepostlaketsalmej",
+ "Municipios con sitios": "Altepemej iga sitios",
+ "Navegación principal": "Achtopa ojmej",
+ "Niñas/os {n}-{n} años sin asistir a la escuela": "Pipiltontij {n}-{n} xiuitl tlen amo yaj kaltlamachtiloyan",
+ "No se encontró una coincidencia confiable para {d} en el Censo INEGI {n} (ITER Morelos). Esto ocurre principalmente con colonias/barrios urbanos que no se registran como localidad censal independiente. El mapa muestra su ubicación (coordenada capturada manualmente) dentro de polígono {n}.": "Amo omonexti {d} ipan Censo INEGI {n} (ITER Morelos). Nin panoa ogachi iga colonias o barrios ipan ueyi altepetl tlen amo motlapouaj kemej altepetsin. Tlalamatl kinextia kanin katej (omojkuilo iga ma) ipan polígono {n}.",
+ "Nuestras redes": "Tlen tikpiaj ipan internet",
+ "Ocupada": "Teguitij",
+ "Ocupada en Sector Primario": "Teguitij ipan milpa uan tlale",
+ "Otros Servicios de Salud": "Siguin tlapaleuilistle iga pajtilistle",
+ "Otros municipios": "Siguin altepemej",
+ "Para reducir la brecha digital desde edades tempranas, la Agencia de Transformación Digital del Estado de Morelos (ATDEM), en coordinación con la Secretaría de Educación y el Instituto de Educación Básica del Estado de Morelos (IEBEM), equipó aulas de cómputo en {n} escuelas de {n} municipios ubicadas en los polígonos de Territorios de Paz y Buen Vivir.": "Iga ma moyekchiua tlen amo kipiaj tepostlapoualli kuak tsitsikitsin, Agencia de Transformación Digital del Estado de Morelos (ATDEM), sepan iga Secretaría de Educación uan Instituto de Educación Básica del Estado de Morelos (IEBEM), kitlalij tepostlapoualli ipan {n} kaltlamachtiloyan ipan {n} altepemej tlen katej ipan polígono Territorios de Paz y Buen Vivir.",
+ "Pasa el cursor sobre un municipio para ver el desglose por sector.": "Xikpano tepostlapacholi ipan se altepetl iga tikitas tlen kipia iga teguitl.",
+ "Personas dependientes ({n}-{n} y {n}+) por cada {n} en edad de trabajar ({n}-{n}: {n})": "Akin moneki ma kinpaleuikaj ({n}-{n} uan {n}+) iga nochi {n} tlen ueli teguitij ({n}-{n}: {n})",
+ "Piso de Tierra": "Tlalchi san tlale",
+ "Plazas públicas y espacios de alta concurrencia, como la Plaza de Armas Emiliano Zapata (Zócalo de Cuernavaca).": "Plazas uan kanin miak tlatlaga monechikouaj, ken Plaza de Armas Emiliano Zapata (Zócalo de Cuernavaca).",
+ "Pob. Afromexicana": "Afromexikanojmej",
+ "Población": "Tlatlaga",
+ "Población Indígena y Afromexicana": "Maseualmej uan afromexikanojmej",
+ "Población Total": "Nochi tlatlaga",
+ "Población reportada (Lista TPBV {n})": "Tlatlaga tlen motlapoukej (Lista TPBV {n})",
+ "Polígono": "Polígono",
+ "Polígonos": "Polígono",
+ "Polígonos incluidos": "Polígono tlen kipia",
+ "Polígonos · Propuesta Actual": "Polígono · Tlen axan",
+ "Por seguridad de la infraestructura, la información se presenta agregada por municipio y sector. No se publica la ubicación exacta ni el nombre de los sitios.": "Iga tlajpialistle, tlamachilistle monextia sepan iga altepetl uan teguitl. Amo monextia kanin melauak katej nin intogayo sitios.",
+ "Prensa": "Tlatolnonotza",
+ "Presentación del programa": "Teixpantilistle iga nin tlapaleuilistle",
+ "Promotores capacitados visitan a la población para escuchar y conocer a detalle sus necesidades básicas.": "Tlapaleuianij tlen momachtijkej kinpaxalouaj tlatlaga iga kinkaguiskej uan kualtsin kiixmatiskej tlen kinmonekij.",
+ "Promotores comunitarios": "Tlapaleuianij ipan altepetsitsin",
+ "Puntos de acceso": "Kanin mosaloua",
+ "Puntos de conexión": "Kanin mosaloua",
+ "Razón de dependencia demográfica": "Keski moneki ma kinpaleuikaj",
+ "Recursos": "Tlen tikpiaj",
+ "Red La tierra que nos une": "Matlatl Nin tlale tech sepaneloa",
+ "Red de Wi-Fi pública, gratuita y abierta impulsada por la Agencia de Transformación Digital del Gobierno del Estado de Morelos (ATDEM). Busca reducir la brecha digital y que la ciudadanía pueda comunicarse sin costo, consultar la programación cultural, realizar trámites y acceder a las plataformas digitales institucionales.": "Matlatl Wi-Fi tlen nochi ueli kitekiutiskej, amo iga tomin uan tlapojtok, tlen kichiua Agencia de Transformación Digital ipan Kaltlayekana ipan Morelos (ATDEM). Guinegui ma moyekchiua tlen amo kipiaj internet uan ma tlatlaga ueliskej monotsaskej amo iga tomin, kitaskej iljuimej, kichiuaskej trámites uan kalakiskej ipan plataformas digitales iga Kaltlayekana.",
+ "Reducir la brecha digital": "Moyekchiuas tlen amo kipiaj internet",
+ "Región": "Tlalxeloli",
+ "Reporte Institucional": "Tlapoualamatl iga Kaltlayekana",
+ "Reportes": "Tlapoualamatl",
+ "Reportes Institucionales": "Tlapoualamatl iga Kaltlayekana",
+ "Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.": "Xiktlachili tlalamatl iga Tlamachtiloyan iga tepostlapoualli tlen motlalijkej ipan kaltlamachtiloyan tlen polígono.",
+ "Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.": "Xiktlachili tlapoualli iga tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan keski xiuitl kipiaj, uan tlalamatl kanin katej.",
+ "Salud": "Pajtilistle",
+ "Salud y Bienestar": "Pajtilistle uan kuale nemilistle",
+ "Salud · {n}": "Pajtilistle · {n}",
+ "Secretarías y órganos": "Secretarías uan teguichiualoyan",
+ "Sectores": "Teguimej",
+ "Sectores atendidos": "Teguimej tlen kinpaleuiaj",
+ "Sede con red (el tamaño indica cuántas dependencias)": "Kalle iga matlatl (kenin ueyi kinextia keski teguichiualoyan)",
+ "Sedes conectadas": "Kalmej tlen mosalojtokej",
+ "Seguridad y Protección Ciudadana": "Tlajpialistle uan Tlapaleuilistle iga Tlatlaga",
+ "Seguridad y Protección Ciudadana · {n}": "Tlajpialistle uan Tlapaleuilistle iga Tlatlaga · {n}",
+ "Servicio de atención ciudadana": "Tikinkaquis nin sepanchante",
+ "Servicios de Salud": "Tlapaleuilistle iga pajtilistle",
+ "Sin Afiliación": "Amo kipiaj pajtilistle",
+ "Sin Datos Censales Disponibles": "Amo kipia itlapoual censo",
+ "Sin Educación Básica Completa ({n}+)": "Amo kitlamiltijkej achtopa temachtilistle ({n}+)",
+ "Sin grado de marginación": "Amo kipia itlapoual iknoyotl",
+ "Sin sitios": "Amo kipia sitios",
+ "Sitios": "Sitios",
+ "Sitios de telecomunicaciones": "Sitios iga uejka tlanonotsalistle",
+ "Sitios por municipio": "Sitios iga altepetl",
+ "Sitios por sector": "Sitios iga teguitl",
+ "Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.": "Sitios uan tepostlaketsalmej tlen imatlau Kaltlayekana, iga altepetl uan teguitl (kaltlayekana, temachtilistle, pajtilistle uan tlajpialistle). Iga tlajpialistle san monextiaj sepan.",
+ "Sitios y torres de telecomunicaciones de la red estatal (sitios REEM) que dan servicio a dependencias del Gobierno del Estado, planteles educativos, unidades de salud e instalaciones de seguridad en Morelos.": "Sitios uan tepostlaketsalmej iga uejka tlanonotsalistle ipan imatlau Kaltlayekana (sitios REEM) tlen kinpaleuiaj teguichiualoyan iga Kaltlayekana, kaltlamachtiloyan, pajtiloyan uan kanin tlajpiaj ipan Morelos.",
+ "TPBV {n} · Tablero Sociodemográfico": "TPBV {n} · Tlapoualli iga tlatlaga",
+ "Tecnologías de Información (TIC)": "Tepostlapoualli uan tlanonotsalistle (TIC)",
+ "Telecomunicaciones": "Uejka tlanonotsalistle",
+ "Territorios de Paz y Buen Vivir {n} · Tablero de la Agencia de Transformación Digital. Fuente principal: INEGI, Censo de Población y Vivienda {n} (ITER Morelos).": "Territorios de Paz y Buen Vivir {n} · Itlapoual Agencia de Transformación Digital. Kanin eua tlapoualli: INEGI, Censo de Población y Vivienda {n} (ITER Morelos).",
+ "Territorios de Paz y Buen Vivir · Educación digital": "Territorios de Paz y Buen Vivir · Temachtilistle iga tepostlapoualli",
+ "Territorios de Paz y Buen Vivir · Transparencia": "Territorios de Paz y Buen Vivir · Tlen nochi ueli kitaskej",
+ "Territorios de Paz y Buen Vivir — Inicio": "Territorios de Paz y Buen Vivir — Pehua",
+ "Todas las Localidades": "Nochi altepetsitsin",
+ "Todos los Polígonos": "Nochi polígono",
+ "Todos los municipios": "Nochi altepemej",
+ "Total Afiliados": "Nochi tlen kipiaj pajtilistle",
+ "Total Viviendas": "Nochi kalmej",
+ "Trámites y servicios": "Kalakis amamej wan tleonon tlakapalewisque",
+ "Ubicación Geográfica": "Kanin katej",
+ "Un Solo Cuarto": "San se kalijtik",
+ "Un promotor capacitado en cada escuela para el uso del aula.": "Se tlapaleuiani tlen momachtij ipan nochi kaltlamachtiloyan iga ma motekiuti tlamachtiloyan.",
+ "Una tarjeta WiFi por equipo e internet dedicado para el aula.": "Se tarjeta WiFi iga nochi tepostlapoualli uan internet san iga tlamachtiloyan.",
+ "Usa el botón \"Reporte Institucional\" para exportar un documento formal en PDF de lo que estés viendo.": "Xiktekiuti \"Tlapoualamatl iga Kaltlayekana\" iga tikixtis se amatl PDF iga tlen tikitta.",
+ "Ver campos": "Xikita tlen kipia",
+ "Ver {d} en el mapa": "Xikita {d} ipan tlalamatl",
+ "Vivienda": "Kalle",
+ "Vivienda y Servicios": "Kalle uan tlen kipia",
+ "Viviendas Totales": "Nochi kalmej",
+ "Zoom in": "Xikueyichiua",
+ "Zoom out": "Xiktepitonchiua",
+ "{n} años": "{n} xiuitl",
+ "{n} computadoras con conexión a internet y software educativo.": "{n} tepostlapoualli iga internet uan programas iga temachtilistle.",
+ "{n} conjuntos de datos": "{n} tlapoualamatl",
+ "{n} de abril de {n}": "{n} abril, {n} xiuitl",
+ "{n} de {n}": "{n} ipan {n}",
+ "{n} de {n} localidades no tienen coincidencia en el Censo INEGI {n} (suelen ser colonias/barrios dentro de una cabecera urbana). Su población sí está incluida en el total (vía la Lista TPBV {n}), pero vivienda, salud, educación y economía no — esos indicadores solo suman las localidades con coincidencia censal. Revísalas en la lista de localidades.": "{n} ipan {n} altepetsitsin amo monextiaj ipan Censo INEGI {n} (miakpa colonias o barrios ipan se ueyi altepetl). Intlatlaga motlapouaj ipan nochi (iga Lista TPBV {n}), san kalmej, pajtilistle, temachtilistle uan tomin amo — nin tlapoualli san kinsentlalia altepetsitsin tlen monextiaj ipan censo. Xikintlachili ipan itlapoual altepetsitsin.",
+ "{n} eq. · {n} esc.": "{n} tep. · {n} kal.",
+ "{n} localidades en {n} polígonos de atención, que se analizan en este tablero.": "{n} altepetsitsin ipan {n} polígono, tlen motlachilia ipan nin tlapoualli.",
+ "{n} municipios": "{n} altepemej",
+ "{n} o más": "{n} o ogachi",
+ "{n} punto de acceso": "{n} kanin mosaloua",
+ "{n} puntos de acceso": "{n} kanin mosaloua",
+ "{n} registros · {n} campos": "{n} tlajkuilolli · {n} tlamachilistle",
+ "{n} sillas y {n} mesas para las aulas que no contaban con mobiliario suficiente.": "{n} ikpalmej uan {n} tlapechmej iga tlamachtiloyan tlen amo kipiayaj.",
+ "{n}+ años · Mujeres: {n} · Hombres: {n}": "{n}+ xiuitl · Soamej: {n} · Tlagamej: {n}",
+ "{n}-{n} años · Mujeres: {n} · Hombres: {n}": "{n}-{n} xiuitl · Soamej: {n} · Tlagamej: {n}",
+ "¿Cómo funciona?": "¿Kenin teguiti?",
+ "¿Dónde están las aulas?": "¿Kanin katej tlamachtiloyan?",
+ "¿Qué encontrarás en este tablero?": "¿Tlen tikajsis ipan nin tlapoualli?",
+ "¿Qué incluye cada aula?": "¿Tlen kipia nochi tlamachtiloyan?"
+};
 </script>
 
 <script>
@@ -2495,6 +2811,9 @@ function renderInicioView() {
             ${typeof TPBV_RED_LTQNU === 'undefined' ? '' : homeSectionCard('wifi', 'Red La tierra que nos une',
                 `Mapa de las dependencias estatales que ya cuentan con la red Wi-Fi pública y gratuita de la ATDEM: sedes, secretarías y puntos de acceso.`,
                 'Ir a Red La tierra que nos une', 'red')}
+            ${typeof TPBV_TELECOM === 'undefined' ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
+                `Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.`,
+                'Ir a Telecomunicaciones', 'telecom')}
             ${homeSectionCard('database', 'Datos Abiertos',
                 `Descarga en CSV y KML las bases de datos del tablero: localidades y polígonos${HAY_NUEVA_PROPUESTA ? ' de ambas propuestas' : ' vigentes'},${HAY_BANCO_PROYECTOS ? ' Banco de Proyectos,' : ''} Aulas Tecnológicas y límites municipales.`,
                 'Ir a Datos Abiertos', 'datos')}
@@ -3381,7 +3700,7 @@ const NAV_LINK_INACTIVE = 'nav-pill';
 // que enlace del nav queda activo. La carga inicial de la pagina sigue
 // aterrizando en 'analisis' (ver Init al final del archivo); 'inicio' solo
 // se muestra si el usuario hace clic en el nav.
-const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view', '#datos-view', '#red-view'];
+const VIEW_CONTAINERS = ['#inicio-view', '#hero-analisis', '#global-filters', '#canvas', '#propuesta-view', '#banco-proyectos-view', '#aulas-view', '#datos-view', '#red-view', '#telecom-view'];
 const VIEWS = {
     inicio: { shown: ['#inicio-view'], navId: 'nav-inicio' },
     analisis: { shown: ['#hero-analisis', '#global-filters', '#canvas'], navId: 'nav-analisis' },
@@ -3389,7 +3708,8 @@ const VIEWS = {
     banco: { shown: ['#banco-proyectos-view'], navId: 'nav-banco' },
     aulas: { shown: ['#aulas-view'], navId: 'nav-aulas' },
     datos: { shown: ['#datos-view'], navId: 'nav-datos' },
-    red: { shown: ['#red-view'], navId: 'nav-red' }
+    red: { shown: ['#red-view'], navId: 'nav-red' },
+    telecom: { shown: ['#telecom-view'], navId: 'nav-telecom' }
 };
 
 function showView(view) {
@@ -3426,6 +3746,8 @@ function showView(view) {
     if (view === 'datos' && typeof renderDatosAbiertosView === 'function') renderDatosAbiertosView();
     // renderRedView vive en red_view.js.
     if (view === 'red' && typeof renderRedView === 'function') renderRedView();
+    // renderTelecomView vive en telecom_view.js.
+    if (view === 'telecom' && typeof renderTelecomView === 'function') renderTelecomView();
     if (view === 'analisis' && map) {
         // El mapa de Analisis Demografico pudo quedar con tamano 0 mientras
         // #canvas estaba oculto (display:none no tiene layout); si su encuadre
@@ -4643,6 +4965,437 @@ $('#red-view').addEventListener('keydown', (e) => {
     const item = e.target.closest && e.target.closest('[data-red-sede]');
     if (item && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); enfocarSedeRed(item.dataset.redSede); }
 });
+</script>
+<script>
+/* EMBEBIDO: telecom_view.js */
+// ---------------------------------------------------------------------------
+// Vista "Infraestructura de Telecomunicaciones": sitios (torres) de la red
+// estatal, SOLO como referencia agregada por municipio y sector. Por
+// seguridad no hay coordenadas ni nombres de sitio en el tablero: los datos
+// (TPBV_TELECOM, telecom.js) ya llegan agregados desde
+// scripts/build_telecom.py. El mapa colorea cada municipio según cuántos
+// sitios tiene (coropleta) sobre la base "solo Morelos" (mapa_morelos.js).
+// Se carga después de app.js; showView('telecom') llama a renderTelecomView().
+// ---------------------------------------------------------------------------
+
+const TELECOM = (typeof TPBV_TELECOM !== 'undefined') ? TPBV_TELECOM : { total: 0, porSector: {}, municipios: [] };
+
+// Escala secuencial en verde Morelos (paleta ATD), de menos a más sitios.
+const TELECOM_CLASES = [
+    { min: 10, color: '#4A5039', etiqueta: '10 o más' },
+    { min: 4, color: '#71785B', etiqueta: '4 a 9' },
+    { min: 2, color: '#A7AD93', etiqueta: '2 a 3' },
+    { min: 1, color: '#D3D6C6', etiqueta: '1' },
+];
+const TELECOM_SECTOR_ICONO = {
+    'Gobierno del Estado': 'account_balance', 'Educación': 'school',
+    'Salud': 'local_hospital', 'Seguridad y Protección Ciudadana': 'shield'
+};
+
+let telecomViewBuilt = false;
+let telecomMap = null;
+
+const telecomClase = (n) => TELECOM_CLASES.find((c) => n >= c.min) || null;
+const telecomSitios = (n) => `${fmtInt(n)} ${n === 1 ? 'sitio' : 'sitios'}`;
+
+function telecomDeMunicipio(nombreGeo) {
+    return TELECOM.municipios.find((m) => mismoMunicipio(nombreGeo, m.municipio)) || null;
+}
+
+function telecomEstilo(feature) {
+    const m = telecomDeMunicipio(feature.properties.NOMGEO);
+    const clase = m ? telecomClase(m.total) : null;
+    return clase ? { ...MUNICIPIO_BASE, fillColor: clase.color } : MUNICIPIO_BASE;
+}
+
+function telecomTooltip(nombre, m) {
+    if (!m) return `${esc(nombre)} · sin sitios registrados`;
+    const sectores = Object.entries(m.porSector).map(([s, n]) => `${esc(s)}: ${n}`).join('<br>');
+    return `<b>${esc(nombre)}</b> · ${telecomSitios(m.total)}<br><span style="font-weight:400">${sectores}</span>`;
+}
+
+// Centroide (por area) del anillo exterior mas grande, calculado sobre la
+// geometria: no depende de que el mapa ya tenga vista (Polygon.getCenter
+// de Leaflet lo exige).
+function telecomCentroide(geom) {
+    const anillos = (geom.type === 'MultiPolygon' ? geom.coordinates.map((p) => p[0]) : [geom.coordinates[0]]);
+    let mejor = null;
+    anillos.forEach((ring) => {
+        let a = 0, cx = 0, cy = 0;
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+            const f = ring[j][0] * ring[i][1] - ring[i][0] * ring[j][1];
+            a += f; cx += (ring[j][0] + ring[i][0]) * f; cy += (ring[j][1] + ring[i][1]) * f;
+        }
+        if (!mejor || Math.abs(a) > Math.abs(mejor.a)) mejor = { a, lon: cx / (3 * a), lat: cy / (3 * a) };
+    });
+    return [mejor.lat, mejor.lon];
+}
+
+function telecomLeyenda(leafletMap) {
+    const control = L.control({ position: 'bottomright' });
+    control.onAdd = () => {
+        const div = L.DomUtil.create('div', 'atd-leyenda');
+        div.innerHTML = `<h4>Sitios por municipio</h4>` +
+            [...TELECOM_CLASES].reverse().map((c) => `<div class="fila"><span class="muestra" style="background:${c.color}"></span>${c.etiqueta}</div>`).join('') +
+            `<div class="fila"><span class="muestra sin"></span>Sin sitios</div>`;
+        L.DomEvent.disableClickPropagation(div);
+        return div;
+    };
+    control.addTo(leafletMap);
+}
+
+function telecomBarrasSector() {
+    const filas = Object.entries(TELECOM.porSector);
+    const max = Math.max(1, ...filas.map(([, n]) => n));
+    return `<div class="space-y-3">` + filas.map(([sector, n]) => `
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-secondary shrink-0" aria-hidden="true">${TELECOM_SECTOR_ICONO[sector] || 'cell_tower'}</span>
+            <span class="w-44 sm:w-64 shrink-0 font-body-md text-body-md text-on-surface">${esc(sector)}</span>
+            <div class="flex-1 h-2.5 rounded-full bg-surface-container-high overflow-hidden">
+                <div class="h-full rounded-full bg-primary" style="width:${(n / max * 100).toFixed(1)}%"></div>
+            </div>
+            <span class="w-8 shrink-0 text-right font-data-display text-data-display text-on-surface">${n}</span>
+        </div>`).join('') + `</div>`;
+}
+
+function telecomTablaMunicipios() {
+    return `<div class="overflow-x-auto"><table class="w-full text-left min-w-[480px]">
+        <thead><tr class="border-b-2 border-outline-variant font-label-bold text-label-bold text-on-surface-variant">
+            <th class="py-2 pr-3">Municipio</th><th class="py-2 pr-3">Sectores</th><th class="py-2 text-right">Sitios</th></tr></thead>
+        <tbody>${TELECOM.municipios.map((m) => `
+            <tr class="border-b border-outline-variant">
+                <td class="py-2 pr-3 font-body-md text-body-md text-on-surface font-semibold">${esc(m.municipio)}</td>
+                <td class="py-2 pr-3"><div class="flex flex-wrap gap-1.5">${Object.entries(m.porSector).map(([s, n]) =>
+                    `<span class="px-2 py-0.5 rounded-full bg-surface-container-high font-label-bold text-label-bold text-on-surface">${esc(s)} · ${n}</span>`).join('')}</div></td>
+                <td class="py-2 text-right font-data-display text-data-display text-on-surface">${m.total}</td>
+            </tr>`).join('')}</tbody></table></div>`;
+}
+
+function telecomVistaHtml() {
+    const sectores = Object.keys(TELECOM.porSector).length;
+    const principal = TELECOM.municipios[0];
+    return `
+    <div class="flex flex-col gap-4 max-w-5xl">
+        <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">Conectividad · Agencia de Transformación Digital</span>
+        <h2 class="font-headline-xl text-headline-xl text-primary">Infraestructura de Telecomunicaciones</h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant">
+            Sitios y torres de telecomunicaciones de la red estatal (sitios REEM) que dan servicio a dependencias del Gobierno del
+            Estado, planteles educativos, unidades de salud e instalaciones de seguridad en Morelos.
+        </p>
+        <div class="rounded-xl p-4 bg-surface-container-low border border-outline-variant font-body-md text-body-md text-on-surface-variant flex gap-3 items-start">
+            <span class="material-symbols-outlined text-secondary shrink-0" aria-hidden="true">lock</span>
+            <span>Por seguridad de la infraestructura, la información se presenta <b class="text-on-surface">agregada por municipio y sector</b>.
+            No se publica la ubicación exacta ni el nombre de los sitios.</span>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter-grid">
+        ${kpiCount('cell_tower', 'Sitios de telecomunicaciones', TELECOM.total, 'primary')}
+        ${kpiCount('location_city', 'Municipios con sitios', TELECOM.municipios.length, 'teal')}
+        ${kpiCount('category', 'Sectores atendidos', sectores, 'blue')}
+        ${principal ? kpiStatic('pin_drop', `Mayor concentración (${telecomSitios(principal.total)})`, principal.municipio, 'text-on-surface', 'warning') : ''}
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col">
+        <div class="flex items-center justify-between gap-3 mb-stack-md pb-3 border-b-2 border-outline-variant flex-wrap">
+            <div class="flex items-center gap-2.5">${iconChip('cell_tower')}<h2 class="font-headline-md text-headline-md text-on-surface">Sitios por municipio</h2></div>
+            <span class="font-body-md text-body-md text-on-surface-variant">Pasa el cursor sobre un municipio para ver el desglose por sector.</span>
+        </div>
+        <div class="overflow-hidden relative w-full mx-auto" style="max-width:900px;aspect-ratio:1/0.9;max-height:78vh;min-height:340px;border-radius:16px;border:1px solid #CBCABE">
+            <div id="telecom-map" style="position:absolute;inset:0"></div>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-gutter-grid">
+        ${card(`${cardHeader('category', 'Sitios por sector')}${telecomBarrasSector()}`)}
+        ${card(`${cardHeader('location_city', 'Municipios con infraestructura')}${telecomTablaMunicipios()}`)}
+    </div>
+    <p class="font-body-md text-body-md text-on-surface-variant">Fuente: ATDEM, registro de sitios REEM. Municipio asignado con los límites municipales del INE.</p>`;
+}
+
+function renderTelecomView() {
+    if (!telecomViewBuilt) {
+        $('#telecom-view').innerHTML = telecomVistaHtml();
+        telecomViewBuilt = true;
+        animateEntrances($('#telecom-view'));
+    }
+    if (!telecomMap) {
+        telecomMap = crearMapaMorelos('telecom-map');
+        const base = agregarBaseMorelos(telecomMap, {
+            estilo: telecomEstilo,
+            onEachFeature: (f, layer) => {
+                const m = telecomDeMunicipio(f.properties.NOMGEO);
+                layer.bindTooltip(telecomTooltip(f.properties.NOMGEO, m), { sticky: true, className: 'atd-tooltip' });
+                layer.on('mouseover', () => layer.setStyle({ weight: 2.2, color: ATD.verdeOscuro }));
+                layer.on('mouseout', () => layer.setStyle(telecomEstilo(f)));
+            }
+        });
+        // Numero de sitios al centro de cada municipio con infraestructura
+        // (referencia agregada: la etiqueta va en el centroide del municipio,
+        // no en la ubicacion de los sitios).
+        if (base.municipios) {
+            // Un municipio puede tener varios poligonos (p. ej. Cuernavaca):
+            // la etiqueta va en el de mayor extension.
+            const area = (l) => { const b = l.getBounds(); return (b.getNorth() - b.getSouth()) * (b.getEast() - b.getWest()); };
+            const mayorPorMunicipio = new Map();
+            base.municipios.getLayers().forEach((layer) => {
+                const m = telecomDeMunicipio(layer.feature.properties.NOMGEO);
+                if (!m) return;
+                const actual = mayorPorMunicipio.get(m.municipio);
+                if (!actual || area(layer) > area(actual.layer)) mayorPorMunicipio.set(m.municipio, { layer, m });
+            });
+            mayorPorMunicipio.forEach(({ layer, m }) => {
+                L.marker(telecomCentroide(layer.feature.geometry), {
+                    interactive: false,
+                    icon: L.divIcon({
+                        className: '',
+                        html: `<span style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;background:#773357;color:#fff;font-weight:700;font-size:13px;border:2px solid #fff;box-shadow:0 2px 6px rgba(46,59,43,.3)">${m.total}</span>`,
+                        iconSize: [28, 28], iconAnchor: [14, 14]
+                    })
+                }).addTo(telecomMap);
+            });
+            telecomMap._contorno = base.contorno;
+        }
+        telecomLeyenda(telecomMap);
+    }
+    setTimeout(() => {
+        if (!telecomMap) return;
+        telecomMap.invalidateSize();
+        if (!telecomMap._encuadrado && telecomMap._contorno) {
+            telecomMap.fitBounds(telecomMap._contorno.getBounds(), { padding: [20, 20] });
+            telecomMap._encuadrado = true;
+        }
+    }, 150);
+}
+</script>
+<script>
+/* EMBEBIDO: i18n.js */
+// ---------------------------------------------------------------------------
+// Versión en náhuatl del tablero (selector "Náhuatl / Español", como en
+// morelos.gob.mx/nahuatl). Funciona sobre el DOM ya dibujado: no hay que
+// tocar el código de cada vista.
+//
+//   - Diccionario: TPBV_TRADUCCIONES_NA = { "texto en español": "náhuatl" }
+//     (dashboard/traducciones_na.js, generado por
+//     scripts/build_traducciones_na.py desde la plantilla del traductor
+//     traducciones/Traduccion_nahuatl_tablero.xlsx).
+//   - Clave = texto normalizado (espacios colapsados) con los números
+//     reemplazados por {n}: "Mapa de las 45 escuelas…" -> "Mapa de las {n}
+//     escuelas…"; al traducir se reinsertan los números en orden.
+//   - Textos con un dato dentro (nombre de escuela, localidad…) usan {d}:
+//     "Ver {d} en el mapa". Esas claves se aplican como patrón; los {n}/{d}
+//     de la traducción se llenan en el mismo orden que en el español.
+//   - Unidad de traducción: un elemento cuyo contenido es solo texto con
+//     formato en línea (b, strong, em, i, br, span sin iconos) se traduce
+//     COMPLETO (el orden de palabras del náhuatl no coincide con el del
+//     español); si contiene enlaces/botones/iconos, se traducen sus nodos de
+//     texto por separado.
+//   - Lo que no esté en el diccionario se queda en español (los datos:
+//     nombres de localidades, escuelas, dependencias, nunca se traducen).
+//   - Las vistas se re-dibujan con innerHTML: un MutationObserver traduce lo
+//     nuevo mientras el idioma activo es náhuatl.
+//   - tpbvExtraerTextos() recorre el DOM con las mismas reglas y devuelve las
+//     claves: así la plantilla del traductor coincide 1:1 con el motor.
+//
+// Idioma: ?lang=na en la URL o la elección guardada (localStorage). El
+// selector solo se muestra cuando MOSTRAR_SELECTOR_NAHUATL es true (mientras
+// la traducción esté incompleta se revisa con ?lang=na).
+// ---------------------------------------------------------------------------
+
+const MOSTRAR_SELECTOR_NAHUATL = true;
+const I18N_DICC = (typeof TPBV_TRADUCCIONES_NA !== 'undefined') ? TPBV_TRADUCCIONES_NA : {};
+const I18N_CLAVE_ALMACEN = 'tpbv-idioma';
+
+// Elementos que nunca se traducen ni se extraen.
+const I18N_EXCLUIR = 'script, style, noscript, svg, .material-symbols-outlined, .leaflet-tile-pane, .leaflet-control-attribution, [data-no-traducir]';
+// Formato en línea que se traduce junto con su párrafo. SPAN no cuenta: suele
+// separar etiqueta y valor (p. ej. "Municipio" | "Ayala").
+const I18N_INLINE = new Set(['B', 'STRONG', 'EM', 'I', 'BR', 'SMALL', 'SUP', 'SUB']);
+const I18N_ATRIBUTOS = ['placeholder', 'aria-label', 'title', 'alt'];
+
+let i18nIdioma = 'es';
+let i18nAplicando = false;
+let i18nTituloOriginal = null;   // título de la pestaña en español
+const i18nOriginalTexto = new WeakMap();    // Text -> texto original
+const i18nOriginalHtml = new WeakMap();     // Element (unidad) -> innerHTML original
+const i18nOriginalAttr = new WeakMap();     // Element -> {attr: valor original}
+
+const NUM_RE = /\d[\d,.]*\d|\d/g;
+
+function i18nNormalizar(texto) {
+    return String(texto || '').replace(/\s+/g, ' ').trim();
+}
+
+// "Mapa de las 45 escuelas" -> { clave: "Mapa de las {n} escuelas", numeros: ["45"] }
+function i18nClave(texto) {
+    const limpio = i18nNormalizar(texto);
+    const numeros = limpio.match(NUM_RE) || [];
+    return { clave: limpio.replace(NUM_RE, '{n}'), numeros };
+}
+
+// Claves con {d} (dato variable) se usan como patrón: regex anclada.
+const I18N_PATRONES = Object.keys(I18N_DICC).filter((k) => k.includes('{d}')).map((k) => {
+    const marcas = k.match(/\{[nd]\}/g);
+    const fuente = k.split(/(\{[nd]\})/).map((parte) => (parte === '{n}' ? '(\\d[\\d,.]*\\d|\\d)' : parte === '{d}' ? '(.+?)'
+        : parte.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('');
+    return { clave: k, marcas, re: new RegExp('^' + fuente + '$') };
+});
+
+function i18nLlenar(destino, marcas, valores) {
+    const porTipo = { '{n}': [], '{d}': [] };
+    marcas.forEach((m, i) => porTipo[m].push(valores[i]));
+    const usados = { '{n}': 0, '{d}': 0 };
+    return destino.replace(/\{[nd]\}/g, (m) => porTipo[m][usados[m]++] ?? '');
+}
+
+function i18nTraducir(texto) {
+    const { clave, numeros } = i18nClave(texto);
+    const destino = I18N_DICC[clave];
+    if (destino) return i18nLlenar(destino, numeros.map(() => '{n}'), numeros);
+    const limpio = i18nNormalizar(texto);
+    for (const p of I18N_PATRONES) {
+        const m = limpio.match(p.re);
+        if (m) return i18nLlenar(I18N_DICC[p.clave], p.marcas, m.slice(1));
+    }
+    return null;
+}
+
+function i18nEsTraducible(texto) {
+    const t = i18nNormalizar(texto);
+    return t.length > 1 && /\p{L}/u.test(t);
+}
+
+// Unidad = elemento con texto propio y solo hijos de formato en línea (sin
+// iconos ni enlaces). Se traduce entero.
+function i18nEsUnidad(el) {
+    if (!el.childNodes.length || el.matches('a, button, select, option, input, textarea') && el.children.length) return false;
+    let tieneTexto = false;
+    for (const hijo of el.childNodes) {
+        if (hijo.nodeType === Node.TEXT_NODE) { if (i18nNormalizar(hijo.nodeValue)) tieneTexto = true; continue; }
+        if (hijo.nodeType !== Node.ELEMENT_NODE) continue;
+        if (!I18N_INLINE.has(hijo.tagName) || hijo.matches(I18N_EXCLUIR) || hijo.querySelector('*:not(b):not(strong):not(em):not(i):not(br):not(small):not(sup):not(sub)')) return false;
+        if (i18nNormalizar(hijo.textContent)) tieneTexto = true;
+    }
+    return tieneTexto && el.children.length > 0;
+}
+
+// Recorre el subárbol y llama visitar(tipo, nodo, texto) para cada pieza traducible.
+function i18nRecorrer(raiz, visitar) {
+    if (raiz.nodeType === Node.TEXT_NODE) {
+        if (i18nEsTraducible(raiz.nodeValue) && !(raiz.parentElement && raiz.parentElement.closest(I18N_EXCLUIR))) visitar('texto', raiz, raiz.nodeValue);
+        return;
+    }
+    if (raiz.nodeType !== Node.ELEMENT_NODE || raiz.matches(I18N_EXCLUIR)) return;
+    I18N_ATRIBUTOS.forEach((a) => { if (raiz.hasAttribute(a) && i18nEsTraducible(raiz.getAttribute(a))) visitar('atributo:' + a, raiz, raiz.getAttribute(a)); });
+    if (i18nEsUnidad(raiz)) { visitar('unidad', raiz, raiz.textContent); return; }
+    raiz.childNodes.forEach((h) => i18nRecorrer(h, visitar));
+}
+
+function i18nAplicarEn(raiz) {
+    i18nRecorrer(raiz, (tipo, nodo, texto) => {
+        const original = tipo === 'texto' ? (i18nOriginalTexto.get(nodo) ?? texto)
+            : tipo === 'unidad' ? (i18nOriginalHtml.has(nodo) ? null : texto) : texto;
+        if (tipo === 'texto') {
+            const t = i18nTraducir(original);
+            if (!t) return;
+            if (!i18nOriginalTexto.has(nodo)) i18nOriginalTexto.set(nodo, nodo.nodeValue);
+            // conserva espacios iniciales/finales del nodo original
+            const pre = nodo.nodeValue.match(/^\s*/)[0], post = nodo.nodeValue.match(/\s*$/)[0];
+            nodo.nodeValue = pre + t + post;
+        } else if (tipo === 'unidad') {
+            if (original === null) return;     // ya traducida
+            const t = i18nTraducir(original);
+            if (!t) return;
+            i18nOriginalHtml.set(nodo, nodo.innerHTML);
+            nodo.textContent = t;
+        } else {
+            const attr = tipo.split(':')[1];
+            const previos = i18nOriginalAttr.get(nodo) || {};
+            const base = previos[attr] ?? texto;
+            const t = i18nTraducir(base);
+            if (!t) return;
+            previos[attr] = base;
+            i18nOriginalAttr.set(nodo, previos);
+            nodo.setAttribute(attr, t);
+        }
+    });
+}
+
+// Regresa todo lo traducido a su texto original en español.
+function i18nRestaurar(raiz = document.body) {
+    const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    const pendientes = [];
+    for (let n = walker.currentNode; n; n = walker.nextNode()) pendientes.push(n);
+    pendientes.forEach((n) => {
+        if (n.nodeType === Node.TEXT_NODE && i18nOriginalTexto.has(n)) { n.nodeValue = i18nOriginalTexto.get(n); i18nOriginalTexto.delete(n); }
+        if (n.nodeType === Node.ELEMENT_NODE) {
+            if (i18nOriginalHtml.has(n)) { n.innerHTML = i18nOriginalHtml.get(n); i18nOriginalHtml.delete(n); }
+            const attrs = i18nOriginalAttr.get(n);
+            if (attrs) { Object.entries(attrs).forEach(([a, v]) => n.setAttribute(a, v)); i18nOriginalAttr.delete(n); }
+        }
+    });
+}
+
+const i18nObservador = new MutationObserver((mutaciones) => {
+    if (i18nIdioma !== 'na' || i18nAplicando) return;
+    i18nAplicando = true;
+    try {
+        mutaciones.forEach((m) => m.addedNodes.forEach((n) => i18nAplicarEn(n)));
+    } finally {
+        i18nAplicando = false;
+    }
+});
+
+function i18nActualizarSelector() {
+    const btn = document.getElementById('btn-idioma');
+    if (!btn) return;
+    const etiqueta = btn.querySelector('[data-etiqueta-idioma]') || btn;
+    etiqueta.textContent = i18nIdioma === 'na' ? 'Español' : 'Náhuatl';
+    etiqueta.setAttribute('lang', i18nIdioma === 'na' ? 'es' : 'nah');
+    btn.setAttribute('aria-label', i18nIdioma === 'na' ? 'Ver en español' : 'Ver en náhuatl');
+    btn.closest('[data-selector-idioma]')?.classList.toggle('hidden', !(MOSTRAR_SELECTOR_NAHUATL || i18nIdioma === 'na'));
+}
+
+function tpbvCambiarIdioma(idioma) {
+    i18nIdioma = idioma === 'na' ? 'na' : 'es';
+    try { localStorage.setItem(I18N_CLAVE_ALMACEN, i18nIdioma); } catch (e) { /* sin almacenamiento: solo esta visita */ }
+    document.documentElement.lang = i18nIdioma === 'na' ? 'nah' : 'es';
+    if (i18nTituloOriginal === null) i18nTituloOriginal = document.title;
+    document.title = (i18nIdioma === 'na' && i18nTraducir(i18nTituloOriginal)) || i18nTituloOriginal;
+    i18nAplicando = true;
+    try {
+        if (i18nIdioma === 'na') i18nAplicarEn(document.body);
+        else i18nRestaurar();
+    } finally {
+        i18nAplicando = false;
+    }
+    i18nActualizarSelector();
+}
+
+// Claves traducibles del DOM actual (mismas reglas que el motor), para la
+// plantilla del traductor. Devuelve [{clave, tipo}] sin duplicados.
+function tpbvExtraerTextos(raiz = document.body) {
+    const vistas = new Map();
+    i18nRecorrer(raiz, (tipo, nodo, texto) => {
+        const original = tipo === 'texto' ? (i18nOriginalTexto.get(nodo) ?? texto)
+            : tipo === 'unidad' && i18nOriginalHtml.has(nodo) ? (() => { const d = document.createElement('div'); d.innerHTML = i18nOriginalHtml.get(nodo); return d.textContent; })()
+            : tipo.startsWith('atributo:') ? ((i18nOriginalAttr.get(nodo) || {})[tipo.split(':')[1]] ?? texto) : texto;
+        const { clave } = i18nClave(original);
+        if (!vistas.has(clave)) vistas.set(clave, tipo.startsWith('atributo:') ? tipo.replace('atributo:', 'atributo ') : 'texto');
+    });
+    return [...vistas.entries()].map(([clave, tipo]) => ({ clave, tipo }));
+}
+
+(function iniciarI18n() {
+    i18nObservador.observe(document.body, { childList: true, subtree: true });
+    document.getElementById('btn-idioma')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        tpbvCambiarIdioma(i18nIdioma === 'na' ? 'es' : 'na');
+    });
+    let inicial = 'es';
+    const param = new URLSearchParams(location.search).get('lang');
+    if (param) inicial = param === 'na' ? 'na' : 'es';
+    else { try { inicial = localStorage.getItem(I18N_CLAVE_ALMACEN) || 'es'; } catch (e) { /* sin almacenamiento */ } }
+    if (inicial === 'na') tpbvCambiarIdioma('na');
+    else i18nActualizarSelector();
+})();
 </script>
 </body>
 </html>
