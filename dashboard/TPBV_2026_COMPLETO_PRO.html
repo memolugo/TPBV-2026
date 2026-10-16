@@ -257,6 +257,20 @@
     #global-filters select,#global-filters input,#global-filters #btn-custom-poligonos,
     #banco-proyectos-view select,#banco-proyectos-view input[type=text],#aulas-view select,
     #propuesta-view input[type=text]{border-radius:999px!important;border:1px solid var(--dm-border-high)!important;min-height:46px;padding-left:1rem!important;background-color:#fff}
+    /* Carrusel de fotos de Inicio (inicio_encuentro.js) */
+    .carrusel{position:relative;border-radius:24px;overflow:hidden;background:#2E3B2B}
+    .carrusel-pista{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;aspect-ratio:3/2}
+    .carrusel-pista::-webkit-scrollbar{display:none}
+    .carrusel-pista:focus-visible{outline:3px solid #BC9B73;outline-offset:-3px}
+    .carrusel-slide{flex:0 0 100%;scroll-snap-align:start;position:relative;margin:0}
+    .carrusel-slide img{width:100%;height:100%;object-fit:cover;display:block}
+    .carrusel-slide figcaption{position:absolute;left:0;right:0;bottom:0;padding:56px 20px 40px;color:#fff;font-size:15px;line-height:20px;font-weight:400;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+    .carrusel-flecha{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:999px;background:rgba(255,255,255,.92);color:#2E3B2B;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+    .carrusel-flecha:hover{background:#fff}
+    .carrusel-flecha.izq{left:12px}.carrusel-flecha.der{right:12px}
+    .carrusel-puntos{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:center;gap:8px}
+    .carrusel-punto{width:9px;height:9px;border-radius:999px;background:rgba(255,255,255,.55);transition:width .2s,background .2s}
+    .carrusel-punto[aria-current=true]{width:24px;background:#fff}
     /* Buscador ciudadano de Inicio (inicio_buscador.js): misma pildora, con lupa a la izquierda */
     #buscador-comunidad-input{border-radius:999px!important;border:1px solid var(--dm-border-high)!important;min-height:52px;background-color:#fff;padding-left:3rem!important}
     #buscador-comunidad-input:focus{outline:none;border-color:var(--dm-verde-tierra)!important;box-shadow:0 0 0 3px rgba(113,120,91,.25)!important}
@@ -626,6 +640,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Conectividad pública · Agencia de Transformación Digital": "Matlatl tlapojtok · Agencia de Transformación Digital",
  "Conectividad · Agencia de Transformación Digital": "Mosaloua · Agencia de Transformación Digital",
  "Conexión Wi-Fi sin costo para la ciudadanía en espacios públicos y oficinas de gobierno.": "Matlatl Wi-Fi amo iga tomin iga tlatlaga kanin nochi monechikouaj uan ipan teguichiualoyan iga Kaltlayekana.",
+ "Consejeras y consejeros comunitarios de Territorios de Paz y Buen Vivir.": "Consejeras uan consejeros tlen altepetsitsin ipan Territorios de Paz y Buen Vivir.",
  "Consulta las aulas": "Xiktlachili tlamachtiloyan",
  "Contorno de los {n} municipios del estado, con clave geoestadística (CVEGEO) y nombre.": "Itlalxelol {n} altepemej, iga iclave geoestadística (CVEGEO) uan itoga.",
  "Contorno de los {n} polígonos vigentes de Territorios de Paz y Buen Vivir, con número de localidades y población.": "Itlalxelol {n} polígono tlen axan ipan Territorios de Paz y Buen Vivir, iga keski altepetsitsin uan tlatlaga.",
@@ -699,6 +714,10 @@ const TPBV_TRADUCCIONES_NA = {
  "Filtra por polígono o localidad": "Xikpepena polígono o altepetsin",
  "Filtrar por Polígono": "Xikpepena polígono",
  "Filtro Personalizado": "Tlapepenalli tlen ta tiknegui",
+ "Foto anterior": "Achtopa ixkopinkayotl",
+ "Foto siguiente": "Ixkopinkayotl tlen uala",
+ "Fotos del Segundo Encuentro Estatal": "Ixkopinkayotlmej tlen ika ome nechikolistle",
+ "Fotos: Gobierno del Estado de Morelos": "Ixkopinkayotlmej: Kaltlayekana ipan Morelos",
  "Fuente: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (dependencias con red La tierra que nos une). Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.": "Kanin eua: ATDEM, \"Agentes_dependencias La Tierra Que Nos Une\" (teguichiualoyan iga matlatl Nin tlale tech sepaneloa). Kanin mosaloua ken kijkuiloj ATDEM; siguin teguichiualoyan amo kipiaj nin tlapoualli.",
  "Fuente: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Ubicación según el enlace de Google Maps capturado por escuela.": "Kanin eua: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Kanin katej iga ojtle Google Maps tlen motlalij iga nochi kaltlamachtiloyan.",
  "Fuente: ATDEM, Agentes_dependencias La Tierra Que Nos Une": "Kanin eua: ATDEM, Agentes_dependencias La Tierra Que Nos Une",
@@ -738,8 +757,10 @@ const TPBV_TRADUCCIONES_NA = {
  "Ir a generar un reporte": "Xikchiua se tlapoualamatl",
  "KML · una sola capa": "KML · san se tlapachtli",
  "La ATDEM instala aulas de cómputo en {n} escuelas de los polígonos.": "ATDEM kitlalia tepostlapoualli ipan {n} kaltlamachtiloyan tlen polígono.",
+ "Las comunidades en el centro de las decisiones.": "Altepetsitsin ipan iyolo nochi tlen mochiua.",
  "Las comunidades se identifican mediante un diagnóstico realizado por la Jefatura de la Oficina de la Gubernatura, que define los polígonos de atención.": "Altepetsitsin moixmatij iga se tlatemolistle tlen kichiua Jefatura de la Oficina de la Gubernatura, uan yejua kitlalia polígono kanin motekipanos.",
  "Las localidades de los {n} polígonos vigentes con sus indicadores de población, vivienda, salud, educación, economía y marginación.": "Altepetsitsin tlen {n} polígono tlen axan iga itlapoual tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan iknoyotl.",
+ "Leer la nota completa": "Xikamapoua nochi tlanonotsalli",
  "Limpiar": "Xikpojpoa",
  "Localidad": "Altepetsin",
  "Localidades": "Altepetsitsin",
@@ -757,6 +778,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Mapa de las {n} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.": "Tlalamatl iga {n} kaltlamachtiloyan kanin ATDEM kitlalij tepostlapoualli ipan polígono TPBV: tepostlapoualmej, temachtilistle uan kanin katej.",
  "Marginación: {d}": "Iknoyotl: {d}",
  "Mayor concentración ({n} sitios)": "Kanin ogachi miak ({n} sitios)",
+ "Mesa principal del encuentro, con más de mil representantes comunitarios.": "Achtopa tlapechtle ipan nechikolistle, iga ogachi miak ke se mil tlatlaga tlen kinixpantiaj altepetsitsin.",
  "Mobiliario": "Ikpalmej uan tlapechmej",
  "Monolingüe (no habla español)": "San se tlajtolli (amo kitlajtouaj kaxtilan tlajtolli)",
  "Mujeres": "Soamej",
@@ -765,6 +787,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Municipios": "Altepemej",
  "Municipios con infraestructura": "Altepemej iga tepostlaketsalmej",
  "Municipios con sitios": "Altepemej iga sitios",
+ "Más de mil representantes de las comunidades se reunieron con la gobernadora Margarita González Saravia para fortalecer la organización comunitaria, que coloca a las comunidades en el centro de las decisiones.": "Ogachi miak ke se mil tlatlaga tlen kinixpantiaj altepetsitsin mosentlalijke iga Soatlayekanki Margarita González Saravia iga kichikauaskej kenin mosentlaliaj altepetsitsin, uan iga ma altepetsitsin kitlalikaj tlen mochiuas.",
  "Navegación principal": "Achtopa ojmej",
  "Niñas/os {n}-{n} años sin asistir a la escuela": "Pipiltontij {n}-{n} xiuitl tlen amo yaj kaltlamachtiloyan",
  "No encontramos «{d}» entre las {n} comunidades del programa. Revisa cómo está escrito o busca por municipio.": "Amo otikajsike «{d}» ipan {n} altepetsitsin tlen nin tlapaleuilistle. Xiktlachili kenin otiktlajkuilo o xiktemo iga altepetl.",
@@ -776,6 +799,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Otros Servicios de Salud": "Siguin tlapaleuilistle iga pajtilistle",
  "Otros municipios": "Siguin altepemej",
  "Para reducir la brecha digital desde edades tempranas, la Agencia de Transformación Digital del Estado de Morelos (ATDEM), en coordinación con la Secretaría de Educación y el Instituto de Educación Básica del Estado de Morelos (IEBEM), equipó aulas de cómputo en {n} escuelas de {n} municipios ubicadas en los polígonos de Territorios de Paz y Buen Vivir.": "Iga ma moyekchiua tlen amo kipiaj tepostlapoualli kuak tsitsikitsin, Agencia de Transformación Digital del Estado de Morelos (ATDEM), sepan iga Secretaría de Educación uan Instituto de Educación Básica del Estado de Morelos (IEBEM), kitlalij tepostlapoualli ipan {n} kaltlamachtiloyan ipan {n} altepemej tlen katej ipan polígono Territorios de Paz y Buen Vivir.",
+ "Participantes del encuentro.": "Tlatlaga tlen ouajlaj ipan nechikolistle.",
  "Pasa el cursor sobre un municipio para ver el desglose por sector.": "Xikpano tepostlapacholi ipan se altepetl iga tikitas tlen kipia iga teguitl.",
  "Personas dependientes ({n}-{n} y {n}+) por cada {n} en edad de trabajar ({n}-{n}: {n})": "Akin moneki ma kinpaleuikaj ({n}-{n} uan {n}+) iga nochi {n} tlen ueli teguitij ({n}-{n}: {n})",
  "Piso de Tierra": "Tlalchi san tlale",
@@ -793,6 +817,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Por seguridad de la infraestructura, la información se presenta agregada por municipio y sector. No se publica la ubicación exacta ni el nombre de los sitios.": "Iga tlajpialistle, tlamachilistle monextia sepan iga altepetl uan teguitl. Amo monextia kanin melauak katej nin intogayo sitios.",
  "Prensa": "Tlatolnonotza",
  "Presentación del programa": "Teixpantilistle iga nin tlapaleuilistle",
+ "Promotoras y promotores que acompañan a las comunidades.": "Tlapaleuianij tlen kinpaleuiaj altepetsitsin.",
  "Promotores capacitados visitan a la población para escuchar y conocer a detalle sus necesidades básicas.": "Tlapaleuianij tlen momachtijkej kinpaxalouaj tlatlaga iga kinkaguiskej uan kualtsin kiixmatiskej tlen kinmonekij.",
  "Promotores comunitarios": "Tlapaleuianij ipan altepetsitsin",
  "Puntos de acceso": "Kanin mosaloua",
@@ -806,6 +831,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Reporte Institucional": "Tlapoualamatl iga Kaltlayekana",
  "Reportes": "Tlapoualamatl",
  "Reportes Institucionales": "Tlapoualamatl iga Kaltlayekana",
+ "Representantes de las comunidades durante el encuentro.": "Tlatlaga tlen kinixpantiaj altepetsitsin ipan nechikolistle.",
  "Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.": "Xiktlachili tlalamatl iga Tlamachtiloyan iga tepostlapoualli tlen motlalijkej ipan kaltlamachtiloyan tlen polígono.",
  "Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.": "Xiktlachili tlapoualli iga tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan keski xiuitl kipiaj, uan tlalamatl kanin katej.",
  "Salud": "Pajtilistle",
@@ -816,6 +842,8 @@ const TPBV_TRADUCCIONES_NA = {
  "Sectores atendidos": "Teguimej tlen kinpaleuiaj",
  "Sede con red (el tamaño indica cuántas dependencias)": "Kalle iga matlatl (kenin ueyi kinextia keski teguichiualoyan)",
  "Sedes conectadas": "Kalmej tlen mosalojtokej",
+ "Segundo Encuentro Estatal de Consejos Comunitarios": "Ika ome nechikolistle ipan Morelos tlen Consejos Comunitarios",
+ "Segundo Encuentro Estatal de Consejos Comunitarios en el Centro de Convenciones Morelos, Xochitepec.": "Ika ome nechikolistle ipan Morelos tlen Consejos Comunitarios ipan Centro de Convenciones Morelos, Xochitepec.",
  "Seguridad y Protección Ciudadana": "Tlajpialistle uan Tlapaleuilistle iga Tlatlaga",
  "Seguridad y Protección Ciudadana · {n}": "Tlajpialistle uan Tlapaleuilistle iga Tlatlaga · {n}",
  "Servicio de atención ciudadana": "Tikinkaquis nin sepanchante",
@@ -851,6 +879,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Una tarjeta WiFi por equipo e internet dedicado para el aula.": "Se tarjeta WiFi iga nochi tepostlapoualli uan internet san iga tlamachtiloyan.",
  "Usa el botón \"Reporte Institucional\" para exportar un documento formal en PDF de lo que estés viendo.": "Xiktekiuti \"Tlapoualamatl iga Kaltlayekana\" iga tikixtis se amatl PDF iga tlen tikitta.",
  "Ver campos": "Xikita tlen kipia",
+ "Ver foto {n} de {n}": "Xikita ixkopinkayotl {n} ipan {n}",
  "Ver sus datos": "Xikita itlapoual",
  "Ver {d} en el mapa": "Xikita {d} ipan tlalamatl",
  "Vivienda": "Kalle",
@@ -860,6 +889,9 @@ const TPBV_TRADUCCIONES_NA = {
  "Y {n} comunidades más. Escribe más letras para afinar la búsqueda.": "Uan ogachi {n} altepetsitsin. Xiktlajkuilo ogachi tlajkuilolli iga tiktemos kuale.",
  "Zoom in": "Xikueyichiua",
  "Zoom out": "Xiktepitonchiua",
+ "comunidades (eran {n} al inicio)": "altepetsitsin (achtopa katka {n})",
+ "millones de pesos de inversión interinstitucional": "millones tomin tlen kitlalijke sepan teguichiualoyan",
+ "representantes comunitarios": "tlatlaga tlen kinixpantiaj altepetsitsin",
  "{d} no tiene comunidades en la delimitación vigente del programa.": "{d} amo kipia altepetsitsin ipan nin tlapaleuilistle axan.",
  "{d} tiene {n} comunidad en el programa.": "{d} kipia {n} altepetsin ipan nin tlapaleuilistle.",
  "{d} tiene {n} comunidades en el programa.": "{d} kipia {n} altepetsitsin ipan nin tlapaleuilistle.",
@@ -867,6 +899,7 @@ const TPBV_TRADUCCIONES_NA = {
  "{n} computadoras con conexión a internet y software educativo.": "{n} tepostlapoualli iga internet uan programas iga temachtilistle.",
  "{n} conjuntos de datos": "{n} tlapoualamatl",
  "{n} de abril de {n}": "{n} abril, {n} xiuitl",
+ "{n} de octubre de {n} · Xochitepec": "{n} octubre, {n} xiuitl · Xochitepec",
  "{n} de {n}": "{n} ipan {n}",
  "{n} de {n} localidades no tienen coincidencia en el Censo INEGI {n} (suelen ser colonias/barrios dentro de una cabecera urbana). Su población sí está incluida en el total (vía la Lista TPBV {n}), pero vivienda, salud, educación y economía no — esos indicadores solo suman las localidades con coincidencia censal. Revísalas en la lista de localidades.": "{n} ipan {n} altepetsitsin amo monextiaj ipan Censo INEGI {n} (miakpa colonias o barrios ipan se ueyi altepetl). Intlatlaga motlapouaj ipan nochi (iga Lista TPBV {n}), san kalmej, pajtilistle, temachtilistle uan tomin amo — nin tlapoualli san kinsentlalia altepetsitsin tlen monextiaj ipan censo. Xikintlachili ipan itlapoual altepetsitsin.",
  "{n} eq. · {n} esc.": "{n} tep. · {n} kal.",
@@ -1087,8 +1120,7 @@ function inicioHeroHtml() {
 function inicioCitaHtml() {
     return `
     <figure class="rounded-3xl p-8 md:p-12 bg-secondary-container/50 border border-outline-variant flex flex-col gap-5">
-        <span class="material-symbols-outlined text-[48px]" style="color:#BC9B73" aria-hidden="true">format_quote</span>
-        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300">
+        <blockquote class="font-headline-lg text-on-surface max-w-5xl pl-6" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300;border-left:4px solid #BC9B73">
             Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo,
             quiero hacer una transformación en el estado, y los necesito a todos ustedes.
         </blockquote>
@@ -1279,6 +1311,127 @@ function iniciarBuscadorComunidad() {
         const boton = e.target.closest('[data-ver-comunidad]');
         if (boton) verComunidad(parseInt(boton.dataset.verComunidad, 10));
     });
+}
+</script>
+<script>
+/* EMBEBIDO: inicio_encuentro.js */
+// ---------------------------------------------------------------------------
+// Sección de Inicio "Segundo Encuentro Estatal de Consejos Comunitarios" con
+// carrusel de fotos. Textos y cifras tomados de la nota oficial (Prensa,
+// morelos.gob.mx, 10/10/2026); fotos de esa misma nota (Gobierno del Estado
+// de Morelos), copiadas a dashboard/assets/encuentro/.
+//
+// Las fotos se sirven desde GitHub Pages con URL absoluta: el proxy de
+// tpbv.morelos.gob.mx no sirve archivos nuevos de assets/ (ver CLAUDE.md).
+// Solo en local (servidor de pruebas o archivo abierto) se usa la ruta
+// relativa, para ver fotos nuevas antes de publicarlas.
+//
+// Carrusel sin librerías: pista con scroll-snap, flechas, puntos y avance
+// automático (se pausa con el cursor encima, con el foco dentro, con la
+// pestaña oculta y si la persona prefiere menos movimiento).
+// Se carga ANTES de app.js; renderInicioView() inserta el HTML y llama a
+// iniciarCarruselEncuentro().
+// ---------------------------------------------------------------------------
+
+const ENCUENTRO_NOTA_URL = 'https://www.morelos.gob.mx/ultimas-noticias/consolida-margarita-gonzalez-saravia-territorios-de-paz-y-buen-vivir-en-132-comunidades-de-morelos';
+const ENCUENTRO_FOTOS_BASE = (location.protocol === 'file:' || ['localhost', '127.0.0.1'].includes(location.hostname))
+    ? 'assets/encuentro/'
+    : 'https://memolugo.github.io/TPBV-2026/dashboard/assets/encuentro/';
+const ENCUENTRO_FOTOS = [
+    ['encuentro-01.jpg', 'Segundo Encuentro Estatal de Consejos Comunitarios en el Centro de Convenciones Morelos, Xochitepec.'],
+    ['encuentro-02.jpg', 'Mesa principal del encuentro, con más de mil representantes comunitarios.'],
+    ['encuentro-03.jpg', 'Representantes de las comunidades durante el encuentro.'],
+    ['encuentro-04.jpg', 'Consejeras y consejeros comunitarios de Territorios de Paz y Buen Vivir.'],
+    ['encuentro-05.jpg', 'Participantes del encuentro.'],
+    ['encuentro-06.jpg', 'Las comunidades en el centro de las decisiones.'],
+    ['encuentro-07.jpg', 'Promotoras y promotores que acompañan a las comunidades.'],
+];
+const ENCUENTRO_AVANCE_MS = 6000;
+
+function encuentroCifra(valor, texto) {
+    return `<div><p class="font-kpi-value text-kpi-value text-primary-container leading-none">${valor}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-1">${texto}</p></div>`;
+}
+
+function encuentroCarruselHtml() {
+    const total = ENCUENTRO_FOTOS.length;
+    const slides = ENCUENTRO_FOTOS.map(([archivo, pie], i) => `
+        <figure class="carrusel-slide" role="group" aria-roledescription="diapositiva" aria-label="${i + 1} de ${total}">
+            <img src="${ENCUENTRO_FOTOS_BASE}${archivo}" alt="${esc(pie)}" ${i ? 'loading="lazy"' : ''} width="1280" height="854">
+            <figcaption>${esc(pie)}</figcaption>
+        </figure>`).join('');
+    const puntos = ENCUENTRO_FOTOS.map((_, i) =>
+        `<button type="button" class="carrusel-punto" data-ir="${i}" aria-label="Ver foto ${i + 1} de ${total}"></button>`).join('');
+    return `
+    <div class="carrusel" id="carrusel-encuentro" role="region" aria-roledescription="carrusel" aria-label="Fotos del Segundo Encuentro Estatal">
+        <div class="carrusel-pista" tabindex="0">${slides}</div>
+        <button type="button" class="carrusel-flecha izq" data-mover="-1" aria-label="Foto anterior"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button>
+        <button type="button" class="carrusel-flecha der" data-mover="1" aria-label="Foto siguiente"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
+        <div class="carrusel-puntos">${puntos}</div>
+    </div>`;
+}
+
+function inicioEncuentroHtml() {
+    return `
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center rounded-3xl p-6 md:p-10 border border-outline-variant bg-surface-container-lowest" aria-labelledby="encuentro-titulo">
+        <div class="lg:col-span-2 flex flex-col gap-4">
+            <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">10 de octubre de 2026 · Xochitepec</span>
+            <h2 id="encuentro-titulo" class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">Segundo Encuentro Estatal de Consejos Comunitarios</h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">
+                Más de mil representantes de las comunidades se reunieron con la gobernadora Margarita González Saravia
+                para fortalecer la organización comunitaria, que coloca a las comunidades en el centro de las decisiones.
+            </p>
+            <div class="grid grid-cols-3 gap-4 py-2">
+                ${encuentroCifra('132', 'comunidades (eran 103 al inicio)')}
+                ${encuentroCifra('148', 'millones de pesos de inversión interinstitucional')}
+                ${encuentroCifra('+1,000', 'representantes comunitarios')}
+            </div>
+            <a href="${ENCUENTRO_NOTA_URL}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-body-md text-body-md text-primary-container underline underline-offset-2 w-fit">
+                Leer la nota completa <span class="material-symbols-outlined text-[18px]" aria-hidden="true">north_east</span>
+            </a>
+        </div>
+        <div class="lg:col-span-3 flex flex-col gap-2">
+            ${encuentroCarruselHtml()}
+            <p class="font-label-bold text-label-bold text-on-surface-variant">Fotos: Gobierno del Estado de Morelos</p>
+        </div>
+    </section>`;
+}
+
+function iniciarCarruselEncuentro() {
+    const raiz = document.getElementById('carrusel-encuentro');
+    if (!raiz) return;
+    const pista = raiz.querySelector('.carrusel-pista');
+    const puntos = [...raiz.querySelectorAll('.carrusel-punto')];
+    const total = ENCUENTRO_FOTOS.length;
+    const actual = () => Math.round(pista.scrollLeft / pista.clientWidth);
+    let ultimoManual = 0;   // tras usar flechas/puntos/teclado, el avance automático espera un ciclo completo
+    const ir = (i) => pista.scrollTo({ left: ((i + total) % total) * pista.clientWidth, behavior: 'smooth' });
+    const marcar = () => puntos.forEach((p, i) => p.setAttribute('aria-current', i === actual() ? 'true' : 'false'));
+
+    raiz.addEventListener('click', (e) => {
+        const mover = e.target.closest('[data-mover]');
+        const punto = e.target.closest('[data-ir]');
+        if (mover || punto) ultimoManual = Date.now();
+        if (mover) ir(actual() + parseInt(mover.dataset.mover, 10));
+        if (punto) ir(parseInt(punto.dataset.ir, 10));
+    });
+    pista.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') ultimoManual = Date.now();
+        if (e.key === 'ArrowRight') { e.preventDefault(); ir(actual() + 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); ir(actual() - 1); }
+    });
+    pista.addEventListener('scroll', () => requestAnimationFrame(marcar), { passive: true });
+    marcar();
+
+    // Avance automático, solo si nadie está interactuando y se permite movimiento.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let pausado = false;
+    ['mouseenter', 'focusin'].forEach((ev) => raiz.addEventListener(ev, () => { pausado = true; }));
+    ['mouseleave', 'focusout'].forEach((ev) => raiz.addEventListener(ev, () => { pausado = false; }));
+    const temporizador = setInterval(() => {
+        if (!document.body.contains(raiz)) { clearInterval(temporizador); return; }   // Inicio se volvió a pintar
+        if (!pausado && !document.hidden && raiz.offsetParent && Date.now() - ultimoManual >= ENCUENTRO_AVANCE_MS) ir(actual() + 1);
+    }, ENCUENTRO_AVANCE_MS);
 }
 </script>
 <script>
@@ -2961,6 +3114,8 @@ function renderInicioView() {
 
     ${inicioCitaHtml()}
 
+    ${inicioEncuentroHtml()}
+
     ${inicioComoFuncionaHtml()}
 
     ${inicioCifrasHtml(nLocActual, nPolActual, pobActual)}
@@ -3015,6 +3170,7 @@ function renderInicioView() {
         `, 'mt-3')}
     </div>`;
     iniciarBuscadorComunidad();
+    iniciarCarruselEncuentro();
     animateEntrances(view);
 }
 

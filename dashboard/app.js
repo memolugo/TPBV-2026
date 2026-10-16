@@ -1676,6 +1676,8 @@ function renderInicioView() {
 
     ${inicioCitaHtml()}
 
+    ${inicioEncuentroHtml()}
+
     ${inicioComoFuncionaHtml()}
 
     ${inicioCifrasHtml(nLocActual, nPolActual, pobActual)}
@@ -1730,6 +1732,7 @@ function renderInicioView() {
         `, 'mt-3')}
     </div>`;
     iniciarBuscadorComunidad();
+    iniciarCarruselEncuentro();
     animateEntrances(view);
 }
 

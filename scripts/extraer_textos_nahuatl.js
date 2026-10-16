@@ -70,7 +70,7 @@ const CLAVES_DINAMICAS = [
     // (prosa): no se convierten en {d}.
     const NO_ES_DATO = new Set(['Morelos', 'Agencia de Transformación Digital', 'ITER {n}', 'Cuernavaca',
         'Emiliano Zapata', 'Guanajuato', 'Secretaría de Educación', 'Gobierno del Estado',
-        'Jefatura de la Oficina de la Gubernatura', 'Servicios de Salud', 'Jojutla']);
+        'Jefatura de la Oficina de la Gubernatura', 'Servicios de Salud', 'Jojutla', 'Centro', 'Xochitepec']);
     const datosClave = [...new Set(datos.map((d) => d.replace(/\d[\d,.]*\d|\d/g, '{n}')))]
         .filter((d) => d.replace(/\{n\}/g, '').length > 3 && !NO_ES_DATO.has(d)).sort((a, b) => b.length - a.length);
     const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

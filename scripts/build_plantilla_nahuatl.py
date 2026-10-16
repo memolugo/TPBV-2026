@@ -64,6 +64,7 @@ NO_TRADUCIR = {
     "Emiliano Zapata", "Jojutla", "— Emiliano Zapata", "— Jojutla", "Morelos", "Cuernavaca",
     "Margarita González Saravia", "Daniel Sotelo Salazar", "ATDEM", "IEBEM", "CSV", "KML",
     "Facebook", "Instagram", "YouTube", "Digital.morelos", "atencionciudadana@morelos.gob.mx",
+    "Xochitepec", "— Xochitepec", "Centro",
 }
 RE_LISTA_CAMPOS = re.compile(r"^[\w{}+-]+(, [\w{}+-]+)+$")   # "region, municipio, poligono…"
 
@@ -109,7 +110,8 @@ def cubierto_por_patron(clave: str, patrones: list) -> bool:
 
 def patron_de(clave: str):
     partes = re.split(r"(\{[nd]\})", clave)
-    fuente = "".join(".+?" if p in ("{n}", "{d}") else re.escape(p) for p in partes)
+    # En las claves los números ya son "{n}": solo {d} es comodín.
+    fuente = "".join(".+?" if p == "{d}" else re.escape(p) for p in partes)
     return re.compile(f"^{fuente}$")
 
 

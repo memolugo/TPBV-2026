@@ -100,6 +100,11 @@
   "seccion": "Encabezado y menú"
  },
  {
+  "clave": "Xochitepec",
+  "tipo": "texto",
+  "seccion": "Encabezado y menú"
+ },
+ {
   "clave": "Buscar Localidad",
   "tipo": "texto",
   "seccion": "Encabezado y menú"
@@ -316,6 +321,106 @@
  },
  {
   "clave": "Boletín {n}",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} de octubre de {n} · Xochitepec",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Segundo Encuentro Estatal de Consejos Comunitarios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Más de mil representantes de las comunidades se reunieron con la gobernadora Margarita González Saravia para fortalecer la organización comunitaria, que coloca a las comunidades en el centro de las decisiones.",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "comunidades (eran {n} al inicio)",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "millones de pesos de inversión interinstitucional",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "representantes comunitarios",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Leer la nota completa",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Fotos del Segundo Encuentro Estatal",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "{n} de {n}",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Segundo Encuentro Estatal de Consejos Comunitarios en el Centro de Convenciones Morelos, Xochitepec.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Mesa principal del encuentro, con más de mil representantes comunitarios.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Representantes de las comunidades durante el encuentro.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Consejeras y consejeros comunitarios de Territorios de Paz y Buen Vivir.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Participantes del encuentro.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Las comunidades en el centro de las decisiones.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Promotoras y promotores que acompañan a las comunidades.",
+  "tipo": "atributo alt",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Foto anterior",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Foto siguiente",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Ver foto {n} de {n}",
+  "tipo": "atributo aria-label",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Fotos: Gobierno del Estado de Morelos",
   "tipo": "texto",
   "seccion": "Inicio"
  },
@@ -640,11 +745,6 @@
   "seccion": "Inicio"
  },
  {
-  "clave": "{n} de {n}",
-  "tipo": "texto",
-  "seccion": "Inicio"
- },
- {
   "clave": "Grados de Marginación",
   "tipo": "texto",
   "seccion": "Inicio"
@@ -661,6 +761,16 @@
  },
  {
   "clave": "— Jojutla",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "Centro",
+  "tipo": "texto",
+  "seccion": "Inicio"
+ },
+ {
+  "clave": "— Xochitepec",
   "tipo": "texto",
   "seccion": "Inicio"
  },

@@ -76,8 +76,7 @@ function inicioHeroHtml() {
 function inicioCitaHtml() {
     return `
     <figure class="rounded-3xl p-8 md:p-12 bg-secondary-container/50 border border-outline-variant flex flex-col gap-5">
-        <span class="material-symbols-outlined text-[48px]" style="color:#BC9B73" aria-hidden="true">format_quote</span>
-        <blockquote class="font-headline-lg text-on-surface max-w-5xl" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300">
+        <blockquote class="font-headline-lg text-on-surface max-w-5xl pl-6" style="font-size:clamp(24px,2.8vw,36px);line-height:1.22;font-weight:300;border-left:4px solid #BC9B73">
             Este es el programa social más importante para nosotros en estos seis años. Yo, como titular del Ejecutivo,
             quiero hacer una transformación en el estado, y los necesito a todos ustedes.
         </blockquote>
