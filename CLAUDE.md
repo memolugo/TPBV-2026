@@ -273,7 +273,7 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `e993620` | Inicio como landing (`inicio_contexto.js`); mapa de Análisis solo Morelos con todo el estado al inicio; Banco de Proyectos retirado (`HAY_BANCO_PROYECTOS`); `DEBE_IR_ANTES_DE`. |
 | 2026-10-16 | `fe42f06` | Footer de morelos.gob.mx; marginación agrupada en Inicio; etiqueta de KPI de Aulas. |
 | 2026-10-16 | `b95b9a0` | Sección Red La tierra que nos une; grados de marginación faltantes (CONAPO). |
-| 2026-10-16 | *(sin publicar)* | Sección Infraestructura de Telecomunicaciones (agregada por municipio); `Sitios REEM.kml` en `.gitignore`. |
-| 2026-10-16 | *(sin publicar)* | Infraestructura de traducción al náhuatl (`i18n.js`, botón «Náhuatl» en la barra superior) y plantilla para el traductor (299 textos); borrador de traducción con IA pendiente de revisión. |
+| 2026-10-16 | `b286188` | Sección Infraestructura de Telecomunicaciones (agregada por municipio); `Sitios REEM.kml` en `.gitignore`. |
+| 2026-10-16 | `b286188` | Infraestructura de traducción al náhuatl (`i18n.js`, botón «Náhuatl» en la barra superior) y plantilla para el traductor (299 textos); borrador de traducción con IA pendiente de revisión. |
 
 Mantener esta tabla al día al publicar cambios.
