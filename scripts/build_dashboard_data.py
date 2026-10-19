@@ -357,7 +357,13 @@ if faltantes:
 #    localidad (~17-25), asi que imMarginacion se deja vacio para no
 #    mezclarlas. Colonia Las Rosas (Temixco, 6 hab.) no aparece en el IML
 #    (CONAPO omite localidades muy pequenas) y se queda sin grado.
+#    2026-10-19: Tres Marias (Huitzilac) venia como "ZAP Urbana"; sus 3 AGEB
+#    en el indice urbano por AGEB (IMU) suman 4,124 hab. (igual que el
+#    tablero): 0092 Alto (325), 0105 Alto (3,700), 0124 Muy alto (99). Se
+#    asigna Alto (98% de su poblacion); la colonia Tres Marias del IMC
+#    tambien es Alto.
 # ---------------------------------------------------------------------------
+GRADOS_A_REEMPLAZAR = {None, "", "ZAP Urbana"}
 MARGINACION_COMPLEMENTO = {
     ("Tepalcingo", "Barrio Palo Revuelto"): ("Alto", "CONAPO IMC 2020 (colonia Palo Revuelto)"),
     ("Tetela del Volcán", "Barrio Santiago"): ("Alto", "CONAPO IMC 2020 (colonia Santiago)"),
@@ -368,11 +374,13 @@ MARGINACION_COMPLEMENTO = {
     ("Tlayacapan", "Barrio de Texcalpan"): ("Alto", "CONAPO IMC 2020 (colonia De Texcalpan)"),
     ("Zacatepec", "Tetelpa"): ("Bajo", "CONAPO IMC 2020 (colonia Tetelpa)"),
     ("Xochitepec", "Colonia Loma Bonita (Xochitepec)"): ("Muy bajo", "CONAPO IML 2020 (localidad 0085)"),
+    ("Huitzilac", "Tres Marías/ AGEB's 92, 105 Y 124 (Cristo Rey)"): (
+        "Alto", "CONAPO IMU 2020 (AGEB 0092 y 0105 Alto, 0124 Muy alto; 98% de la población en Alto)"),
 }
 n_gm = 0
 for r in resultados:
     key = (r["municipio"], r["localidad"])
-    if key in MARGINACION_COMPLEMENTO and not r["gmMarginacion"]:
+    if key in MARGINACION_COMPLEMENTO and r["gmMarginacion"] in GRADOS_A_REEMPLAZAR:
         r["gmMarginacion"], r["fuenteMarginacion"] = MARGINACION_COMPLEMENTO[key]
         r["imMarginacion"] = None
         n_gm += 1
