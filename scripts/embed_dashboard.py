@@ -49,12 +49,14 @@ NUEVOS_BLOQUES = {
     "telecom_view.js": "red_view.js",
     "traducciones_na.js": "telecom.js",
     "i18n.js": "telecom_view.js",
+    "accesibilidad.js": "telecom_view.js",
+    "analisis_migas.js": "inicio_encuentro.js",
 }
 
 # Bloques que deben cargarse ANTES que otro porque app.js los usa ya al
 # arrancar: mapa_morelos.js (crearMapaMorelos, mapa inicial de Analisis) e
 # inicio_contexto.js / inicio_buscador.js (renderInicioView, Inicio es la vista inicial).
-DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js", "inicio_buscador.js": "app.js", "inicio_encuentro.js": "app.js", "carrusel.js": "app.js"}
+DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js", "inicio_buscador.js": "app.js", "inicio_encuentro.js": "app.js", "carrusel.js": "app.js", "analisis_migas.js": "app.js"}
 
 # Bloques que NO deben ir en el HTML publicado. La Nueva Propuesta Territorial
 # aun no es informacion oficial (2026-10-16): sus datos se retiran del HTML

@@ -252,9 +252,10 @@ function daDescargarConjunto(id, formato) {
 function daTarjeta(c) {
     const filas = c.filas();
     const columnas = daColumnas(filas);
-    const btn = (formato, etiqueta, primario) => `<button type="button" data-descarga="${c.id}" data-formato="${formato}"
-        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-label-bold text-label-bold transition-colors ${primario
-        ? 'bg-primary-container text-on-primary-container' : 'border border-outline text-on-surface hover:bg-surface-container-high'}"
+    // Botones con contorno (tipo Secondary del Morelos DS): el botón vino
+    // relleno se reserva para la acción principal de la vista, que debe ser única.
+    const btn = (formato, etiqueta) => `<button type="button" data-descarga="${c.id}" data-formato="${formato}"
+        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-label-bold text-label-bold transition-colors border border-outline text-on-surface hover:bg-surface-container-high"
         aria-label="Descargar ${esc(c.titulo)} en ${etiqueta}">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>${etiqueta}</button>`;
     return `<article class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-3">
@@ -274,8 +275,8 @@ function daTarjeta(c) {
             <p class="mt-2 break-words">${columnas.map(esc).join(', ')}</p>
         </details>
         <div class="flex flex-wrap items-center gap-2 pt-1">
-            ${btn('csv', 'CSV', true)}
-            ${c.kml ? btn('kml', 'KML', false) : `<span class="font-body-md text-body-md text-on-surface-variant">${esc(c.sinKml || '')}</span>`}
+            ${btn('csv', 'CSV')}
+            ${c.kml ? btn('kml', 'KML') : `<span class="font-body-md text-body-md text-on-surface-variant">${esc(c.sinKml || '')}</span>`}
         </div>
     </article>`;
 }

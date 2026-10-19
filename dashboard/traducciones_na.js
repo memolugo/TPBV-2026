@@ -1,6 +1,7 @@
 // Diccionario espanol -> nahuatl del tablero. Generado por scripts/build_traducciones_na.py
 // desde traducciones/Traduccion_nahuatl_tablero.xlsx: no editar a mano.
 const TPBV_TRADUCCIONES_NA = {
+ "(se abre en una pestaña nueva)": "(motlapoua ipan okse amatl)",
  ", Gobernadora del Estado de Morelos, durante la presentación del programa.": ", Soatlayekanki ipan Morelos, kuak kiteixpantij nin tlapaleuilistle.",
  ", director de Agenda Digital de la ATDEM, durante una entrega en Jojutla.": ", tlayekanki ipan Agenda Digital ATDEM, kuak kitemakak ipan Jojutla.",
  "Abrir menú de navegación": "Xiktlapo menú",
@@ -30,6 +31,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Ceremonia de entrega en la colonia {d}.": "Temakalistle ipan colonia {d}.",
  "Cerrar menú de navegación": "Xiktsagua menú",
  "Close popup": "Xiktsagua",
+ "Comparación de {n} polígonos": "Tikinneneuilia {n} polígono",
  "Comparar polígonos…": "Xikinneneuili polígono…",
  "Computadoras": "Tepostlapoualmej",
  "Computadoras por aula": "Tepostlapoualli ipan nochi tlamachtiloyan",
@@ -268,6 +270,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Representantes de las comunidades durante el encuentro.": "Tlatlaga tlen kinixpantiaj altepetsitsin ipan nechikolistle.",
  "Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.": "Xiktlachili tlalamatl iga Tlamachtiloyan iga tepostlapoualli tlen motlalijkej ipan kaltlamachtiloyan tlen polígono.",
  "Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.": "Xiktlachili tlapoualli iga tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan keski xiuitl kipiaj, uan tlalamatl kanin katej.",
+ "Ruta de navegación": "Ojtle kanin tinemi",
  "Salud": "Pajtilistle",
  "Salud y Bienestar": "Pajtilistle uan kuale nemilistle",
  "Salud · {n}": "Pajtilistle · {n}",

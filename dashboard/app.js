@@ -547,7 +547,7 @@ function buildCustomPoligonosPanel() {
     panel.innerHTML = `
         <div class="flex items-center justify-between gap-3 mb-2 pb-2 border-b border-outline-variant">
             <span class="font-label-bold text-label-bold text-on-surface-variant">Elige los polígonos a comparar</span>
-            <button type="button" onclick="clearCustomPoligonos()" class="font-label-bold text-label-bold text-primary hover:underline shrink-0">Limpiar</button>
+            <button type="button" onclick="clearCustomPoligonos()" class="enlace font-label-bold text-label-bold text-primary shrink-0">Limpiar</button>
         </div>
         <div class="space-y-0.5">${items}</div>`;
 }
@@ -749,7 +749,7 @@ function ensurePropuestaLayers() {
                 fillOpacity: 0.92
             });
             const poligonoTxt = loc.nombrePoligono ? ` · Polígono ${esc(loc.poligono)} (${esc(loc.nombrePoligono)})` : '';
-            const nota = loc.coordManual ? '<br><span style="color:#8a5a00">Coordenada capturada manualmente</span>' : '';
+            const nota = loc.coordManual ? '<br><span style="color:#936901">Coordenada capturada manualmente</span>' : '';
             m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true, className: 'atd-tooltip' });
             m.on('mouseover', () => m.setStyle({ color: '#BC9B73', weight: 3, radius: 7 }));
             m.on('mouseout', () => m.setStyle({ color: '#fff', weight: 1.5, radius: 5.5 }));
@@ -1597,14 +1597,16 @@ function homeStepItem(n, title, desc) {
     </li>`;
 }
 
+// Card genérica del Morelos DS: toda la tarjeta es clicable (el ::after del
+// botón la cubre, ver .card-enlace en el shell) y se eleva al pasar el mouse.
 function homeSectionCard(icon, title, desc, ctaLabel, ctaView) {
     return card(`
         ${cardHeader(icon, title)}
         <p class="font-body-md text-body-md text-on-surface-variant mb-4">${desc}</p>
-        <button onclick="showView('${ctaView}')" class="font-label-bold text-label-bold text-primary hover:underline inline-flex items-center gap-1">
-            ${esc(ctaLabel)} <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        <button onclick="showView('${ctaView}')" class="card-enlace-cta font-label-bold text-label-bold text-primary inline-flex items-center gap-1">
+            <span class="enlace">${esc(ctaLabel)}</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
         </button>
-    `);
+    `, 'card-enlace');
 }
 
 function renderInicioView() {
@@ -1928,8 +1930,10 @@ function renderMap(rec, mapMode) {
 function render(idx, mapMode) {
     const rec = activeData()[idx];
 
+    const migas = migasAnalisisHtml({ tipo: 'localidad', poligono: rec.poligono, localidad: rec.localidad });
+
     if (rec.fuente === 'SIN DATOS') {
-        canvas.innerHTML = `<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">` +
+        canvas.innerHTML = migas + `<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">` +
             `<div class="flex flex-col gap-gutter-grid">` + renderInfoCard(rec) + renderLocalidadesCard(rec) + `</div>` +
             `<div id="map-card" class="map-sticky bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col min-h-[400px]">
                 ${mapCardHeader()}
@@ -1952,7 +1956,7 @@ function render(idx, mapMode) {
         return;
     }
 
-    const parts = [];
+    const parts = [migas];
 
     parts.push(renderKpiStrip(rec));
 
@@ -2314,7 +2318,9 @@ function renderAggregateInfoCard(agg) {
 // (renderCustomAggregate). Recibe el objeto agg ya armado (aggregatePoligono
 // / aggregateTodos / aggregateCustom) para no repetir el markup del canvas.
 function renderAggregateView(agg) {
-    const parts = [];
+    const ctxMigas = agg.customPoligonos ? { tipo: 'custom', n: agg.customPoligonos.length }
+        : agg.poligono === null ? { tipo: 'todos' } : { tipo: 'poligono', poligono: agg.poligono };
+    const parts = [migasAnalisisHtml(ctxMigas)];
     parts.push(renderKpiStrip(agg));
     parts.push(`<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">`);
     parts.push(`<div class="flex flex-col gap-gutter-grid">` + renderAggregateInfoCard(agg) + renderLocalidadesCard(agg) + `</div>`);

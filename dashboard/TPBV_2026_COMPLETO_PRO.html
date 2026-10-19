@@ -60,9 +60,10 @@
                     "inverse-surface": "#2E3B2B", "inverse-on-surface": "#ffffff",
                     "on-surface": "#2E3B2B", "on-surface-variant": "#5D5E5F",     // content-high / content-low
                     "outline": "#ACACA0", "outline-variant": "#E4E3D6",            // border-high / border-low
-                    // soporte
-                    "error": "#ba1a1a", "on-error": "#ffffff", "error-container": "#ffdad6", "on-error-container": "#93000a",
-                    "warning": "#8a5a00", "accent-blue": "#2a78d6", "accent-teal": "#0f766e"
+                    // soporte (Morelos Design System, sem/support): error, warning,
+                    // info (accent-blue) y success (accent-teal)
+                    "error": "#da3237", "on-error": "#ffffff", "error-container": "#ffeaea", "on-error-container": "#87090c",
+                    "warning": "#936901", "accent-blue": "#3266cb", "accent-teal": "#1c7d29"
                 },
                 borderRadius: { DEFAULT: "0.25rem", md: "0.5rem", lg: "1rem", xl: "1.5rem", "2xl": "1.5rem", "3xl": "2.25rem", full: "9999px" },
                 spacing: { "gutter-grid": "1.5rem", "margin-page": "3rem", "stack-sm": "0.5rem", "card-padding": "1.5rem", "stack-md": "1rem" },
@@ -213,6 +214,11 @@
     }
     body{background:#fff;color:var(--dm-content-high)}
     main{max-width:none!important}
+    /* Ancho maximo del contenido (Morelos DS: width-main 1440px). Las vistas
+       llevan 3rem de margen a cada lado, por eso suman 1440 + 6rem. */
+    .util-bar,header>.flex.justify-between,#site-footer .ft-wrap{max-width:1440px;margin-inline:auto;width:100%}
+    #hero-analisis,#global-filters{max-width:1440px;margin-inline:auto}
+    #inicio-view,#canvas,#propuesta-view,#banco-proyectos-view,#aulas-view,#datos-view,#red-view,#telecom-view{max-width:calc(1440px + 6rem);margin-inline:auto;width:100%}
     h1,h2,h3{color:var(--dm-content-high)}
     .font-headline-xl,.font-headline-lg,.font-headline-lg-mobile{font-family:'Twogether Sans',system-ui,sans-serif}
     .font-kpi-value{font-family:'Karol Sans',system-ui,sans-serif}
@@ -227,7 +233,7 @@
     header{background:#fff!important;border-bottom:1px solid var(--dm-border-low)!important;box-shadow:none!important}
     .brand-word{font-family:'Karol Sans',system-ui,sans-serif;line-height:1.05;white-space:nowrap}
     .brand-word .l1{color:var(--dm-verde-tierra);font-weight:700;font-size:19px}
-    .brand-word .l2{color:var(--dm-oro);font-weight:600;font-size:15px}
+    .brand-word .l2{color:#755937;font-weight:600;font-size:15px} /* arena-40: el oro #BC9B73 no llega a 4.5:1 sobre blanco */
     .nav-pill{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-radius:16px;color:var(--dm-content-high);font-weight:400;font-size:16px;white-space:nowrap;transition:background-color .2s}
     .nav-pill:hover{background:rgba(113,120,91,.10)}
     .nav-pill-active{background:var(--dm-verde-low)!important;font-weight:500}
@@ -250,6 +256,19 @@
        borde fino uniforme; el color de identidad queda solo en el icono. */
     .card-shadow.border-t-4{border-width:1px!important;border-color:var(--dm-border-low)!important}
     #canvas .card-shadow:hover,#canvas .map-sticky:hover{transform:none!important;box-shadow:0 6px 18px rgba(46,59,43,.08)!important}
+    /* Card generica clicable (Morelos DS): el ::after del enlace cubre toda la
+       tarjeta; elevacion 1 al pasar el mouse, menor al presionar. */
+    .card-enlace{position:relative;cursor:pointer;transition:box-shadow .2s ease}
+    .card-enlace .card-enlace-cta::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:1}
+    .card-enlace:hover{box-shadow:0 4px 14px rgba(46,59,43,.12)!important}
+    .card-enlace:active{box-shadow:0 1px 3px rgba(46,59,43,.14)!important}
+    .card-enlace:has(.card-enlace-cta:focus-visible){outline:2px solid var(--dm-mora);outline-offset:2px}
+    .card-enlace .card-enlace-cta:focus-visible{outline:none}
+    /* Enlaces de texto subrayados (Morelos DS, Enlace/Link) */
+    .enlace,.migas-enlace{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+    .enlace:hover,.migas-enlace:hover{text-decoration-thickness:2px}
+    .migas-enlace{color:var(--dm-content-low)}
+    .migas-enlace:hover{color:var(--dm-mora)}
     #canvas .border-b-2{border-bottom-width:1px!important;border-color:var(--dm-border-low)!important}
     .map-sticky{border:1px solid var(--dm-border-low);border-radius:24px;overflow:hidden;background:#fff}
     #global-filters{border:1px solid var(--dm-border-low)!important;background:var(--dm-surface-low)!important}
@@ -333,7 +352,7 @@
       #map, #propuesta-map{min-height:280px}
       .headline-xl-m,.font-headline-xl{font-size:34px!important;line-height:40px!important}
     }
-    #canvas{max-width:1440px;margin:0 auto;width:100%;padding-left:clamp(1rem,3vw,3rem)!important;padding-right:clamp(1rem,3vw,3rem)!important}
+    #canvas{max-width:calc(1440px + 6rem);margin:0 auto;width:100%;padding-left:clamp(1rem,3vw,3rem)!important;padding-right:clamp(1rem,3vw,3rem)!important}
 
 </style>
 </head>
@@ -602,6 +621,7 @@ const TPBV_TELECOM = {"total": 47, "porSector": {"Gobierno del Estado": 21, "Edu
 // Diccionario espanol -> nahuatl del tablero. Generado por scripts/build_traducciones_na.py
 // desde traducciones/Traduccion_nahuatl_tablero.xlsx: no editar a mano.
 const TPBV_TRADUCCIONES_NA = {
+ "(se abre en una pestaña nueva)": "(motlapoua ipan okse amatl)",
  ", Gobernadora del Estado de Morelos, durante la presentación del programa.": ", Soatlayekanki ipan Morelos, kuak kiteixpantij nin tlapaleuilistle.",
  ", director de Agenda Digital de la ATDEM, durante una entrega en Jojutla.": ", tlayekanki ipan Agenda Digital ATDEM, kuak kitemakak ipan Jojutla.",
  "Abrir menú de navegación": "Xiktlapo menú",
@@ -631,6 +651,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Ceremonia de entrega en la colonia {d}.": "Temakalistle ipan colonia {d}.",
  "Cerrar menú de navegación": "Xiktsagua menú",
  "Close popup": "Xiktsagua",
+ "Comparación de {n} polígonos": "Tikinneneuilia {n} polígono",
  "Comparar polígonos…": "Xikinneneuili polígono…",
  "Computadoras": "Tepostlapoualmej",
  "Computadoras por aula": "Tepostlapoualli ipan nochi tlamachtiloyan",
@@ -869,6 +890,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Representantes de las comunidades durante el encuentro.": "Tlatlaga tlen kinixpantiaj altepetsitsin ipan nechikolistle.",
  "Revisa el mapa de Aulas Tecnológicas instaladas en las escuelas de los polígonos.": "Xiktlachili tlalamatl iga Tlamachtiloyan iga tepostlapoualli tlen motlalijkej ipan kaltlamachtiloyan tlen polígono.",
  "Revisa las tarjetas de población, vivienda, salud, educación, economía y la pirámide poblacional, además del mapa de ubicación.": "Xiktlachili tlapoualli iga tlatlaga, kalmej, pajtilistle, temachtilistle, tomin uan keski xiuitl kipiaj, uan tlalamatl kanin katej.",
+ "Ruta de navegación": "Ojtle kanin tinemi",
  "Salud": "Pajtilistle",
  "Salud y Bienestar": "Pajtilistle uan kuale nemilistle",
  "Salud · {n}": "Pajtilistle · {n}",
@@ -1205,20 +1227,28 @@ function inicioComoFuncionaHtml() {
 
 function inicioHitosHtml(nLocalidades, nPoligonos) {
     const nAulas = (typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined') ? TPBV_AULAS_TECNOLOGICAS.length : 0;
+    // Cada hito es una card genérica del Morelos DS (fecha como overline,
+    // título, texto y pie con enlace); toda la tarjeta es clicable.
+    const irA = (vista, texto) => `<button type="button" onclick="showView('${vista}')" class="card-enlace-cta inline-flex items-center gap-1 font-label-bold text-label-bold text-primary">
+        <span class="enlace">${texto}</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>`;
     const hitos = [
-        ['28 de abril de 2025', 'Presentación del programa', 'Arranca la primera etapa con 103 comunidades y 20 promotores comunitarios capacitados.'],
-        ['Diciembre 2025 – enero 2026', 'Aulas Tecnológicas', `La ATDEM instala aulas de cómputo en ${fmtInt(nAulas)} escuelas de los polígonos.`],
-        ['2026', 'Delimitación vigente', `${fmtInt(nLocalidades)} localidades en ${fmtInt(nPoligonos)} polígonos de atención, que se analizan en este tablero.`],
+        ['28 de abril de 2025', 'Presentación del programa', 'Arranca la primera etapa con 103 comunidades y 20 promotores comunitarios capacitados.',
+            `<a href="${TPBV_BOLETIN_URL}" target="_blank" rel="noopener" class="card-enlace-cta inline-flex items-center gap-1 font-label-bold text-label-bold text-primary"><span class="enlace">Boletín 01831</span> <span class="material-symbols-outlined text-[18px]">north_east</span></a>`],
+        ['Diciembre 2025 – enero 2026', 'Aulas Tecnológicas', `La ATDEM instala aulas de cómputo en ${fmtInt(nAulas)} escuelas de los polígonos.`,
+            irA('aulas', 'Ir a Aulas Tecnológicas')],
+        ['2026', 'Delimitación vigente', `${fmtInt(nLocalidades)} localidades en ${fmtInt(nPoligonos)} polígonos de atención, que se analizan en este tablero.`,
+            irA('analisis', 'Ir a Análisis Demográfico')],
     ];
     return `
     <div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface mb-4" style="font-size:30px;line-height:36px">Hitos</h2>
         <ol class="grid grid-cols-1 md:grid-cols-3 gap-gutter-grid">
-            ${hitos.map(([fecha, titulo, texto]) => `
-            <li class="relative bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-2" style="border-top:4px solid #BC9B73">
+            ${hitos.map(([fecha, titulo, texto, enlace]) => `
+            <li class="card-enlace relative bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-2" style="border-top:4px solid #BC9B73">
                 <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">${esc(fecha)}</span>
                 <h3 class="font-headline-md text-headline-md text-on-surface">${esc(titulo)}</h3>
-                <p class="font-body-md text-body-md text-on-surface-variant">${esc(texto)}</p>
+                <p class="font-body-md text-body-md text-on-surface-variant flex-1">${esc(texto)}</p>
+                <div class="pt-2">${enlace}</div>
             </li>`).join('')}
         </ol>
     </div>`;
@@ -1504,6 +1534,63 @@ function inicioEncuentroHtml() {
             <p class="font-label-bold text-label-bold text-on-surface-variant">Fotos: Gobierno del Estado de Morelos</p>
         </div>
     </section>`;
+}
+</script>
+<script>
+/* EMBEBIDO: analisis_migas.js */
+// ---------------------------------------------------------------------------
+// analisis_migas.js — ruta de navegación (breadcrumbs, Morelos DS) de
+// Análisis Demográfico: Inicio › Análisis Demográfico › Polígono › Localidad.
+// Cada nivel anterior es un enlace que regresa a esa vista. Va antes de app.js
+// porque el primer render de Análisis ocurre al cargar app.js; las variables
+// de app.js (selPoligono, customPoligonos…) solo se usan al hacer clic.
+// ---------------------------------------------------------------------------
+
+// Niveles de la ruta según lo que muestra Análisis. `ctx`:
+//   { tipo: 'todos' } | { tipo: 'poligono', poligono } |
+//   { tipo: 'custom', n } | { tipo: 'localidad', poligono, localidad }
+function migasNiveles(ctx) {
+    const niveles = [
+        { texto: 'Inicio', accion: "showView('inicio')" },
+        { texto: 'Análisis Demográfico', accion: 'migasIrATodos()' },
+    ];
+    if (ctx.tipo === 'poligono' || ctx.tipo === 'localidad') {
+        niveles.push({ texto: poligonoLabel(ctx.poligono), accion: `migasIrAPoligono(${Number(ctx.poligono)})`, esDato: true });
+    }
+    if (ctx.tipo === 'custom') niveles.push({ texto: `Comparación de ${ctx.n} polígonos` });
+    if (ctx.tipo === 'localidad') niveles.push({ texto: ctx.localidad, esDato: true });
+    return niveles;
+}
+
+function migasAnalisisHtml(ctx) {
+    const niveles = migasNiveles(ctx);
+    const ultimo = niveles.length - 1;
+    const items = niveles.map((nivel, i) => {
+        const dato = nivel.esDato ? ' data-no-traducir' : '';
+        const contenido = i === ultimo
+            ? `<span aria-current="page" class="text-on-surface"${dato}>${esc(nivel.texto)}</span>`
+            : `<a href="#" onclick="${nivel.accion}; return false;" class="migas-enlace"${dato}>${esc(nivel.texto)}</a>`;
+        const separador = i < ultimo
+            ? '<span class="material-symbols-outlined text-[18px] text-outline" aria-hidden="true">chevron_right</span>'
+            : '';
+        return `<li class="flex items-center gap-1.5">${contenido}${separador}</li>`;
+    }).join('');
+    return `<nav aria-label="Ruta de navegación" class="col-span-1 md:col-span-2 xl:col-span-12 -mb-2">
+        <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-1 font-body-md text-body-md text-on-surface-variant">${items}</ol>
+    </nav>`;
+}
+
+function migasIrATodos() {
+    if (customPoligonos.size > 0) {
+        clearCustomPoligonos();
+        return;
+    }
+    migasIrAPoligono('all');
+}
+
+function migasIrAPoligono(poligono) {
+    selPoligono.value = String(poligono);
+    selPoligono.dispatchEvent(new Event('change'));
 }
 </script>
 <script>
@@ -2057,7 +2144,7 @@ function buildCustomPoligonosPanel() {
     panel.innerHTML = `
         <div class="flex items-center justify-between gap-3 mb-2 pb-2 border-b border-outline-variant">
             <span class="font-label-bold text-label-bold text-on-surface-variant">Elige los polígonos a comparar</span>
-            <button type="button" onclick="clearCustomPoligonos()" class="font-label-bold text-label-bold text-primary hover:underline shrink-0">Limpiar</button>
+            <button type="button" onclick="clearCustomPoligonos()" class="enlace font-label-bold text-label-bold text-primary shrink-0">Limpiar</button>
         </div>
         <div class="space-y-0.5">${items}</div>`;
 }
@@ -2259,7 +2346,7 @@ function ensurePropuestaLayers() {
                 fillOpacity: 0.92
             });
             const poligonoTxt = loc.nombrePoligono ? ` · Polígono ${esc(loc.poligono)} (${esc(loc.nombrePoligono)})` : '';
-            const nota = loc.coordManual ? '<br><span style="color:#8a5a00">Coordenada capturada manualmente</span>' : '';
+            const nota = loc.coordManual ? '<br><span style="color:#936901">Coordenada capturada manualmente</span>' : '';
             m.bindTooltip(`<b>${esc(loc.localidad)}</b><br>${esc(loc.municipio)}${poligonoTxt}<br>Población Total: ${fmtInt(loc.pobTotal)}${nota}`, { sticky: true, className: 'atd-tooltip' });
             m.on('mouseover', () => m.setStyle({ color: '#BC9B73', weight: 3, radius: 7 }));
             m.on('mouseout', () => m.setStyle({ color: '#fff', weight: 1.5, radius: 5.5 }));
@@ -3107,14 +3194,16 @@ function homeStepItem(n, title, desc) {
     </li>`;
 }
 
+// Card genérica del Morelos DS: toda la tarjeta es clicable (el ::after del
+// botón la cubre, ver .card-enlace en el shell) y se eleva al pasar el mouse.
 function homeSectionCard(icon, title, desc, ctaLabel, ctaView) {
     return card(`
         ${cardHeader(icon, title)}
         <p class="font-body-md text-body-md text-on-surface-variant mb-4">${desc}</p>
-        <button onclick="showView('${ctaView}')" class="font-label-bold text-label-bold text-primary hover:underline inline-flex items-center gap-1">
-            ${esc(ctaLabel)} <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        <button onclick="showView('${ctaView}')" class="card-enlace-cta font-label-bold text-label-bold text-primary inline-flex items-center gap-1">
+            <span class="enlace">${esc(ctaLabel)}</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
         </button>
-    `);
+    `, 'card-enlace');
 }
 
 function renderInicioView() {
@@ -3438,8 +3527,10 @@ function renderMap(rec, mapMode) {
 function render(idx, mapMode) {
     const rec = activeData()[idx];
 
+    const migas = migasAnalisisHtml({ tipo: 'localidad', poligono: rec.poligono, localidad: rec.localidad });
+
     if (rec.fuente === 'SIN DATOS') {
-        canvas.innerHTML = `<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">` +
+        canvas.innerHTML = migas + `<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">` +
             `<div class="flex flex-col gap-gutter-grid">` + renderInfoCard(rec) + renderLocalidadesCard(rec) + `</div>` +
             `<div id="map-card" class="map-sticky bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 border-secondary-container flex flex-col min-h-[400px]">
                 ${mapCardHeader()}
@@ -3462,7 +3553,7 @@ function render(idx, mapMode) {
         return;
     }
 
-    const parts = [];
+    const parts = [migas];
 
     parts.push(renderKpiStrip(rec));
 
@@ -3824,7 +3915,9 @@ function renderAggregateInfoCard(agg) {
 // (renderCustomAggregate). Recibe el objeto agg ya armado (aggregatePoligono
 // / aggregateTodos / aggregateCustom) para no repetir el markup del canvas.
 function renderAggregateView(agg) {
-    const parts = [];
+    const ctxMigas = agg.customPoligonos ? { tipo: 'custom', n: agg.customPoligonos.length }
+        : agg.poligono === null ? { tipo: 'todos' } : { tipo: 'poligono', poligono: agg.poligono };
+    const parts = [migasAnalisisHtml(ctxMigas)];
     parts.push(renderKpiStrip(agg));
     parts.push(`<div class="col-span-1 md:col-span-2 xl:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid items-start">`);
     parts.push(`<div class="flex flex-col gap-gutter-grid">` + renderAggregateInfoCard(agg) + renderLocalidadesCard(agg) + `</div>`);
@@ -5173,9 +5266,10 @@ function daDescargarConjunto(id, formato) {
 function daTarjeta(c) {
     const filas = c.filas();
     const columnas = daColumnas(filas);
-    const btn = (formato, etiqueta, primario) => `<button type="button" data-descarga="${c.id}" data-formato="${formato}"
-        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-label-bold text-label-bold transition-colors ${primario
-        ? 'bg-primary-container text-on-primary-container' : 'border border-outline text-on-surface hover:bg-surface-container-high'}"
+    // Botones con contorno (tipo Secondary del Morelos DS): el botón vino
+    // relleno se reserva para la acción principal de la vista, que debe ser única.
+    const btn = (formato, etiqueta) => `<button type="button" data-descarga="${c.id}" data-formato="${formato}"
+        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-label-bold text-label-bold transition-colors border border-outline text-on-surface hover:bg-surface-container-high"
         aria-label="Descargar ${esc(c.titulo)} en ${etiqueta}">
         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">download</span>${etiqueta}</button>`;
     return `<article class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-3">
@@ -5195,8 +5289,8 @@ function daTarjeta(c) {
             <p class="mt-2 break-words">${columnas.map(esc).join(', ')}</p>
         </details>
         <div class="flex flex-wrap items-center gap-2 pt-1">
-            ${btn('csv', 'CSV', true)}
-            ${c.kml ? btn('kml', 'KML', false) : `<span class="font-body-md text-body-md text-on-surface-variant">${esc(c.sinKml || '')}</span>`}
+            ${btn('csv', 'CSV')}
+            ${c.kml ? btn('kml', 'KML') : `<span class="font-body-md text-body-md text-on-surface-variant">${esc(c.sinKml || '')}</span>`}
         </div>
     </article>`;
 }
@@ -5765,6 +5859,56 @@ function renderTelecomView() {
             telecomMap._encuadrado = true;
         }
     }, 150);
+}
+</script>
+<script>
+/* EMBEBIDO: accesibilidad.js */
+// ---------------------------------------------------------------------------
+// accesibilidad.js — ajustes de accesibilidad del Morelos Design System
+// (Componentes > Button > Accesibilidad) aplicados a todo el tablero, también
+// a lo que las vistas pintan después:
+//
+// 1. Enlaces que abren pestaña nueva (target="_blank"): se les agrega un texto
+//    solo para lectores de pantalla que lo avisa.
+// 2. Íconos de Material Symbols: son decorativos (el texto del botón o enlace
+//    ya describe la acción), así que se ocultan a los lectores de pantalla;
+//    si no, se leería su nombre en inglés ("download", "arrow_forward").
+// ---------------------------------------------------------------------------
+
+const A11Y_AVISO_PESTANA = '(se abre en una pestaña nueva)';
+
+function a11yAvisarPestanaNueva(enlace) {
+    if (enlace.querySelector('[data-aviso-pestana]')) return;
+    const aviso = document.createElement('span');
+    aviso.className = 'sr-only';
+    aviso.dataset.avisoPestana = '';
+    aviso.textContent = ` ${A11Y_AVISO_PESTANA}`;
+    enlace.appendChild(aviso);
+}
+
+function a11yAjustar(raiz) {
+    if (!(raiz instanceof Element)) return;
+    const buscar = (selector) => [
+        ...(raiz.matches(selector) ? [raiz] : []),
+        ...raiz.querySelectorAll(selector),
+    ];
+    buscar('a[target="_blank"]').forEach(a11yAvisarPestanaNueva);
+    buscar('.material-symbols-outlined:not([aria-hidden])')
+        .forEach((icono) => icono.setAttribute('aria-hidden', 'true'));
+}
+
+function iniciarAccesibilidad() {
+    a11yAjustar(document.body);
+    const observador = new MutationObserver((cambios) => {
+        cambios.forEach((cambio) => cambio.addedNodes.forEach(a11yAjustar));
+    });
+    observador.observe(document.body, { childList: true, subtree: true });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciarAccesibilidad);
+} else {
+    iniciarAccesibilidad();
 }
 </script>
 <script>

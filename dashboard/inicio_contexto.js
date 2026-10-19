@@ -112,20 +112,28 @@ function inicioComoFuncionaHtml() {
 
 function inicioHitosHtml(nLocalidades, nPoligonos) {
     const nAulas = (typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined') ? TPBV_AULAS_TECNOLOGICAS.length : 0;
+    // Cada hito es una card genérica del Morelos DS (fecha como overline,
+    // título, texto y pie con enlace); toda la tarjeta es clicable.
+    const irA = (vista, texto) => `<button type="button" onclick="showView('${vista}')" class="card-enlace-cta inline-flex items-center gap-1 font-label-bold text-label-bold text-primary">
+        <span class="enlace">${texto}</span> <span class="material-symbols-outlined text-[18px]">arrow_forward</span></button>`;
     const hitos = [
-        ['28 de abril de 2025', 'Presentación del programa', 'Arranca la primera etapa con 103 comunidades y 20 promotores comunitarios capacitados.'],
-        ['Diciembre 2025 – enero 2026', 'Aulas Tecnológicas', `La ATDEM instala aulas de cómputo en ${fmtInt(nAulas)} escuelas de los polígonos.`],
-        ['2026', 'Delimitación vigente', `${fmtInt(nLocalidades)} localidades en ${fmtInt(nPoligonos)} polígonos de atención, que se analizan en este tablero.`],
+        ['28 de abril de 2025', 'Presentación del programa', 'Arranca la primera etapa con 103 comunidades y 20 promotores comunitarios capacitados.',
+            `<a href="${TPBV_BOLETIN_URL}" target="_blank" rel="noopener" class="card-enlace-cta inline-flex items-center gap-1 font-label-bold text-label-bold text-primary"><span class="enlace">Boletín 01831</span> <span class="material-symbols-outlined text-[18px]">north_east</span></a>`],
+        ['Diciembre 2025 – enero 2026', 'Aulas Tecnológicas', `La ATDEM instala aulas de cómputo en ${fmtInt(nAulas)} escuelas de los polígonos.`,
+            irA('aulas', 'Ir a Aulas Tecnológicas')],
+        ['2026', 'Delimitación vigente', `${fmtInt(nLocalidades)} localidades en ${fmtInt(nPoligonos)} polígonos de atención, que se analizan en este tablero.`,
+            irA('analisis', 'Ir a Análisis Demográfico')],
     ];
     return `
     <div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface mb-4" style="font-size:30px;line-height:36px">Hitos</h2>
         <ol class="grid grid-cols-1 md:grid-cols-3 gap-gutter-grid">
-            ${hitos.map(([fecha, titulo, texto]) => `
-            <li class="relative bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-2" style="border-top:4px solid #BC9B73">
+            ${hitos.map(([fecha, titulo, texto, enlace]) => `
+            <li class="card-enlace relative bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-2" style="border-top:4px solid #BC9B73">
                 <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">${esc(fecha)}</span>
                 <h3 class="font-headline-md text-headline-md text-on-surface">${esc(titulo)}</h3>
-                <p class="font-body-md text-body-md text-on-surface-variant">${esc(texto)}</p>
+                <p class="font-body-md text-body-md text-on-surface-variant flex-1">${esc(texto)}</p>
+                <div class="pt-2">${enlace}</div>
             </li>`).join('')}
         </ol>
     </div>`;

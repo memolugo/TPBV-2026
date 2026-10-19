@@ -64,10 +64,11 @@ El proxy cachea hasta 10 min (`max-age=600`): tras publicar, recargar con Ctrl+F
 data.js · poligonos.js · limites_municipales.js · poligonos_actual_nombres.js
 aulas_tecnologicas.js · red_ltqnu.js · red_comunidades.js · telecom.js (datos)
 traducciones_na.js                                       (diccionario náhuatl)
-mapa_morelos.js · inicio_contexto.js · carrusel.js · inicio_buscador.js · inicio_encuentro.js (antes de app.js)
+mapa_morelos.js · inicio_contexto.js · carrusel.js · inicio_buscador.js · inicio_encuentro.js · analisis_migas.js (antes de app.js)
 app.js
 aulas_mapa.js · aulas_contexto.js · aulas_view.js
 datos_abiertos.js · red_view.js · telecom_view.js
+accesibilidad.js                                         (aviso de pestaña nueva, íconos aria-hidden)
 i18n.js                                                  (al final: traduce lo que ya está en el DOM)
 ```
 
@@ -210,6 +211,7 @@ Manual de Marca Morelos 2024-2030 / skill `skillatd`. Este diseño quedó como
 - **Compartir y buscadores:** `<head>` con título «Territorios de Paz y Buen Vivir · Gobierno de Morelos», descripción, canonical, Open Graph y Twitter Card. La imagen de vista previa (1200×630) y el ícono de iPhone se generan con `scripts/build_imagen_compartir.js` en `dashboard/assets/compartir/` y se referencian con **URL absoluta de GitHub Pages** (el proxy no sirve archivos nuevos de `assets/`); el favicon va incrustado como `data:` URI. Si cambian las cifras (132/26/22/45), regenerar la imagen y actualizar el texto de la descripción y `og:image:alt`.
 - **Carruseles de fotos:** módulo `carrusel.js` (`carruselHtml({id, etiqueta, carpeta, fotos})` + `iniciarCarrusel(id)`), estilos `.carrusel*` en el shell. Fotos de notas oficiales de Prensa (crédito «Fotos: Gobierno del Estado de Morelos») en `dashboard/assets/<carpeta>/`: `encuentro/` (Inicio, `ENCUENTRO_FOTOS`), `aulas-temixco/` (Aulas, `AULAS_TEMIXCO_FOTOS`) y `red-comunidades/` (Red, `RED_FOTOS`). Se cargan con URL absoluta de GitHub Pages salvo en local (`carruselBase`). Para agregar uno: copiar fotos a una carpeta nueva, llamar `carruselHtml` en la vista e `iniciarCarrusel` después de pintarla, y volver a extraer textos para la traducción.
 - **Encabezado:** hoy 6 píldoras visibles (Inicio, Análisis, Aulas, Red, Datos Abiertos, Reportes; Telecomunicaciones oculta). El nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras (CSS pensado para 7). Al agregar o mostrar otra píldora, medir que no se encime (en español y en náhuatl).
+- **Morelos Design System** (morelosdesign.supernova-docs.io, revisado 2026-10-19): ancho máximo de contenido 1440 px (`width-main`; las vistas suman 1440 + 6rem de margen); colores de estado del DS (error `#da3237`, warning `#936901`, info `#3266cb` = `accent-blue`, success `#1c7d29` = `accent-teal`); un solo botón vino relleno por vista (las descargas de Datos Abiertos van con contorno); texto en oro `#BC9B73` no pasa contraste (2.6:1): para texto usar arena `#755937`; el oro solo en bordes y trazos. `accesibilidad.js` avisa «(se abre en una pestaña nueva)» a lectores de pantalla y oculta los íconos. Card genérica clicable: clase `card-enlace` en la tarjeta y `card-enlace-cta` en su único enlace/botón (su `::after` cubre la tarjeta; sombra al pasar el mouse); la usan «¿Qué encontrarás…» (`homeSectionCard`) y Hitos. Enlaces de texto subrayados con `.enlace` (en un `<span>` con el texto, para que la flecha no quede subrayada). Ruta de navegación de Análisis (`analisis_migas.js`): Inicio › Análisis › Polígono › Localidad, cada nivel regresa a su vista. Pendiente de decidir: escala tipográfica del DS (cuerpo 16 px, Heading/Small 32 px, Title/Large 28 px para citas), material Glass, banner de avisos, sombras con nombre, tema de alto contraste. Fuente local del DS: `DISEÑO SKILL ATD/Morelos-design-system/morelos-design-system.md` (índice del Figma, sin valores).
 - **Citas:** barra dorada a la izquierda; no usar el ícono `format_quote` (en Twogether se lee «99»).
 
 ---
@@ -321,6 +323,7 @@ y solos.
 | 2026-10-16 | `0a221b3` | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
 | 2026-10-19 | `ae2324e` | Citas de Inicio y Aulas más chicas (`clamp(18px,1.8vw,24px)`); CLAUDE.md al día: recursos por GitHub Pages, estado de la traducción, pendientes, skill de web oficial. |
 | 2026-10-19 | `b31eeb4` | Datos Abiertos: «Localidades TPBV 2026» y «Polígonos TPBV 2026» (antes «· Propuesta Actual»); descargas `tpbv2026_localidades` / `tpbv2026_poligonos`; traducción al náhuatl ajustada. |
-| 2026-10-19 | *(este commit)* | Tres Marías (Huitzilac) pasa de «ZAP Urbana» a grado Alto (CONAPO IMU 2020 por AGEB). |
+| 2026-10-19 | `02f6330` | Tres Marías (Huitzilac) pasa de «ZAP Urbana» a grado Alto (CONAPO IMU 2020 por AGEB). |
+| 2026-10-19 | *(este commit)* | Morelos Design System: ancho máximo 1440 px, colores de estado del DS, «y Buen Vivir 2026» con contraste AA, descargas con contorno, `accesibilidad.js` (aviso de pestaña nueva, íconos ocultos), tarjetas clicables (`card-enlace`), enlaces subrayados y ruta de navegación en Análisis (`analisis_migas.js`). |
 
 Mantener esta tabla al día al publicar cambios.
