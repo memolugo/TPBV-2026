@@ -49,9 +49,14 @@ El HTML usa saltos de línea **CRLF**.
 
 `tpbv.morelos.gob.mx` sirve el HTML a través de un proxy (openresty) que
 responde **400** a archivos nuevos de `dashboard/assets/` (GitHub Pages sí los
-sirve). Cualquier recurso nuevo (imagen, fuente, datos) debe ir **dentro del
-HTML**, no como archivo suelto. El proxy cachea hasta 10 min (`max-age=600`):
-tras publicar, el usuario debe recargar con Ctrl+F5.
+sirve). Por eso, todo recurso nuevo va por uno de dos caminos:
+
+- **Dentro del HTML** (`data:` URI o bloque `.js`): datos, tipografías, logos y favicon.
+- **URL absoluta de GitHub Pages** (`https://memolugo.github.io/TPBV-2026/dashboard/assets/...`):
+  archivos pesados o que leen terceros: fotos de los carruseles (`carruselBase` en
+  `carrusel.js`; en local se usa la ruta relativa) e imagen para compartir (`og:image`).
+
+El proxy cachea hasta 10 min (`max-age=600`): tras publicar, recargar con Ctrl+F5.
 
 ### Orden de carga de bloques (actual)
 
@@ -82,7 +87,7 @@ Cada `scripts/build_*.py` lee una fuente (Excel/CSV/GeoJSON/KML) y escribe un
 | `TPBV_AULAS_TECNOLOGICAS`, `TPBV_AULAS_MOBILIARIO` (45 escuelas) | `aulas_tecnologicas.js` | `build_aulas_tecnologicas.py` | `Proyecto Escuelas entrega Computadoras.xlsx` (hoja Concentrado) |
 | `TPBV_RED_LTQNU` (25 registros, 24 dependencias) | `red_ltqnu.js` | `build_red_ltqnu.py` | `Agentes_dependencias La Tierra Que Nos Une.xlsx` (no está en el repo) |
 | `TPBV_RED_COMUNIDADES` (11 puntos en comunidades) | `red_comunidades.js` | `build_red_comunidades.py` | `la tierra que nos une memo.xlsx` (no está en el repo: trae números de ticket) |
-| `TPBV_TELECOM` (agregado) | `telecom.js` | `build_telecom.py` | `Sitios REEM.kml` (no está en el repo, ver §5) |
+| `TPBV_TELECOM` (agregado; sección oculta) | `telecom.js` | `build_telecom.py` | `Sitios REEM.kml` (no está en el repo, ver §5) |
 | `TPBV_TRADUCCIONES_NA` (español → náhuatl) | `traducciones_na.js` | `build_traducciones_na.py` | `traducciones/Traduccion_nahuatl_tablero.xlsx` (§2 bis) |
 | *(retirados de producción)* `TPBV_DATA_PROPUESTA_2026`, `TPBV_PROPUESTA_NUEVA`, `TPBV_PROPUESTA_2026`, `TPBV_BANCO_PROYECTOS` | `data_propuesta_2026.js`, `propuesta_nueva.js`, `propuesta_2026.js`, `banco_proyectos.js` | varios | ver §4 |
 
@@ -128,16 +133,18 @@ que esté en `TPBV_TRADUCCIONES_NA`. Volver a español restaura los originales.
 - **Botón «Náhuatl»** (ícono `translate`) al extremo derecho de la barra de
   utilidad, como en morelos.gob.mx; cambia a «Español» al activarse. Visible
   (`MOSTRAR_SELECTOR_NAHUATL = true`, pedido del usuario).
-- **Estado de la traducción (2026-10-16):** 287 de 299 textos. 4 del glosario
-  oficial (verde en la plantilla) y 283 **borrador generado con IA** (amarillo,
+- **Estado de la traducción (2026-10-16, última extracción):** 364 de 377 textos
+  (~2,700 palabras). 4 del glosario oficial (verde en la plantilla) y 360
+  **borrador generado con IA** (amarillo,
   Fuente = "Borrador automático, ajustado a Hueyapan (revisar)"), pendiente de
   revisión por un traductor de náhuatl de Morelos. El borrador se ajustó a la
   variante de Hueyapan (Tetela del Volcán) con el diccionario de Montero Baeza
   (CDI, 2016; `diccionario_nahuatl_hueyapan_comunicadores_indigenas_v2016.pdf`,
   no está en el repo): ortografía con u (no w), -listle, g intervocálica
   (tlaga, teguitl, iga, ogachi) y su vocabulario; ese vocabulario está en
-  `GLOSARIO_HUEYAPAN` (`build_plantilla_nahuatl.py`, hoja «Glosario»). Los 12 sin traducir son nombres propios
+  `GLOSARIO_HUEYAPAN` (`build_plantilla_nahuatl.py`, hoja «Glosario»). Los 13 sin traducir son nombres propios
   (programa, ATDEM, secretarías) y préstamos (refrigerador, lavadora, automóvil).
+  Estatus de la red: Instalado → *Motlalij*, En proceso → *Motlalijtiga*.
   Términos del borrador: altepetl/altepemej = municipio(s), altepetsin/altepetsitsin
   = localidad(es), tlatlaga = población/habitantes, maseualmej = indígenas,
   kaltlamachtiloyan = escuela, tlamachtiloyan = aula, tepostlapoualli =
@@ -159,7 +166,11 @@ python scripts/embed_dashboard.py
 ```
 
 Si cambian textos del tablero, repetir 1 y 2: las filas nuevas salen vacías y las
-traducidas se conservan. Los nombres propios, siglas y listas de campos se
+traducidas se conservan. Textos que solo aparecen al interactuar (buscador,
+ventanas del mapa de Red) se recorren en `RECORRIDO` del extractor; los que llevan
+lo que escribe la persona van en `CLAVES_DINAMICAS`. Valores que son dato pero
+deben traducirse (estatus «Instalado», «En proceso») o prosa que coincide con un
+dato (Morelos, Cuernavaca, Xochitepec…) van en `NO_ES_DATO`. Los nombres propios, siglas y listas de campos se
 excluyen en `NO_TRADUCIR` (`build_plantilla_nahuatl.py`); los términos que son
 dato y prosa a la vez van en `NO_ES_DATO` (`extraer_textos_nahuatl.js`). El
 glosario oficial (Inicio→Pehua, Gobierno→Kaltlayekana, Prensa→Tlatolnonotza…)
@@ -180,13 +191,17 @@ Todas las vistas con mapa la usan. Gotchas:
 - Un mapa creado con el contenedor oculto mide 0×0. En Análisis, `renderMap` pone una vista provisional y deja `map._encuadrePendiente`, que `showView('analisis')` aplica. En las demás, `invalidateSize` + `fitBounds` en un `setTimeout` al mostrarse.
 - `Polygon.getCenter()` de Leaflet falla si el mapa aún no tiene vista: calcular el centroide desde la geometría (ver `telecomCentroide`).
 - El contenedor `#map` de Análisis se recrea en cada render (la base de Morelos va con cada mapa).
+- Red encuadra al contorno del estado (`redBase.contorno`) porque las comunidades están en todo Morelos; las oficinas siguen en Cuernavaca (resaltado).
 
 ---
 
 ## 3. Diseño
 
 Réplica del sistema de **digital.morelos.gob.mx** (mismo Figma) + paleta del
-Manual de Marca Morelos 2024-2030 / skill `skillatd`.
+Manual de Marca Morelos 2024-2030 / skill `skillatd`. Este diseño quedó como
+**sistema para páginas web oficiales** en la skill (`~/.claude/skills/skillatd/`:
+`web-oficial.md`, `plantilla-web.html`, `tokens.css` sección "Web oficial",
+`fonts/web/`); la copia del repo `DISEÑO SKILL ATD` es idéntica.
 
 - **Tipografías:** igual que morelos.gob.mx (tokens morv3, medidos el 2026-10-16 en una nota de Prensa): **Twogether Sans en títulos y texto**, con pesos ligeros (h1 400 48/57.6 px, títulos de sección 400, texto destacado 300 20/28 px, menú 400); **Karol Sans SemiBold solo para cifras** (`kpi-value`) y el nombre del encabezado. Copiadas del portal a `dashboard/assets/fonts/` e incrustadas en el HTML. Son del Gobierno; confirmar con Comunicación Social antes de otros usos.
 - **Colores** (tokens Tailwind redefinidos en el shell): verde bosque `#2E3B2B` (texto/títulos), verde Morelos `#71785B`, oro `#BC9B73`, vino `#773357` (acción/CTA), piedra `#CBCABE`, superficies `#F5F4F2` / `#EBEADE` / `#E4E3D6`.
@@ -194,7 +209,8 @@ Manual de Marca Morelos 2024-2030 / skill `skillatd`.
 - **Footer:** igual al de morelos.gob.mx (logo blanco `assets/logo-morelos-footer.svg` incrustado, atención ciudadana, Recursos / Actividad del gobierno / Enlaces de interés / redes) + línea con atribución del tablero y fuente INEGI.
 - **Compartir y buscadores:** `<head>` con título «Territorios de Paz y Buen Vivir · Gobierno de Morelos», descripción, canonical, Open Graph y Twitter Card. La imagen de vista previa (1200×630) y el ícono de iPhone se generan con `scripts/build_imagen_compartir.js` en `dashboard/assets/compartir/` y se referencian con **URL absoluta de GitHub Pages** (el proxy no sirve archivos nuevos de `assets/`); el favicon va incrustado como `data:` URI. Si cambian las cifras (132/26/22/45), regenerar la imagen y actualizar el texto de la descripción y `og:image:alt`.
 - **Carruseles de fotos:** módulo `carrusel.js` (`carruselHtml({id, etiqueta, carpeta, fotos})` + `iniciarCarrusel(id)`), estilos `.carrusel*` en el shell. Fotos de notas oficiales de Prensa (crédito «Fotos: Gobierno del Estado de Morelos») en `dashboard/assets/<carpeta>/`: `encuentro/` (Inicio, `ENCUENTRO_FOTOS`), `aulas-temixco/` (Aulas, `AULAS_TEMIXCO_FOTOS`) y `red-comunidades/` (Red, `RED_FOTOS`). Se cargan con URL absoluta de GitHub Pages salvo en local (`carruselBase`). Para agregar uno: copiar fotos a una carpeta nueva, llamar `carruselHtml` en la vista e `iniciarCarrusel` después de pintarla, y volver a extraer textos para la traducción.
-- **Encabezado a 7 píldoras:** el nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras. Al agregar otra píldora, medir que no se encime.
+- **Encabezado:** hoy 6 píldoras visibles (Inicio, Análisis, Aulas, Red, Datos Abiertos, Reportes; Telecomunicaciones oculta). El nombre "Territorios de Paz" junto a los logos solo aparece desde 1600 px; entre 1280 y 1439 px se oculta el logo TPBV y se compactan las píldoras (CSS pensado para 7). Al agregar o mostrar otra píldora, medir que no se encime (en español y en náhuatl).
+- **Citas:** barra dorada a la izquierda; no usar el ícono `format_quote` (en Twogether se lee «99»).
 
 ---
 
@@ -221,7 +237,7 @@ publicar: quitar el archivo de `BLOQUES_RETIRADOS` y agregarlo a
 - **Telecomunicaciones:** `build_telecom.py` agrega los sitios por municipio/sector **antes** de escribir el `.js`. Nunca exportar coordenadas ni nombres de sitio (los nombres revelan el lugar). `Sitios REEM.kml` está en `.gitignore`.
 - **No publicar** nombres de agentes, titulares, promotores ni coordinadores, ni notas técnicas internas (firewall, VPN, pendientes). `Agentes_dependencias…xlsx` no está en el repo.
 - `Proyecto Escuelas entrega Computadoras.xlsx` sí está en el repo (autorizado por el usuario como información pública).
-- **Pendiente sin resolver:** los archivos originales de la Nueva Propuesta y del Banco de Proyectos siguen descargables desde github.io/historial (repo público). Opciones: hacer privado el repo o borrarlos.
+- Los archivos originales de la Nueva Propuesta y del Banco de Proyectos siguen en el historial del repo público: ver «Pendientes» en §5.
 
 ### Publicar
 
@@ -248,8 +264,13 @@ python -m http.server 8080 --bind 127.0.0.1 --directory dashboard
 Comprobaciones habituales: cada vista abre sin errores de consola; los mapas
 llenan su contenedor (`map.getSize()` vs. contenedor); el menú no se encima
 de 1920 a 390 px y no hay scroll horizontal; producción no contiene datos ni
-textos de lo retirado; las descargas de Datos Abiertos son válidas; el HTML
-funciona servido **sin** la carpeta `assets/` (simula el proxy).
+textos de lo retirado; las descargas de Datos Abiertos son válidas (hoy **6
+conjuntos**: localidades, polígonos, aulas, red en oficinas, red en comunidades,
+límites municipales); el HTML funciona servido **sin** la carpeta `assets/`
+(simula el proxy; en ese modo solo fallan las fotos de los carruseles, que en
+producción vienen de GitHub Pages); en náhuatl (`?lang=na`) no queda texto sin
+traducir que esté en el diccionario; los carruseles avanzan con flechas, puntos
+y solos.
 
 ---
 
@@ -263,7 +284,18 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 - **Aulas (45):** coordenadas resueltas de los links de Google Maps y cacheadas en `scripts/aulas_tecnologicas_coords.json`; `COORDENADAS_CORREGIDAS` por CCT (Mártir de Chinameca). El boletín decía 42; la hoja tiene 45 (3 "Conflicto de turno"). La fase no se muestra (pedido del usuario). KPI "Escuelas dentro de un polígono" = 33 (no son polígonos).
 - **Red LTQNU:** solo `Red_la_tierra_que_nos_une = SI`, más el Instituto de Servicios Registrales (columna vacía, confirmado por el usuario). Coordenadas del Excel vienen sin punto decimal (se reinserta tras 2 dígitos). Ubicadas por dirección en OSM: Servicios de Salud, Instituto de Crédito, Movilidad, ISRyC. Pendientes de revisar en el Excel: coordenada de ICATMOR, PROPAEM duplicada (SI/NO), "Secretaría de Administración" vs "… y Finanzas".
 - **Red en comunidades:** se publican localidad, municipio, coordenada y estatus; **no** ticket ni fecha (hay fechas de programación que no cuadran con el estatus). Nombre/municipio del tablero cuando la localidad es TPBV (Amialtenco → Hueyapan). Francisco Javier Mina venía con lon −99.535 (fuera de Morelos): se usa la coordenada de la localidad TPBV marcada como aproximada; **corregir en el Excel**. El Vergel y Amilcingo caen del otro lado del límite municipal (avisos del script, no se corrigen).
-- **Telecom:** 47 sitios, 13 municipios, 4 sectores (carpetas del KML). Pendiente de decidir si el sector Seguridad se desglosa por municipio.
+- **Telecom:** 47 sitios, 13 municipios, 4 sectores (carpetas del KML). Sección oculta desde 2026-10-16 (`MOSTRAR_TELECOM`).
+- **Notas de Prensa usadas:** boletín 01831 (presentación, 28/04/2025), 06206 (aulas, 30/04/2026), nota del 12/04/2026 (aulas Temixco), 07/08/2026 (red en comunidades), 10/10/2026 (Segundo Encuentro: 132 comunidades, 148 mdp). Los pies de foto los redactamos nosotros (las notas no traen); no identificar personas que la nota no nombra.
+
+### Pendientes (por resolver con el usuario o con otras áreas)
+
+- **Excel «la tierra que nos une memo»:** corregir la coordenada de Francisco Javier Mina; agregar El Zapote (Puente de Ixtla) y Villa Nicolás Zapata (Totolapan), que según la nota del 07/08/2026 ya tienen red. Luego `python scripts/build_red_comunidades.py`.
+- **Excel de Agentes (Red en oficinas):** coordenada de ICATMOR, PROPAEM duplicada, "Secretaría de Administración" vs "… y Finanzas".
+- **Náhuatl:** revisión del borrador por un traductor de Morelos (plantilla `traducciones/Traduccion_nahuatl_tablero.xlsx`). El botón ya es público.
+- **Repo público:** los archivos de la Nueva Propuesta y del Banco siguen en el historial (hacer privado o borrar).
+- **Telecomunicaciones:** decidir cuándo vuelve a mostrarse y si Seguridad se desglosa por municipio.
+- **Landing:** compilar Tailwind (hoy CDN de desarrollo), analítica de visitas, contacto del área responsable, pies de foto oficiales de Comunicación Social.
+- **Logos del portal** (`logo-morelos.svg`, `logo-morelos-footer.svg`): subirlos al repo LOGOS-GEM para que la skill no dependa de TPBV.
 
 ---
 
@@ -287,5 +319,6 @@ funciona servido **sin** la carpeta `assets/` (simula el proxy).
 | 2026-10-16 | `836bbae` | Sección Segundo Encuentro Estatal con carrusel de fotos; cita con barra dorada (el ícono de comillas se leía como «99»). |
 | 2026-10-16 | `0d01cd2` | Carrusel reutilizable (`carrusel.js`); sección de entrega en Temixco con fotos en Aulas Tecnológicas; cita de Aulas con barra dorada. |
 | 2026-10-16 | `0a221b3` | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
+| 2026-10-19 | *(este commit)* | Citas de Inicio y Aulas más chicas (`clamp(18px,1.8vw,24px)`); CLAUDE.md al día: recursos por GitHub Pages, estado de la traducción, pendientes, skill de web oficial. |
 
 Mantener esta tabla al día al publicar cambios.

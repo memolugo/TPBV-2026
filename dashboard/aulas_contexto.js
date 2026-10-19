@@ -74,7 +74,7 @@ function aulasIncluyeHtml() {
 
 function aulasCitaHtml() {
     return `<figure class="bg-secondary-container/50 rounded-xl p-card-padding md:p-8 border border-outline-variant h-full flex flex-col justify-between gap-5">
-        <blockquote class="font-headline-lg text-on-surface pl-6" style="font-size:clamp(22px,2.4vw,30px);line-height:1.25;font-weight:300;border-left:4px solid #BC9B73">
+        <blockquote class="font-headline-lg text-on-surface pl-6" style="font-size:clamp(18px,1.8vw,24px);line-height:1.35;font-weight:300;border-left:4px solid #BC9B73">
             Acercar tecnología a las escuelas es abrir oportunidades reales para las niñas y los niños,
             especialmente en zonas donde el acceso ha sido limitado.
         </blockquote>
