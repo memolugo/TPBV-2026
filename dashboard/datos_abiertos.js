@@ -148,20 +148,20 @@ function daLocalidadesNueva() {
 
 const DA_CONJUNTOS = [
     {
-        id: 'localidades_propuesta_actual', icono: 'location_on', titulo: 'Localidades · Propuesta Actual',
+        id: 'localidades', icono: 'location_on', titulo: 'Localidades TPBV 2026',
         descripcion: 'Las localidades de los 26 polígonos vigentes con sus indicadores de población, vivienda, salud, educación, economía y marginación.',
         fuente: 'INEGI, Censo 2020 (ITER Morelos) y Lista de Comunidades TPBV 2026', disponible: () => typeof TPBV_DATA !== 'undefined',
         filas: () => TPBV_DATA.map(daAplanar),
-        kml: () => daKmlPuntos('TPBV 2026 · Localidades Propuesta Actual', 'Fuente: INEGI ITER 2020 / Lista Comunidades TPBV 2026',
+        kml: () => daKmlPuntos('Localidades TPBV 2026', 'Fuente: INEGI ITER 2020 / Lista Comunidades TPBV 2026',
             TPBV_DATA.filter((r) => r.latitud != null).map((r) => ({ props: daAplanar(r), lat: r.latitud, lon: r.longitud })),
             { titulo: (p) => p.localidad })
     },
     {
-        id: 'poligonos_propuesta_actual', icono: 'map', titulo: 'Polígonos · Propuesta Actual',
+        id: 'poligonos', icono: 'map', titulo: 'Polígonos TPBV 2026',
         descripcion: 'Contorno de los 26 polígonos vigentes de Territorios de Paz y Buen Vivir, con número de localidades y población.',
         fuente: 'TPBV 2026.geojson', disponible: () => typeof TPBV_POLIGONOS !== 'undefined',
         filas: () => TPBV_POLIGONOS.features.map(daPropsPoligonoActual),
-        kml: () => daKmlPoligonos('TPBV 2026 · Polígonos Propuesta Actual', 'Fuente: TPBV 2026.geojson',
+        kml: () => daKmlPoligonos('Polígonos TPBV 2026', 'Fuente: TPBV 2026.geojson',
             [...TPBV_POLIGONOS.features].sort((a, b) => a.properties.Pol - b.properties.Pol),
             { titulo: (p) => `${String(p.poligono).padStart(2, '0')} - ${p.nombre}`, props: daPropsPoligonoActual })
     },

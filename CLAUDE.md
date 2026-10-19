@@ -319,6 +319,7 @@ y solos.
 | 2026-10-16 | `836bbae` | Sección Segundo Encuentro Estatal con carrusel de fotos; cita con barra dorada (el ícono de comillas se leía como «99»). |
 | 2026-10-16 | `0d01cd2` | Carrusel reutilizable (`carrusel.js`); sección de entrega en Temixco con fotos en Aulas Tecnológicas; cita de Aulas con barra dorada. |
 | 2026-10-16 | `0a221b3` | Red: WiFi en 11 comunidades (instalado / en proceso) en el mapa, cifras y lista; título «Disponibilidad de WiFi gratuito en oficinas de gobierno»; conjunto nuevo en Datos Abiertos; carrusel de la nota de comunidades prioritarias; sección Telecomunicaciones oculta (`MOSTRAR_TELECOM`). |
-| 2026-10-19 | *(este commit)* | Citas de Inicio y Aulas más chicas (`clamp(18px,1.8vw,24px)`); CLAUDE.md al día: recursos por GitHub Pages, estado de la traducción, pendientes, skill de web oficial. |
+| 2026-10-19 | `ae2324e` | Citas de Inicio y Aulas más chicas (`clamp(18px,1.8vw,24px)`); CLAUDE.md al día: recursos por GitHub Pages, estado de la traducción, pendientes, skill de web oficial. |
+| 2026-10-19 | *(este commit)* | Datos Abiertos: «Localidades TPBV 2026» y «Polígonos TPBV 2026» (antes «· Propuesta Actual»); descargas `tpbv2026_localidades` / `tpbv2026_poligonos`; traducción al náhuatl ajustada. |
 
 Mantener esta tabla al día al publicar cambios.
