@@ -19,6 +19,11 @@ archivos nuevos de assets/ (GitHub Pages si los sirve), asi que el HTML no
 debe depender de ellos. La ruta original queda anotada (/*recurso:...*/ en
 CSS, data-recurso="..." en <img>) para volver a incrustar si cambia el archivo.
 
+Procesa dos paginas (PAGINAS): el tablero TPBV y conectividad.html
+(Telecomunicaciones + Red La tierra que nos une). Cada una tiene su propia
+lista de bloques; los bloques comunes (comun.js, mapa_morelos.js...) se
+actualizan en ambas.
+
 Uso: python scripts/embed_dashboard.py [--check]
   --check  solo informa que bloques cambiarian, sin escribir.
 """
@@ -28,7 +33,6 @@ import sys
 from pathlib import Path
 
 DASHBOARD = Path(__file__).resolve().parent.parent / "dashboard"
-HTML = DASHBOARD / "TPBV_2026_COMPLETO_PRO.html"
 
 # archivo nuevo -> bloque despues del cual se inserta (orden de carga)
 NUEVOS_BLOQUES = {
@@ -51,12 +55,13 @@ NUEVOS_BLOQUES = {
     "i18n.js": "telecom_view.js",
     "accesibilidad.js": "telecom_view.js",
     "analisis_migas.js": "inicio_encuentro.js",
+    "comun.js": "traducciones_na.js",
 }
 
 # Bloques que deben cargarse ANTES que otro porque app.js los usa ya al
 # arrancar: mapa_morelos.js (crearMapaMorelos, mapa inicial de Analisis) e
 # inicio_contexto.js / inicio_buscador.js (renderInicioView, Inicio es la vista inicial).
-DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js", "inicio_buscador.js": "app.js", "inicio_encuentro.js": "app.js", "carrusel.js": "app.js", "analisis_migas.js": "app.js"}
+DEBE_IR_ANTES_DE = {"comun.js": "mapa_morelos.js", "mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js", "inicio_buscador.js": "app.js", "inicio_encuentro.js": "app.js", "carrusel.js": "app.js", "analisis_migas.js": "app.js"}
 
 # Bloques que NO deben ir en el HTML publicado. La Nueva Propuesta Territorial
 # aun no es informacion oficial (2026-10-16): sus datos se retiran del HTML
@@ -66,6 +71,13 @@ DEBE_IR_ANTES_DE = {"mapa_morelos.js": "app.js", "inicio_contexto.js": "app.js",
 # publicarla: quitar estos nombres de aqui y agregarlos a NUEVOS_BLOQUES.
 # Banco de Proyectos: retirado igual el 2026-10-16 (HAY_BANCO_PROYECTOS en app.js).
 BLOQUES_RETIRADOS = {"propuesta_nueva.js", "propuesta_2026.js", "data_propuesta_2026.js", "banco_proyectos.js"}
+
+# Paginas que se publican. conectividad.html (creada 2026-10-19) ya trae
+# todos sus bloques en orden; para agregarle uno, ponerlo en su "nuevos".
+PAGINAS = {
+    "TPBV_2026_COMPLETO_PRO.html": {"nuevos": NUEVOS_BLOQUES, "antes": DEBE_IR_ANTES_DE, "retirados": BLOQUES_RETIRADOS},
+    "conectividad.html": {"nuevos": {}, "antes": {}, "retirados": set()},
+}
 
 BLOQUE_RE = re.compile(r"(<script>\r\n/\* EMBEBIDO: ([\w.]+) \*/\r\n)(.*?)(\r\n</script>)", re.S)
 
@@ -110,9 +122,9 @@ def incrustar_recursos(shell, cambios):
     return IMG_RECURSO_RE.sub(img, CSS_RECURSO_RE.sub(css, shell))
 
 
-def main():
-    check = "--check" in sys.argv
-    html = HTML.read_bytes().decode("utf-8")
+def procesar(nombre_html, config, check):
+    ruta = DASHBOARD / nombre_html
+    html = ruta.read_bytes().decode("utf-8")
     cambios = []
 
     inicio_bloques = html.find("<script>\r\n/* EMBEBIDO:")
@@ -129,7 +141,7 @@ def main():
     html = BLOQUE_RE.sub(reemplazar, html)
 
     def retirar(m):
-        if m.group(2) not in BLOQUES_RETIRADOS:
+        if m.group(2) not in config["retirados"]:
             return m.group(0)
         cambios.append(f"retirado: {m.group(2)}")
         return ""
@@ -139,7 +151,7 @@ def main():
     html = re.compile(r"(?:\r\n)?" + BLOQUE_RE.pattern, re.S).sub(retirar, html)
 
     embebidos = {m.group(2): m for m in BLOQUE_RE.finditer(html)}
-    for nombre, despues_de in NUEVOS_BLOQUES.items():
+    for nombre, despues_de in config["nuevos"].items():
         if nombre in embebidos:
             continue
         ancla = next((m for m in BLOQUE_RE.finditer(html) if m.group(2) == despues_de), None)
@@ -150,7 +162,7 @@ def main():
 
     # Orden de carga obligatorio: si un bloque quedo despues del que lo
     # necesita al cargar, se mueve justo antes de el.
-    for nombre, antes_de in DEBE_IR_ANTES_DE.items():
+    for nombre, antes_de in config["antes"].items():
         bloques = {m.group(2): m for m in BLOQUE_RE.finditer(html)}
         if nombre not in bloques or antes_de not in bloques or bloques[nombre].start() < bloques[antes_de].start():
             continue
@@ -161,9 +173,16 @@ def main():
         html = html[:ancla.start()] + texto + "\r\n" + html[ancla.start():]
         cambios.append(f"movido: {nombre} (antes de {antes_de})")
 
+    print(f"== {nombre_html}")
     print("\n".join(cambios) if cambios else "Sin cambios: el HTML ya esta al dia.")
     if not check and cambios:
-        HTML.write_bytes(html.encode("utf-8"))
+        ruta.write_bytes(html.encode("utf-8"))
+
+
+def main():
+    check = "--check" in sys.argv
+    for nombre_html, config in PAGINAS.items():
+        procesar(nombre_html, config, check)
 
 
 if __name__ == "__main__":

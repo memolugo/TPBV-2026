@@ -768,6 +768,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Fuente: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Ubicación según el enlace de Google Maps capturado por escuela.": "Kanin eua: ATDEM, \"Proyecto Escuelas entrega Computadoras\" (hoja Concentrado). Kanin katej iga ojtle Google Maps tlen motlalij iga nochi kaltlamachtiloyan.",
  "Fuente: ATDEM, Agentes_dependencias La Tierra Que Nos Une": "Kanin eua: ATDEM, Agentes_dependencias La Tierra Que Nos Une",
  "Fuente: ATDEM, Proyecto Escuelas entrega Computadoras": "Kanin eua: ATDEM, Proyecto Escuelas entrega Computadoras",
+ "Fuente: ATDEM, registro de instalaciones de WiFi gratuito en comunidades.": "Kanin eua: ATDEM, itlajkuilol tlen WiFi amo iga tomin tlen motlalij ipan altepetsitsin.",
  "Fuente: ATDEM, registro de instalaciones en comunidades": "Kanin eua: ATDEM, itlajkuilol tlen motlalij ipan altepetsitsin",
  "Fuente: ATDEM, registro de sitios REEM. Municipio asignado con los límites municipales del INE.": "Kanin eua: ATDEM, sitios REEM. Altepetl motlalij iga itlalxelol altepemej tlen INE.",
  "Fuente: INE, límites municipales": "Kanin eua: INE, itlalxelol altepemej",
@@ -829,6 +830,7 @@ const TPBV_TRADUCCIONES_NA = {
  "Mapa de la red": "Tlalamatl iga matlatl",
  "Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.": "Tlalamatl iga matlatl Wi-Fi tlapojtok uan amo iga tomin tlen ATDEM ipan teguichiualoyan iga Kaltlayekana uan ipan altepetsitsin: kalmej, kanin mosaloua uan kenin motlalijtiga.",
  "Mapa de las {n} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.": "Tlalamatl iga {n} kaltlamachtiloyan kanin ATDEM kitlalij tepostlapoualli ipan polígono TPBV: tepostlapoualmej, temachtilistle uan kanin katej.",
+ "Mapa del WiFi gratuito de la ATDEM en comunidades: dónde ya está instalado y dónde está en proceso.": "Itlalamauj WiFi amo iga tomin tlen ATDEM ipan altepetsitsin: kanin ya motlalij uan kanin motlalijtiga.",
  "Marginación: {d}": "Iknoyotl: {d}",
  "Mayor concentración ({n} sitios)": "Kanin ogachi miak ({n} sitios)",
  "Mesa principal del encuentro, con más de mil representantes comunitarios.": "Achtopa tlapechtle ipan nechikolistle, iga ogachi miak ke se mil tlatlaga tlen kinixpantiaj altepetsitsin.",
@@ -989,6 +991,117 @@ const TPBV_TRADUCCIONES_NA = {
  "“El internet no puede seguir siendo un privilegio de pocos; es una herramienta de equidad social.”": "“Internet amo ueli san sansiguin kipiaske; ika internet nochi sepan tiuejueyij.”",
  "“La transformación digital en Morelos tiene un propósito claro: que ninguna niña o niño se quede atrás.”": "“Tlapatlalistle iga tepostlapoualli ipan Morelos kipia se melauak tlen guinegui: ma amigaj ichpogakonetl o piltontle mokaua iteipan.”"
 };
+</script>
+<script>
+/* EMBEBIDO: comun.js */
+// ---------------------------------------------------------------------------
+// Funciones comunes a las páginas del tablero (TPBV_2026_COMPLETO_PRO.html y
+// conectividad.html): formato, tarjetas, cifras (KPI) y animaciones de
+// entrada. Se carga ANTES que cualquier otro bloque de código (mapa, carrusel,
+// vistas y app.js).
+// ---------------------------------------------------------------------------
+
+const $ = (sel) => document.querySelector(sel);
+
+function fmtInt(n) {
+    if (n === null || n === undefined || n === '') return '—';
+    return Math.round(n).toLocaleString('es-MX');
+}
+
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function iconChip(icon, size = 'w-8 h-8', textSize = 'text-[20px]') {
+    return `<span class="${size} shrink-0 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center">
+        <span class="material-symbols-outlined ${textSize}">${icon}</span>
+    </span>`;
+}
+
+function cardHeader(icon, title, borderClass = 'border-outline-variant') {
+    return `<div class="flex items-center gap-2.5 mb-stack-md pb-3 border-b-2 ${borderClass}">
+        ${iconChip(icon)}
+        <h2 class="font-headline-md text-headline-md text-on-surface">${esc(title)}</h2>
+    </div>`;
+}
+
+function card(innerHtml, extraClasses = '') {
+    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow ${extraClasses}">${innerHtml}</div>`;
+}
+
+// Acento por tile: cada metrica clave tiene una identidad de color propia
+// (chip de icono). Los tokens accent-blue/accent-teal se definen en el config
+// de Tailwind de cada página (ver dashboard/design-tokens.md).
+const KPI_ACCENTS = {
+    primary: { border: 'border-primary', chipBg: 'bg-primary-container', chipText: 'text-on-primary-container' },
+    blue: { border: 'border-accent-blue', chipBg: 'bg-accent-blue/10', chipText: 'text-accent-blue' },
+    teal: { border: 'border-accent-teal', chipBg: 'bg-accent-teal/10', chipText: 'text-accent-teal' },
+    warning: { border: 'border-warning', chipBg: 'bg-warning/10', chipText: 'text-warning' },
+    error: { border: 'border-error', chipBg: 'bg-error-container', chipText: 'text-error' },
+    neutral: { border: 'border-outline-variant', chipBg: 'bg-surface-container-high', chipText: 'text-secondary' },
+};
+
+function kpiTile(icon, label, valueHtml, accentKey = 'neutral') {
+    const a = KPI_ACCENTS[accentKey] || KPI_ACCENTS.neutral;
+    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 ${a.border} flex items-center gap-4">
+        <span class="w-12 h-12 shrink-0 rounded-lg ${a.chipBg} ${a.chipText} flex items-center justify-center">
+            <span class="material-symbols-outlined text-[26px]">${icon}</span>
+        </span>
+        <div class="min-w-0">
+            <p class="font-label-bold text-label-bold text-on-surface-variant truncate">${esc(label)}</p>
+            ${valueHtml}
+        </div>
+    </div>`;
+}
+
+function kpiCount(icon, label, value, accentKey) {
+    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value text-on-surface leading-none kpi-value" data-target="${value || 0}">0</p>`, accentKey);
+}
+
+function kpiStatic(icon, label, text, colorClass = 'text-on-surface', accentKey) {
+    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value ${colorClass} leading-none truncate">${esc(text)}</p>`, accentKey);
+}
+
+// Cifra destacada (Karol SemiBold) con su texto (Inicio, Aulas, Red).
+function cifraDestacada(valor, texto) {
+    return `<div><p class="font-kpi-value text-kpi-value text-primary-container leading-none">${valor}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-1">${texto}</p></div>`;
+}
+
+// Enlace a la nota de Prensa de la que salen textos y fotos.
+function enlaceNota(url) {
+    return `<a href="${url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-body-md text-body-md text-primary-container underline underline-offset-2 w-fit">
+        Leer la nota completa <span class="material-symbols-outlined text-[18px]" aria-hidden="true">north_east</span></a>`;
+}
+
+// ---------------------------------------------------------------------------
+// Anima el conteo de las tarjetas KPI y el relleno de las barras de progreso
+// despues de cada (re)render del contenedor indicado (por omision #canvas,
+// el lienzo de Analisis Demografico).
+// ---------------------------------------------------------------------------
+const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function animateEntrances(container = document.getElementById('canvas')) {
+    if (!container) return;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        container.querySelectorAll('.progress-bar-fill').forEach((el) => el.classList.add('fill-in'));
+    }));
+
+    container.querySelectorAll('.kpi-value[data-target]').forEach((el) => {
+        const target = parseFloat(el.dataset.target);
+        if (!isFinite(target)) return;
+        if (REDUCED_MOTION) { el.textContent = fmtInt(target); return; }
+        const duration = 900;
+        const start = performance.now();
+        function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            el.textContent = fmtInt(target * eased);
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    });
+}
 </script>
 
 <script>
@@ -1500,18 +1613,6 @@ const ENCUENTRO_FOTOS = [
     ['encuentro-07.jpg', 'Promotoras y promotores que acompañan a las comunidades.'],
 ];
 
-// Cifra destacada (Karol SemiBold) con su texto; también la usa Aulas.
-function cifraDestacada(valor, texto) {
-    return `<div><p class="font-kpi-value text-kpi-value text-primary-container leading-none">${valor}</p>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-1">${texto}</p></div>`;
-}
-
-// Enlace a la nota de Prensa de la que salen textos y fotos.
-function enlaceNota(url) {
-    return `<a href="${url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-body-md text-body-md text-primary-container underline underline-offset-2 w-fit">
-        Leer la nota completa <span class="material-symbols-outlined text-[18px]" aria-hidden="true">north_east</span></a>`;
-}
-
 function inicioEncuentroHtml() {
     return `
     <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center rounded-3xl p-6 md:p-10 border border-outline-variant bg-surface-container-lowest" aria-labelledby="encuentro-titulo">
@@ -1598,7 +1699,6 @@ function migasIrAPoligono(poligono) {
 // Dashboard TPBV 2026 - logica de render, filtros y mapa.
 // Consume TPBV_DATA (definido en data.js), generado por scripts/build_dashboard_data.py
 
-const $ = (sel) => document.querySelector(sel);
 const canvas = $('#canvas');
 const selPoligono = $('#sel-poligono');
 // "Seleccionar Localidad" es un campo de busqueda (combobox), no un <select>
@@ -1637,6 +1737,11 @@ const HAY_BANCO_PROYECTOS = typeof TPBV_BANCO_PROYECTOS !== 'undefined';
 // usuario, 2026-10-16). Sus datos siguen incrustados (solo agregados); con
 // MOSTRAR_TELECOM = true vuelven la pildora, la vista y la tarjeta de Inicio.
 const MOSTRAR_TELECOM = false;
+// Red La tierra que nos une en el tablero TPBV: solo WiFi en comunidades
+// (pedido 2026-10-19). Oculta cifras, mapa, lista y conjunto de Datos
+// Abiertos de las oficinas de gobierno. red_view.js lo lee; conectividad.html
+// no carga app.js y sigue mostrando las oficinas.
+const RED_MOSTRAR_OFICINAS = false;
 const HAY_TELECOM = MOSTRAR_TELECOM && typeof TPBV_TELECOM !== 'undefined';
 
 let map = null;
@@ -1706,13 +1811,9 @@ if (window.ResizeObserver) {
 }
 
 // ---------------------------------------------------------------------------
-// Formato
+// Formato (fmtInt, esc, tarjetas, KPI y animateEntrances viven en comun.js,
+// compartido con conectividad.html)
 // ---------------------------------------------------------------------------
-function fmtInt(n) {
-    if (n === null || n === undefined || n === '') return '—';
-    return Math.round(n).toLocaleString('es-MX');
-}
-
 function pct(part, base) {
     if (part === null || part === undefined || !base) return null;
     return (part / base) * 100;
@@ -1721,10 +1822,6 @@ function pct(part, base) {
 function pctLabel(part, base) {
     const p = pct(part, base);
     return p === null ? '' : `(${p.toFixed(1)}%)`;
-}
-
-function esc(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 // ---------------------------------------------------------------------------
@@ -1795,19 +1892,6 @@ function renderPyramid(rec) {
     ${dependenciaHtml}`;
 }
 
-function iconChip(icon, size = 'w-8 h-8', textSize = 'text-[20px]') {
-    return `<span class="${size} shrink-0 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center">
-        <span class="material-symbols-outlined ${textSize}">${icon}</span>
-    </span>`;
-}
-
-function cardHeader(icon, title, borderClass = 'border-outline-variant') {
-    return `<div class="flex items-center gap-2.5 mb-stack-md pb-3 border-b-2 ${borderClass}">
-        ${iconChip(icon)}
-        <h2 class="font-headline-md text-headline-md text-on-surface">${esc(title)}</h2>
-    </div>`;
-}
-
 // Colores fijos de la comparacion territorial (ver seccion dedicada
 // "Propuesta Territorial" / renderPropuestaView), compartidos entre el
 // checkbox/legend y el estilo real de las capas en ensurePropuestaLayers.
@@ -1832,10 +1916,6 @@ function mapCardHeader() {
             <span class="flex items-center gap-1.5"><span class="inline-block w-4 h-3 rounded-sm" style="background:#C8CCB6;border:1.5px solid #71785B"></span>Polígono TPBV</span>
         </div>
     </div>`;
-}
-
-function card(innerHtml, extraClasses = '') {
-    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow ${extraClasses}">${innerHtml}</div>`;
 }
 
 // Etiqueta de agrupacion visual entre clusters de tarjetas tematicas. Es un
@@ -1868,19 +1948,6 @@ const MARGINACION_COLOR = {
     'Bajo': 'text-primary', 'Muy bajo': 'text-primary', 'ZAP Urbana': 'text-on-surface-variant'
 };
 
-// Acento por tile: cada metrica clave tiene una identidad de color propia
-// (borde superior + chip de icono) en vez del gris neutro plano, para que la
-// franja de KPI se lea de un vistazo como "lo mas importante de la pagina".
-// Los tokens accent-blue/accent-teal se definen en el config de Tailwind
-// (ver dashboard/design-tokens.md para la capa semantica completa).
-const KPI_ACCENTS = {
-    primary: { border: 'border-primary', chipBg: 'bg-primary-container', chipText: 'text-on-primary-container' },
-    blue: { border: 'border-accent-blue', chipBg: 'bg-accent-blue/10', chipText: 'text-accent-blue' },
-    teal: { border: 'border-accent-teal', chipBg: 'bg-accent-teal/10', chipText: 'text-accent-teal' },
-    warning: { border: 'border-warning', chipBg: 'bg-warning/10', chipText: 'text-warning' },
-    error: { border: 'border-error', chipBg: 'bg-error-container', chipText: 'text-error' },
-    neutral: { border: 'border-outline-variant', chipBg: 'bg-surface-container-high', chipText: 'text-secondary' },
-};
 const MARGINACION_ACCENT = {
     'Muy alto': 'error', 'Alto': 'warning', 'Medio': 'neutral',
     'Bajo': 'primary', 'Muy bajo': 'primary', 'ZAP Urbana': 'neutral'
@@ -1940,27 +2007,6 @@ function marginacionBarsHtml(data, opciones = {}) {
         </div>`).join('') + `</div>`;
 }
 
-function kpiTile(icon, label, valueHtml, accentKey = 'neutral') {
-    const a = KPI_ACCENTS[accentKey] || KPI_ACCENTS.neutral;
-    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 ${a.border} flex items-center gap-4">
-        <span class="w-12 h-12 shrink-0 rounded-lg ${a.chipBg} ${a.chipText} flex items-center justify-center">
-            <span class="material-symbols-outlined text-[26px]">${icon}</span>
-        </span>
-        <div class="min-w-0">
-            <p class="font-label-bold text-label-bold text-on-surface-variant truncate">${esc(label)}</p>
-            ${valueHtml}
-        </div>
-    </div>`;
-}
-
-function kpiCount(icon, label, value, accentKey) {
-    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value text-on-surface leading-none kpi-value" data-target="${value || 0}">0</p>`, accentKey);
-}
-
-function kpiStatic(icon, label, text, colorClass = 'text-on-surface', accentKey) {
-    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value ${colorClass} leading-none truncate">${esc(text)}</p>`, accentKey);
-}
-
 function renderKpiStrip(rec) {
     const tasa = pct(rec.afiliada, rec.pobTotal);
     const margAccent = MARGINACION_ACCENT[rec.gmMarginacion] || 'neutral';
@@ -1977,35 +2023,6 @@ function renderKpiStrip(rec) {
         ${kpiStatic('health_and_safety', 'Afiliación a Salud', tasa === null ? '—' : `${tasa.toFixed(1)}%`, 'text-on-surface', 'teal')}
         ${cuartaTile}
     </div>`;
-}
-
-// ---------------------------------------------------------------------------
-// Anima el conteo de las tarjetas KPI y el relleno de las barras de progreso
-// despues de cada re-render (ver render()/renderAggregateView() para #canvas,
-// renderInicioView() para #inicio-view). Recibe el contenedor porque no
-// siempre es #canvas: la franja de KPIs de Inicio vive en #inicio-view.
-// ---------------------------------------------------------------------------
-const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-function animateEntrances(container = canvas) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-        container.querySelectorAll('.progress-bar-fill').forEach((el) => el.classList.add('fill-in'));
-    }));
-
-    container.querySelectorAll('.kpi-value[data-target]').forEach((el) => {
-        const target = parseFloat(el.dataset.target);
-        if (!isFinite(target)) return;
-        if (REDUCED_MOTION) { el.textContent = fmtInt(target); return; }
-        const duration = 900;
-        const start = performance.now();
-        function tick(now) {
-            const t = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = fmtInt(target * eased);
-            if (t < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-    });
 }
 
 // ---------------------------------------------------------------------------
@@ -3313,7 +3330,9 @@ function renderInicioView() {
                 `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
             ${typeof TPBV_RED_LTQNU === 'undefined' ? '' : homeSectionCard('wifi', 'Red La tierra que nos une',
-                `Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.`,
+                RED_MOSTRAR_OFICINAS
+                    ? `Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.`
+                    : `Mapa del WiFi gratuito de la ATDEM en comunidades: dónde ya está instalado y dónde está en proceso.`,
                 'Ir a Red La tierra que nos une', 'red')}
             ${!HAY_TELECOM ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
                 `Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.`,
@@ -5208,7 +5227,8 @@ const DA_CONJUNTOS = [
     {
         id: 'red_la_tierra_que_nos_une', icono: 'wifi', titulo: 'Red La tierra que nos une',
         descripcion: 'Dependencias estatales con la red Wi-Fi pública de la ATDEM: secretaría, sede, coordenadas y puntos de acceso.',
-        fuente: 'ATDEM, Agentes_dependencias La Tierra Que Nos Une', disponible: () => typeof TPBV_RED_LTQNU !== 'undefined',
+        fuente: 'ATDEM, Agentes_dependencias La Tierra Que Nos Une',
+        disponible: () => typeof TPBV_RED_LTQNU !== 'undefined' && (typeof RED_MOSTRAR_OFICINAS === 'undefined' || RED_MOSTRAR_OFICINAS),
         filas: () => TPBV_RED_LTQNU.map(daAplanar),
         kml: () => daKmlPuntos('Red La tierra que nos une', 'Fuente: ATDEM',
             TPBV_RED_LTQNU.filter((r) => r.lat != null).map((r) => ({ props: daAplanar(r), lat: r.lat, lon: r.lon })),
@@ -5358,6 +5378,9 @@ const RED_COMUNIDADES = (typeof TPBV_RED_COMUNIDADES !== 'undefined') ? TPBV_RED
 const RED_COLOR_SEDE = '#773357';
 const RED_COLOR_INSTALADO = '#71785B';
 const RED_COLOR_EN_PROCESO = '#BC9B73';
+// El tablero TPBV define RED_MOSTRAR_OFICINAS = false (app.js) para mostrar
+// solo el WiFi en comunidades; conectividad.html no lo define y muestra todo.
+const redConOficinas = () => typeof RED_MOSTRAR_OFICINAS === 'undefined' || RED_MOSTRAR_OFICINAS;
 
 let redViewBuilt = false;
 let redMap = null;
@@ -5478,6 +5501,7 @@ function redPopupHtml(sede) {
 
 function redVistaHtml() {
     const r = redResumen();
+    const oficinas = redConOficinas();
     return `
     <div class="flex flex-col gap-4 max-w-5xl">
         <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">Conectividad pública · Agencia de Transformación Digital</span>
@@ -5498,13 +5522,13 @@ function redVistaHtml() {
         </ul>`)}
     </div>
     ${redComunidadesNotaHtml()}
-    <h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">Dependencias con red</h3>
+    ${!oficinas ? '' : `<h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">Dependencias con red</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter-grid">
         ${kpiCount('apartment', 'Dependencias con red', r.dependencias, 'primary')}
         ${kpiCount('account_balance', 'Secretarías y órganos', r.secretarias, 'teal')}
         ${kpiCount('location_on', 'Sedes conectadas', r.sedes, 'blue')}
         ${kpiCount('router', 'Puntos de acceso', r.puntos, 'warning')}
-    </div>
+    </div>`}
     ${RED_COMUNIDADES.length ? `
     <h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">WiFi gratuito en comunidades</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter-grid">
@@ -5517,7 +5541,7 @@ function redVistaHtml() {
         <div class="flex items-center justify-between gap-3 mb-stack-md pb-3 border-b-2 border-outline-variant flex-wrap">
             <div class="flex items-center gap-2.5">${iconChip('wifi')}<h2 class="font-headline-md text-headline-md text-on-surface">Mapa de la red</h2></div>
             <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                ${redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_SEDE};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_SEDE}`, 'Oficina de gobierno (el tamaño indica cuántas dependencias)')}
+                ${oficinas ? redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_SEDE};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_SEDE}`, 'Oficina de gobierno (el tamaño indica cuántas dependencias)') : ''}
                 ${RED_COMUNIDADES.length ? redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_INSTALADO};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_INSTALADO}`, 'Comunidad: instalado') : ''}
                 ${RED_COMUNIDADES.length ? redLeyendaItem(`width:12px;height:12px;background:#fff;border:3px solid ${RED_COLOR_EN_PROCESO}`, 'Comunidad: en proceso') : ''}
             </div>
@@ -5532,15 +5556,16 @@ function redVistaHtml() {
             <span class="font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant rounded-full px-2.5 py-0.5">${RED_COMUNIDADES.length}</span>
         </div>
         ${redComunidadesListaHtml()}`) : ''}
-    ${card(`
+    ${!oficinas ? '' : card(`
         <div class="flex items-center justify-between gap-2 mb-stack-md pb-3 border-b-2 border-outline-variant">
             <div class="flex items-center gap-2.5">${iconChip('list')}<h2 class="font-headline-md text-headline-md text-on-surface">Disponibilidad de WiFi gratuito en oficinas de gobierno</h2></div>
             <span class="font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant rounded-full px-2.5 py-0.5">${RED.length}</span>
         </div>
         <div id="red-lista"></div>`)}
-    <p class="font-body-md text-body-md text-on-surface-variant">
+    <p class="font-body-md text-body-md text-on-surface-variant">${oficinas ? `
         Fuente: ATDEM, "Agentes_dependencias La Tierra Que Nos Une" (dependencias con red La tierra que nos une) y registro de
-        instalaciones en comunidades. Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.
+        instalaciones en comunidades. Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.`
+        : 'Fuente: ATDEM, registro de instalaciones de WiFi gratuito en comunidades.'}
     </p>`;
 }
 
@@ -5581,6 +5606,7 @@ function redListaHtml() {
 
 function dibujarRedMarcadores() {
     redMarcadores = L.featureGroup().addTo(redMap);
+    if (!redConOficinas()) return;
     redSedes().forEach((s) => {
         const n = s.registros.length;
         const radio = 7 + Math.sqrt(n) * 3.2;
@@ -5613,7 +5639,7 @@ function dibujarRedComunidades() {
 function renderRedView() {
     if (!redViewBuilt) {
         $('#red-view').innerHTML = redVistaHtml();
-        $('#red-lista').innerHTML = redListaHtml();
+        if ($('#red-lista')) $('#red-lista').innerHTML = redListaHtml();
         redViewBuilt = true;
         iniciarCarrusel('carrusel-red');
         animateEntrances($('#red-view'));
@@ -5623,7 +5649,7 @@ function renderRedView() {
         // Las oficinas estan en Cuernavaca (municipio resaltado); las
         // comunidades, en todo el estado: el encuadre inicial es Morelos.
         redBase = agregarBaseMorelos(redMap, {
-            estilo: (f) => (normMunicipio(f.properties.NOMGEO) === 'cuernavaca' ? { ...MUNICIPIO_BASE, fillColor: TINTE_VERDE } : MUNICIPIO_BASE)
+            estilo: (f) => (redConOficinas() && normMunicipio(f.properties.NOMGEO) === 'cuernavaca' ? { ...MUNICIPIO_BASE, fillColor: TINTE_VERDE } : MUNICIPIO_BASE)
         });
         dibujarRedMarcadores();
         dibujarRedComunidades();

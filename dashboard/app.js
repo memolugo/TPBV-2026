@@ -1,7 +1,6 @@
 // Dashboard TPBV 2026 - logica de render, filtros y mapa.
 // Consume TPBV_DATA (definido en data.js), generado por scripts/build_dashboard_data.py
 
-const $ = (sel) => document.querySelector(sel);
 const canvas = $('#canvas');
 const selPoligono = $('#sel-poligono');
 // "Seleccionar Localidad" es un campo de busqueda (combobox), no un <select>
@@ -40,6 +39,11 @@ const HAY_BANCO_PROYECTOS = typeof TPBV_BANCO_PROYECTOS !== 'undefined';
 // usuario, 2026-10-16). Sus datos siguen incrustados (solo agregados); con
 // MOSTRAR_TELECOM = true vuelven la pildora, la vista y la tarjeta de Inicio.
 const MOSTRAR_TELECOM = false;
+// Red La tierra que nos une en el tablero TPBV: solo WiFi en comunidades
+// (pedido 2026-10-19). Oculta cifras, mapa, lista y conjunto de Datos
+// Abiertos de las oficinas de gobierno. red_view.js lo lee; conectividad.html
+// no carga app.js y sigue mostrando las oficinas.
+const RED_MOSTRAR_OFICINAS = false;
 const HAY_TELECOM = MOSTRAR_TELECOM && typeof TPBV_TELECOM !== 'undefined';
 
 let map = null;
@@ -109,13 +113,9 @@ if (window.ResizeObserver) {
 }
 
 // ---------------------------------------------------------------------------
-// Formato
+// Formato (fmtInt, esc, tarjetas, KPI y animateEntrances viven en comun.js,
+// compartido con conectividad.html)
 // ---------------------------------------------------------------------------
-function fmtInt(n) {
-    if (n === null || n === undefined || n === '') return '—';
-    return Math.round(n).toLocaleString('es-MX');
-}
-
 function pct(part, base) {
     if (part === null || part === undefined || !base) return null;
     return (part / base) * 100;
@@ -124,10 +124,6 @@ function pct(part, base) {
 function pctLabel(part, base) {
     const p = pct(part, base);
     return p === null ? '' : `(${p.toFixed(1)}%)`;
-}
-
-function esc(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 // ---------------------------------------------------------------------------
@@ -198,19 +194,6 @@ function renderPyramid(rec) {
     ${dependenciaHtml}`;
 }
 
-function iconChip(icon, size = 'w-8 h-8', textSize = 'text-[20px]') {
-    return `<span class="${size} shrink-0 rounded-lg bg-surface-container-high text-secondary flex items-center justify-center">
-        <span class="material-symbols-outlined ${textSize}">${icon}</span>
-    </span>`;
-}
-
-function cardHeader(icon, title, borderClass = 'border-outline-variant') {
-    return `<div class="flex items-center gap-2.5 mb-stack-md pb-3 border-b-2 ${borderClass}">
-        ${iconChip(icon)}
-        <h2 class="font-headline-md text-headline-md text-on-surface">${esc(title)}</h2>
-    </div>`;
-}
-
 // Colores fijos de la comparacion territorial (ver seccion dedicada
 // "Propuesta Territorial" / renderPropuestaView), compartidos entre el
 // checkbox/legend y el estilo real de las capas en ensurePropuestaLayers.
@@ -235,10 +218,6 @@ function mapCardHeader() {
             <span class="flex items-center gap-1.5"><span class="inline-block w-4 h-3 rounded-sm" style="background:#C8CCB6;border:1.5px solid #71785B"></span>Polígono TPBV</span>
         </div>
     </div>`;
-}
-
-function card(innerHtml, extraClasses = '') {
-    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow ${extraClasses}">${innerHtml}</div>`;
 }
 
 // Etiqueta de agrupacion visual entre clusters de tarjetas tematicas. Es un
@@ -271,19 +250,6 @@ const MARGINACION_COLOR = {
     'Bajo': 'text-primary', 'Muy bajo': 'text-primary', 'ZAP Urbana': 'text-on-surface-variant'
 };
 
-// Acento por tile: cada metrica clave tiene una identidad de color propia
-// (borde superior + chip de icono) en vez del gris neutro plano, para que la
-// franja de KPI se lea de un vistazo como "lo mas importante de la pagina".
-// Los tokens accent-blue/accent-teal se definen en el config de Tailwind
-// (ver dashboard/design-tokens.md para la capa semantica completa).
-const KPI_ACCENTS = {
-    primary: { border: 'border-primary', chipBg: 'bg-primary-container', chipText: 'text-on-primary-container' },
-    blue: { border: 'border-accent-blue', chipBg: 'bg-accent-blue/10', chipText: 'text-accent-blue' },
-    teal: { border: 'border-accent-teal', chipBg: 'bg-accent-teal/10', chipText: 'text-accent-teal' },
-    warning: { border: 'border-warning', chipBg: 'bg-warning/10', chipText: 'text-warning' },
-    error: { border: 'border-error', chipBg: 'bg-error-container', chipText: 'text-error' },
-    neutral: { border: 'border-outline-variant', chipBg: 'bg-surface-container-high', chipText: 'text-secondary' },
-};
 const MARGINACION_ACCENT = {
     'Muy alto': 'error', 'Alto': 'warning', 'Medio': 'neutral',
     'Bajo': 'primary', 'Muy bajo': 'primary', 'ZAP Urbana': 'neutral'
@@ -343,27 +309,6 @@ function marginacionBarsHtml(data, opciones = {}) {
         </div>`).join('') + `</div>`;
 }
 
-function kpiTile(icon, label, valueHtml, accentKey = 'neutral') {
-    const a = KPI_ACCENTS[accentKey] || KPI_ACCENTS.neutral;
-    return `<div class="bg-surface-container-lowest rounded-xl p-card-padding card-shadow border-t-4 ${a.border} flex items-center gap-4">
-        <span class="w-12 h-12 shrink-0 rounded-lg ${a.chipBg} ${a.chipText} flex items-center justify-center">
-            <span class="material-symbols-outlined text-[26px]">${icon}</span>
-        </span>
-        <div class="min-w-0">
-            <p class="font-label-bold text-label-bold text-on-surface-variant truncate">${esc(label)}</p>
-            ${valueHtml}
-        </div>
-    </div>`;
-}
-
-function kpiCount(icon, label, value, accentKey) {
-    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value text-on-surface leading-none kpi-value" data-target="${value || 0}">0</p>`, accentKey);
-}
-
-function kpiStatic(icon, label, text, colorClass = 'text-on-surface', accentKey) {
-    return kpiTile(icon, label, `<p class="font-kpi-value text-kpi-value ${colorClass} leading-none truncate">${esc(text)}</p>`, accentKey);
-}
-
 function renderKpiStrip(rec) {
     const tasa = pct(rec.afiliada, rec.pobTotal);
     const margAccent = MARGINACION_ACCENT[rec.gmMarginacion] || 'neutral';
@@ -380,35 +325,6 @@ function renderKpiStrip(rec) {
         ${kpiStatic('health_and_safety', 'Afiliación a Salud', tasa === null ? '—' : `${tasa.toFixed(1)}%`, 'text-on-surface', 'teal')}
         ${cuartaTile}
     </div>`;
-}
-
-// ---------------------------------------------------------------------------
-// Anima el conteo de las tarjetas KPI y el relleno de las barras de progreso
-// despues de cada re-render (ver render()/renderAggregateView() para #canvas,
-// renderInicioView() para #inicio-view). Recibe el contenedor porque no
-// siempre es #canvas: la franja de KPIs de Inicio vive en #inicio-view.
-// ---------------------------------------------------------------------------
-const REDUCED_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-function animateEntrances(container = canvas) {
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-        container.querySelectorAll('.progress-bar-fill').forEach((el) => el.classList.add('fill-in'));
-    }));
-
-    container.querySelectorAll('.kpi-value[data-target]').forEach((el) => {
-        const target = parseFloat(el.dataset.target);
-        if (!isFinite(target)) return;
-        if (REDUCED_MOTION) { el.textContent = fmtInt(target); return; }
-        const duration = 900;
-        const start = performance.now();
-        function tick(now) {
-            const t = Math.min(1, (now - start) / duration);
-            const eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = fmtInt(target * eased);
-            if (t < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-    });
 }
 
 // ---------------------------------------------------------------------------
@@ -1716,7 +1632,9 @@ function renderInicioView() {
                 `Mapa de las ${fmtInt(typeof TPBV_AULAS_TECNOLOGICAS !== 'undefined' ? TPBV_AULAS_TECNOLOGICAS.length : 0)} escuelas donde ATDEM instaló aulas de cómputo en los polígonos TPBV: computadoras, nivel educativo y ubicación de cada una.`,
                 'Ir a Aulas Tecnológicas', 'aulas')}
             ${typeof TPBV_RED_LTQNU === 'undefined' ? '' : homeSectionCard('wifi', 'Red La tierra que nos une',
-                `Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.`,
+                RED_MOSTRAR_OFICINAS
+                    ? `Mapa de la red Wi-Fi pública y gratuita de la ATDEM en oficinas de gobierno y en comunidades: sedes, puntos de acceso y avance de instalación.`
+                    : `Mapa del WiFi gratuito de la ATDEM en comunidades: dónde ya está instalado y dónde está en proceso.`,
                 'Ir a Red La tierra que nos une', 'red')}
             ${!HAY_TELECOM ? '' : homeSectionCard('cell_tower', 'Infraestructura de Telecomunicaciones',
                 `Sitios y torres de la red estatal por municipio y sector (gobierno, educación, salud y seguridad). Por seguridad se muestran solo de forma agregada.`,

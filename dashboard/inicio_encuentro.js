@@ -18,18 +18,6 @@ const ENCUENTRO_FOTOS = [
     ['encuentro-07.jpg', 'Promotoras y promotores que acompañan a las comunidades.'],
 ];
 
-// Cifra destacada (Karol SemiBold) con su texto; también la usa Aulas.
-function cifraDestacada(valor, texto) {
-    return `<div><p class="font-kpi-value text-kpi-value text-primary-container leading-none">${valor}</p>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-1">${texto}</p></div>`;
-}
-
-// Enlace a la nota de Prensa de la que salen textos y fotos.
-function enlaceNota(url) {
-    return `<a href="${url}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-body-md text-body-md text-primary-container underline underline-offset-2 w-fit">
-        Leer la nota completa <span class="material-symbols-outlined text-[18px]" aria-hidden="true">north_east</span></a>`;
-}
-
 function inicioEncuentroHtml() {
     return `
     <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center rounded-3xl p-6 md:p-10 border border-outline-variant bg-surface-container-lowest" aria-labelledby="encuentro-titulo">

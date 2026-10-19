@@ -19,6 +19,9 @@ const RED_COMUNIDADES = (typeof TPBV_RED_COMUNIDADES !== 'undefined') ? TPBV_RED
 const RED_COLOR_SEDE = '#773357';
 const RED_COLOR_INSTALADO = '#71785B';
 const RED_COLOR_EN_PROCESO = '#BC9B73';
+// El tablero TPBV define RED_MOSTRAR_OFICINAS = false (app.js) para mostrar
+// solo el WiFi en comunidades; conectividad.html no lo define y muestra todo.
+const redConOficinas = () => typeof RED_MOSTRAR_OFICINAS === 'undefined' || RED_MOSTRAR_OFICINAS;
 
 let redViewBuilt = false;
 let redMap = null;
@@ -139,6 +142,7 @@ function redPopupHtml(sede) {
 
 function redVistaHtml() {
     const r = redResumen();
+    const oficinas = redConOficinas();
     return `
     <div class="flex flex-col gap-4 max-w-5xl">
         <span class="font-label-bold text-label-bold uppercase tracking-wider text-secondary">Conectividad pública · Agencia de Transformación Digital</span>
@@ -159,13 +163,13 @@ function redVistaHtml() {
         </ul>`)}
     </div>
     ${redComunidadesNotaHtml()}
-    <h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">Dependencias con red</h3>
+    ${!oficinas ? '' : `<h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">Dependencias con red</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter-grid">
         ${kpiCount('apartment', 'Dependencias con red', r.dependencias, 'primary')}
         ${kpiCount('account_balance', 'Secretarías y órganos', r.secretarias, 'teal')}
         ${kpiCount('location_on', 'Sedes conectadas', r.sedes, 'blue')}
         ${kpiCount('router', 'Puntos de acceso', r.puntos, 'warning')}
-    </div>
+    </div>`}
     ${RED_COMUNIDADES.length ? `
     <h3 class="font-headline-lg text-headline-lg text-on-surface pt-2" style="font-size:28px;line-height:34px">WiFi gratuito en comunidades</h3>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter-grid">
@@ -178,7 +182,7 @@ function redVistaHtml() {
         <div class="flex items-center justify-between gap-3 mb-stack-md pb-3 border-b-2 border-outline-variant flex-wrap">
             <div class="flex items-center gap-2.5">${iconChip('wifi')}<h2 class="font-headline-md text-headline-md text-on-surface">Mapa de la red</h2></div>
             <div class="flex flex-wrap items-center gap-x-5 gap-y-1.5">
-                ${redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_SEDE};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_SEDE}`, 'Oficina de gobierno (el tamaño indica cuántas dependencias)')}
+                ${oficinas ? redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_SEDE};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_SEDE}`, 'Oficina de gobierno (el tamaño indica cuántas dependencias)') : ''}
                 ${RED_COMUNIDADES.length ? redLeyendaItem(`width:12px;height:12px;background:${RED_COLOR_INSTALADO};border:2px solid #fff;box-shadow:0 0 0 1px ${RED_COLOR_INSTALADO}`, 'Comunidad: instalado') : ''}
                 ${RED_COMUNIDADES.length ? redLeyendaItem(`width:12px;height:12px;background:#fff;border:3px solid ${RED_COLOR_EN_PROCESO}`, 'Comunidad: en proceso') : ''}
             </div>
@@ -193,15 +197,16 @@ function redVistaHtml() {
             <span class="font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant rounded-full px-2.5 py-0.5">${RED_COMUNIDADES.length}</span>
         </div>
         ${redComunidadesListaHtml()}`) : ''}
-    ${card(`
+    ${!oficinas ? '' : card(`
         <div class="flex items-center justify-between gap-2 mb-stack-md pb-3 border-b-2 border-outline-variant">
             <div class="flex items-center gap-2.5">${iconChip('list')}<h2 class="font-headline-md text-headline-md text-on-surface">Disponibilidad de WiFi gratuito en oficinas de gobierno</h2></div>
             <span class="font-label-bold text-label-bold bg-surface-container-high text-on-surface-variant rounded-full px-2.5 py-0.5">${RED.length}</span>
         </div>
         <div id="red-lista"></div>`)}
-    <p class="font-body-md text-body-md text-on-surface-variant">
+    <p class="font-body-md text-body-md text-on-surface-variant">${oficinas ? `
         Fuente: ATDEM, "Agentes_dependencias La Tierra Que Nos Une" (dependencias con red La tierra que nos une) y registro de
-        instalaciones en comunidades. Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.
+        instalaciones en comunidades. Puntos de acceso según el registro de la ATDEM; algunas dependencias no tienen el dato capturado.`
+        : 'Fuente: ATDEM, registro de instalaciones de WiFi gratuito en comunidades.'}
     </p>`;
 }
 
@@ -242,6 +247,7 @@ function redListaHtml() {
 
 function dibujarRedMarcadores() {
     redMarcadores = L.featureGroup().addTo(redMap);
+    if (!redConOficinas()) return;
     redSedes().forEach((s) => {
         const n = s.registros.length;
         const radio = 7 + Math.sqrt(n) * 3.2;
@@ -274,7 +280,7 @@ function dibujarRedComunidades() {
 function renderRedView() {
     if (!redViewBuilt) {
         $('#red-view').innerHTML = redVistaHtml();
-        $('#red-lista').innerHTML = redListaHtml();
+        if ($('#red-lista')) $('#red-lista').innerHTML = redListaHtml();
         redViewBuilt = true;
         iniciarCarrusel('carrusel-red');
         animateEntrances($('#red-view'));
@@ -284,7 +290,7 @@ function renderRedView() {
         // Las oficinas estan en Cuernavaca (municipio resaltado); las
         // comunidades, en todo el estado: el encuadre inicial es Morelos.
         redBase = agregarBaseMorelos(redMap, {
-            estilo: (f) => (normMunicipio(f.properties.NOMGEO) === 'cuernavaca' ? { ...MUNICIPIO_BASE, fillColor: TINTE_VERDE } : MUNICIPIO_BASE)
+            estilo: (f) => (redConOficinas() && normMunicipio(f.properties.NOMGEO) === 'cuernavaca' ? { ...MUNICIPIO_BASE, fillColor: TINTE_VERDE } : MUNICIPIO_BASE)
         });
         dibujarRedMarcadores();
         dibujarRedComunidades();

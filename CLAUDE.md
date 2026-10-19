@@ -45,6 +45,31 @@ El HTML usa saltos de línea **CRLF**.
 
 `dashboard/index.html` es una versión vieja y **no se usa**.
 
+### Segunda página: Conectividad
+
+`dashboard/conectividad.html` (2026-10-19) es otra página autocontenida, con el
+mismo shell (tipografías, colores, barra de utilidad, footer) y menú propio:
+**Inicio** (resumen, `conectividad.js`), **Telecomunicaciones**
+(`telecom_view.js`) y **Red La tierra que nos une** (`red_view.js`), más un
+enlace a tpbv.morelos.gob.mx. La vista activa va en el hash (`#telecom`,
+`#red`). Usa los mismos `.js` que el tablero; `embed_dashboard.py` actualiza
+**las dos páginas** (`PAGINAS`): la de Conectividad ya trae sus bloques en orden
+(para agregar uno, ponerlo en su `"nuevos"`).
+
+- URL: https://memolugo.github.io/TPBV-2026/dashboard/conectividad.html. Por
+  ser archivo nuevo, el proxy de tpbv.morelos.gob.mx **no la sirve** (400)
+  hasta que se configure; mientras, solo por GitHub Pages.
+- Orden de bloques: `limites_municipales · red_ltqnu · red_comunidades ·
+  telecom · traducciones_na · comun · mapa_morelos · carrusel · telecom_view ·
+  red_view · conectividad · accesibilidad · i18n`.
+- El shell se edita a mano (CRLF). Sin `og:image` (la imagen de compartir es de TPBV).
+- En el tablero TPBV, Telecomunicaciones sigue oculta (`MOSTRAR_TELECOM`) y Red sigue visible.
+
+`comun.js` (en ambas páginas, antes de cualquier otro bloque de código): `$`,
+`fmtInt`, `esc`, `iconChip`, `cardHeader`, `card`, `KPI_ACCENTS`, `kpiTile`,
+`kpiCount`, `kpiStatic`, `cifraDestacada`, `enlaceNota`, `REDUCED_MOTION`,
+`animateEntrances`. Antes vivían en `app.js` / `inicio_encuentro.js`.
+
 ### Por qué todo va incrustado
 
 `tpbv.morelos.gob.mx` sirve el HTML a través de un proxy (openresty) que
@@ -64,6 +89,7 @@ El proxy cachea hasta 10 min (`max-age=600`): tras publicar, recargar con Ctrl+F
 data.js · poligonos.js · limites_municipales.js · poligonos_actual_nombres.js
 aulas_tecnologicas.js · red_ltqnu.js · red_comunidades.js · telecom.js (datos)
 traducciones_na.js                                       (diccionario náhuatl)
+comun.js                                                 (funciones comunes a las dos páginas)
 mapa_morelos.js · inicio_contexto.js · carrusel.js · inicio_buscador.js · inicio_encuentro.js · analisis_migas.js (antes de app.js)
 app.js
 aulas_mapa.js · aulas_contexto.js · aulas_view.js
@@ -109,7 +135,7 @@ contenedor `<div id="X-view">` en el shell, `<li>` en `#sidebar-nav`, entrada en
 | Inicio (landing) | `inicio` | `renderInicioView` (app.js) + `inicio_contexto.js` + `inicio_buscador.js` + `inicio_encuentro.js` | Presentación (boletín 01831) con fecha de corte de los datos, buscador ciudadano «¿Tu comunidad está en el programa?», cita de la Gobernadora, Segundo Encuentro Estatal (nota del 10/10/2026) con carrusel de 7 fotos, cómo funciona, cifras, hitos, gráfica de marginación agrupada, tarjetas de secciones, cómo empezar. Vista inicial. |
 | Análisis Demográfico | `analisis` | app.js (`render`, `renderMap`, `renderAggregate*`) | Arranca en "Todos los Polígonos". Mapa solo Morelos con los 26 polígonos siempre encendidos y las localidades. |
 | Aulas Tecnológicas | `aulas` | `aulas_contexto.js`, `aulas_view.js`, `aulas_mapa.js` | 45 escuelas ATDEM. Contexto del boletín 06206; entrega en la Primaria Miguel Hidalgo de Temixco (nota del 12/04/2026) con carrusel de 4 fotos y botón al mapa (por CCT `AULAS_TEMIXCO_CCT`). |
-| Red La tierra que nos une | `red` | `red_view.js` | Wi-Fi pública ATDEM en oficinas de gobierno (mora, Cuernavaca resaltado) y en comunidades (verde = instalado, aro oro = en proceso). Sección «Internet gratuito en comunidades prioritarias» (nota del 07/08/2026) con carrusel de 4 fotos. Mapa encuadrado a Morelos. Lista «Disponibilidad de WiFi gratuito en oficinas de gobierno» (antes «Dependencias por secretaría»). |
+| Red La tierra que nos une | `red` | `red_view.js` | En el tablero TPBV, **solo WiFi en comunidades** desde 2026-10-19 (`RED_MOSTRAR_OFICINAS = false` en app.js); conectividad.html muestra también las oficinas de gobierno (mora, Cuernavaca resaltado). Comunidades (verde = instalado, aro oro = en proceso). Sección «Internet gratuito en comunidades prioritarias» (nota del 07/08/2026) con carrusel de 4 fotos. Mapa encuadrado a Morelos. Lista «Disponibilidad de WiFi gratuito en oficinas de gobierno» (antes «Dependencias por secretaría»). |
 | Telecomunicaciones | `telecom` | `telecom_view.js` | Sitios REEM **agregados** por municipio (coropleta). **Oculta desde 2026-10-16** (`MOSTRAR_TELECOM = false` en app.js): sin píldora, sin tarjeta en Inicio y `showView('telecom')` lleva a Inicio. Los datos agregados siguen incrustados. |
 | Datos Abiertos | `datos` | `datos_abiertos.js` | CSV/KML generados en el navegador desde los datos incrustados. Cada conjunto declara `disponible()`. |
 | Reportes | `printReport()` | app.js | Documento formal para imprimir/PDF. |
@@ -296,6 +322,7 @@ y solos.
 - **Náhuatl:** revisión del borrador por un traductor de Morelos (plantilla `traducciones/Traduccion_nahuatl_tablero.xlsx`). El botón ya es público.
 - **Repo público:** los archivos de la Nueva Propuesta y del Banco siguen en el historial (hacer privado o borrar).
 - **Telecomunicaciones:** decidir cuándo vuelve a mostrarse y si Seguridad se desglosa por municipio.
+- **Conectividad:** pedir que el proxy sirva `conectividad.html` (o un subdominio); traducir al náhuatl sus textos nuevos (el extractor solo recorre el tablero TPBV); decidir si la píldora Red sale del tablero TPBV; imagen para compartir propia.
 - **Landing:** compilar Tailwind (hoy CDN de desarrollo), analítica de visitas, contacto del área responsable, pies de foto oficiales de Comunicación Social.
 - **Logos del portal** (`logo-morelos.svg`, `logo-morelos-footer.svg`): subirlos al repo LOGOS-GEM para que la skill no dependa de TPBV.
 
@@ -324,6 +351,8 @@ y solos.
 | 2026-10-19 | `ae2324e` | Citas de Inicio y Aulas más chicas (`clamp(18px,1.8vw,24px)`); CLAUDE.md al día: recursos por GitHub Pages, estado de la traducción, pendientes, skill de web oficial. |
 | 2026-10-19 | `b31eeb4` | Datos Abiertos: «Localidades TPBV 2026» y «Polígonos TPBV 2026» (antes «· Propuesta Actual»); descargas `tpbv2026_localidades` / `tpbv2026_poligonos`; traducción al náhuatl ajustada. |
 | 2026-10-19 | `02f6330` | Tres Marías (Huitzilac) pasa de «ZAP Urbana» a grado Alto (CONAPO IMU 2020 por AGEB). |
-| 2026-10-19 | *(este commit)* | Morelos Design System: ancho máximo 1440 px, colores de estado del DS, «y Buen Vivir 2026» con contraste AA, descargas con contorno, `accesibilidad.js` (aviso de pestaña nueva, íconos ocultos), tarjetas clicables (`card-enlace`), enlaces subrayados y ruta de navegación en Análisis (`analisis_migas.js`). |
+| 2026-10-19 | `5feaab7` | Morelos Design System: ancho máximo 1440 px, colores de estado del DS, «y Buen Vivir 2026» con contraste AA, descargas con contorno, `accesibilidad.js` (aviso de pestaña nueva, íconos ocultos), tarjetas clicables (`card-enlace`), enlaces subrayados y ruta de navegación en Análisis (`analisis_migas.js`). |
+| 2026-10-19 | *(este commit)* | Página nueva `conectividad.html` (Telecomunicaciones + Red La tierra que nos une); `comun.js` con las funciones compartidas; `embed_dashboard.py` procesa varias páginas (`PAGINAS`). |
+| 2026-10-19 | *(este commit)* | Red en el tablero TPBV: solo WiFi en comunidades (`RED_MOSTRAR_OFICINAS = false` en app.js oculta cifras, mapa, lista y conjunto de Datos Abiertos de oficinas; conectividad.html los sigue mostrando). |
 
 Mantener esta tabla al día al publicar cambios.
