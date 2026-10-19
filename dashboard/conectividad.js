@@ -16,6 +16,45 @@ const CONECT_VISTAS = {
 
 let conectInicioBuilt = false;
 
+// Nota de Prensa: boletín 01559 (03/04/2025). Fotos copiadas a
+// dashboard/assets/conectividad/ (verticales, carrusel 3:4). Los pies los
+// redactamos nosotros: la nota no los trae y no nombra a quien aparece.
+const CONECT_NOTA_URL = 'https://www.morelos.gob.mx/ultimas-noticias/impulsa-gobierno-estatal-conectividad-digital-para-las-y-los-morelenses';
+const CONECT_FOTOS = [
+    ['conectividad-01.jpg', 'Estación de carga con internet gratuito de «La tierra que nos une» en un espacio público.'],
+    ['conectividad-02.jpg', 'Entrevista con medios sobre la red pública de internet gratuito.'],
+];
+
+function conectNotaHtml() {
+    return `
+    <section class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center rounded-3xl p-6 md:p-10 border border-outline-variant bg-surface-container-lowest" aria-labelledby="conect-nota-titulo">
+        <div class="lg:col-span-3 flex flex-col gap-4">
+            <h2 id="conect-nota-titulo" class="font-headline-lg text-headline-lg text-on-surface" style="font-size:30px;line-height:36px">Conectividad digital para las y los morelenses</h2>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">
+                Para reducir la brecha digital y garantizar el acceso equitativo a la tecnología, el Gobierno del Estado, a través de
+                la Agencia de Transformación Digital, instala puntos de conectividad gratuita en espacios públicos y comunidades.
+                En una primera etapa, la red pública «La tierra que nos une» ya opera en el centro de Cuernavaca, abierta a la
+                ciudadanía y visitantes; el objetivo es llevarla a zonas rurales, comunidades marginadas y espacios educativos.
+            </p>
+            <ul class="flex flex-col gap-2 font-body-md text-body-md text-on-surface-variant">
+                ${[['wifi', 'Zonas Wi-Fi en puntos estratégicos del estado.'],
+                    ['description', 'Acceso a servicios en línea y trámites gubernamentales.'],
+                    ['school', 'Educación a distancia y productividad de estudiantes y trabajadores.']].map(([icono, texto]) => `
+                <li class="flex items-start gap-2.5"><span class="material-symbols-outlined text-secondary text-[20px] shrink-0" aria-hidden="true">${icono}</span><span>${texto}</span></li>`).join('')}
+            </ul>
+            <blockquote class="font-body-lg text-body-lg text-on-surface pl-4" style="border-left:3px solid #BC9B73">
+                “La conectividad digital no es un privilegio, es una necesidad que estamos garantizando para todas y todos.”
+                <span class="block font-body-md text-body-md text-on-surface-variant mt-1">Samuel Rivera Muciño, titular de la ATDEM</span>
+            </blockquote>
+            ${enlaceNota(CONECT_NOTA_URL)}
+        </div>
+        <div class="lg:col-span-2 flex flex-col gap-2">
+            ${carruselHtml({ id: 'carrusel-conectividad', etiqueta: 'Fotos de la red pública de internet gratuito', carpeta: 'conectividad', fotos: CONECT_FOTOS, vertical: true })}
+            <p class="font-label-bold text-label-bold text-on-surface-variant text-center">Fotos: Gobierno del Estado de Morelos</p>
+        </div>
+    </section>`;
+}
+
 function conectTarjetaSeccion({ vista, icono, titulo, texto, cifras }) {
     return `<div class="card-enlace bg-surface-container-lowest rounded-xl p-card-padding card-shadow flex flex-col gap-4">
         <span class="w-12 h-12 shrink-0 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center">
@@ -47,6 +86,7 @@ function conectInicioHtml() {
         ${kpiCount('apartment', 'Dependencias con WiFi gratuito', red.dependencias, 'blue')}
         ${kpiCount('wifi', 'Comunidades con WiFi gratuito', RED_COMUNIDADES.length, 'warning')}
     </div>
+    ${conectNotaHtml()}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter-grid">
         ${conectTarjetaSeccion({
             vista: 'telecom', icono: 'cell_tower', titulo: 'Infraestructura de Telecomunicaciones',
@@ -65,6 +105,7 @@ function renderConectInicio() {
     if (conectInicioBuilt) return;
     $('#conect-inicio-view').innerHTML = conectInicioHtml();
     conectInicioBuilt = true;
+    iniciarCarrusel('carrusel-conectividad');
     animateEntrances($('#conect-inicio-view'));
 }
 

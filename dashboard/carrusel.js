@@ -11,7 +11,8 @@
 // nuevos de assets/ (ver CLAUDE.md). Solo en local (servidor de pruebas o
 // archivo abierto) se usa la ruta relativa, para verlas antes de publicar.
 //
-// Uso: carruselHtml({ id, etiqueta, carpeta, fotos: [[archivo, pie], ...] })
+// Uso: carruselHtml({ id, etiqueta, carpeta, fotos: [[archivo, pie], ...], vertical })
+// (vertical: true para fotos 3:4, p. ej. Conectividad; por omision 3:2)
 // devuelve el HTML; iniciarCarrusel(id) conecta los controles una vez que el
 // HTML está en el DOM. Se carga ANTES de app.js (Inicio se pinta al arrancar).
 // ---------------------------------------------------------------------------
@@ -24,18 +25,18 @@ function carruselBase(carpeta) {
     return `${local ? '' : CARRUSEL_PAGES_URL}assets/${carpeta}/`;
 }
 
-function carruselHtml({ id, etiqueta, carpeta, fotos }) {
+function carruselHtml({ id, etiqueta, carpeta, fotos, vertical = false }) {
     const base = carruselBase(carpeta);
     const total = fotos.length;
     const slides = fotos.map(([archivo, pie], i) => `
         <figure class="carrusel-slide" role="group" aria-roledescription="diapositiva" aria-label="${i + 1} de ${total}">
-            <img src="${base}${archivo}" alt="${esc(pie)}" ${i ? 'loading="lazy"' : ''} width="1280" height="854">
+            <img src="${base}${archivo}" alt="${esc(pie)}" ${i ? 'loading="lazy"' : ''} width="${vertical ? 1200 : 1280}" height="${vertical ? 1600 : 854}">
             <figcaption>${esc(pie)}</figcaption>
         </figure>`).join('');
     const puntos = fotos.map((_, i) =>
         `<button type="button" class="carrusel-punto" data-ir="${i}" aria-label="Ver foto ${i + 1} de ${total}"></button>`).join('');
     return `
-    <div class="carrusel" id="${id}" role="region" aria-roledescription="carrusel" aria-label="${esc(etiqueta)}">
+    <div class="carrusel${vertical ? ' carrusel-vertical' : ''}" id="${id}" role="region" aria-roledescription="carrusel" aria-label="${esc(etiqueta)}">
         <div class="carrusel-pista" tabindex="0">${slides}</div>
         <button type="button" class="carrusel-flecha izq" data-mover="-1" aria-label="Foto anterior"><span class="material-symbols-outlined" aria-hidden="true">chevron_left</span></button>
         <button type="button" class="carrusel-flecha der" data-mover="1" aria-label="Foto siguiente"><span class="material-symbols-outlined" aria-hidden="true">chevron_right</span></button>
